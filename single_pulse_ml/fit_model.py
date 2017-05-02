@@ -37,6 +37,10 @@ def fit_svm(fn_training_data, n_components=10):
 
 def predict_test(data_test, model, y_test=None, pca=None):
 
+
+	target_names = np.array(['RFI', 'Pulse'],
+      dtype='|S17')
+
 	if pca is not None:
 		data_test = pca.transform(data_test)
 
