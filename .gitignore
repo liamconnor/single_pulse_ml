@@ -1,0 +1,5 @@
+*.pyc
+
+./single_pulse_ml/data/
+
+/*.egg-info
