@@ -63,15 +63,18 @@ print "\nData set has %d pulses %d nonpulses\n" \
 
 
 if train_set is True:
+    print train_set
     reader.write_data(data_full, y, './single_pulse_ml/data/training_data_pf%s.npy' % array_name)
     model, pca = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
     reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
     reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)
 
 if train_set is False:
+    print train_set
     reader.write_data(data_full, y, 'test_data_pf%s.npy' % array_name)
 
 if run_predict is True:
+    print run_predict
     model = reader.read_pkl('./single_pulse_ml/model/training_data_pf_model%s.pkl' % array_name)
     pca = reader.read_pkl('./single_pulse_ml/model/training_data_pf_pca%s.pkl' % array_name)
     data_test, y_test = reader.read_data('test_data_pf%s.npy' % array_name)
