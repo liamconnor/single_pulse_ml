@@ -9,18 +9,19 @@ import matplotlib.pyplot as plt
 import fit_model
 import reader
 
+# Data directory
 dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
-array_name = 'Freq'
-train_set = False
-run_fit = True
+
+array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
+train_set = False # Creates training set if True, creates test set if False
+run_predict = True # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375)
 #DMsim = (287,)
 
 fl = glob.glob('%sDM*%s*.npy' % (dir_name, array_name))
-#fl = glob.glob('/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/DM*DM*npy')
 
 data_full, y = [], []
 
@@ -41,7 +42,6 @@ ndm, ntimes = data.shape
 data_full.shape = (len(y), -1)
 data_full[data_full!=data_full] = 0.0
 y = np.array(y)
-print y
 
 if train_set is True:
     reader.write_training_data(data_full, y, 'training_data_pf%s.npy' % array_name)
@@ -52,7 +52,7 @@ if train_set is True:
 if train_set is False:
     reader.write_training_data(data_full, y, 'test_data_pf%s.npy' % array_name)
 
-if run_fit is True:
+if run_predict is True:
     model = reader.read_pkl('training_data_pf_model%s.pkl' % array_name)
     pca = reader.read_pkl('training_data_pf_pca%s.pkl' % array_name)
     data_test, y_test = reader.read_training_data('test_data_pf%s.npy' % array_name)
