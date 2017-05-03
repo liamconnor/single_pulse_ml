@@ -1,6 +1,11 @@
 import glob
 import numpy as np
 
+# Allows for plotting with no $DISPLAY environment variable 
+import matplotlib 
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import fit_model
 import reader
 import plot_tools
