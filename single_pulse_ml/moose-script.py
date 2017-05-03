@@ -15,8 +15,7 @@ assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 # Data directory
 
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
-dir_name = '/home/connor/python_envs/2.7_L1mock/src/\
-    ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/' # good test
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/' # good test
 
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/\
 #    ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/' # good train set
