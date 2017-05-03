@@ -27,7 +27,7 @@ DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
 plot = True
 
-print argv
+print sys.argv
 print train_set, run_predict
 
 # Grab all the files in directory 
