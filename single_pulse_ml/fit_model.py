@@ -16,7 +16,7 @@ import reader
 nfreq = 16
 
 def fit_svm(fn_training_data, n_components=10):
-	data_train, y_train = reader.read_training_data(fn_training_data)
+	data_train, y_train = reader.read_data(fn_training_data)
 
 	ntimes = data_train.shape[-1] // 16
 

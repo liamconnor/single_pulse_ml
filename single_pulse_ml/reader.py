@@ -119,12 +119,12 @@ def combine_data_FT(fn):
 
 	return data_full, np.array(y)
 
-def write_training_data(data, y, fname='out'):
+def write_data(data, y, fname='out'):
 	training_arr = np.concatenate((data, y[:, None]), axis=-1)
 
 	np.save(fname, training_arr)
 
-def read_training_data(fn):
+def read_data(fn):
 	arr = np.load(fn)
 	data, y = arr[:, :-1], arr[:, -1]
 
@@ -173,7 +173,7 @@ def create_training_set(FT=True, fout='./single_pulse_ml/data/data_freqtime_trai
 	else:
 		data, y = combine_data_DT()
 
-	write_training_data(data, y, fname=fout)
+	write_data(data, y, fname=fout)
 
 
 
