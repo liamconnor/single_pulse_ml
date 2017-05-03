@@ -17,7 +17,7 @@ dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_inco
 array_name = 'DM' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
 train_set = False # Creates training set if True, creates test set if False
 run_predict = True # Applies saved fit, makes predictions on test data if True
-DMsim = (376, 375)
+DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
 
 # Grab all the files in directory 
@@ -44,6 +44,8 @@ data_full.shape = (len(y), -1)
 data_full[data_full!=data_full] = 0.0
 y = np.array(y)
 
+print data_full.shape
+
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
 
@@ -61,45 +63,6 @@ if run_predict is True:
     model = reader.read_pkl('training_data_pf_model%s.pkl' % array_name)
     pca = reader.read_pkl('training_data_pf_pca%s.pkl' % array_name)
     data_test, y_test = reader.read_training_data('test_data_pf%s.npy' % array_name)
-    fit_model.predict_test(data_test, model, y_test=y_test, pca=pca)  
+    y_pred, class_report, conf_matrix = fit_model.predict_test(
+                data_test, model, y_test=y_test, pca=pca)  
 
-
-
-
-"""
-data_test, y_test = [],[]
-
-counter = 0
-
-for ii, ff in enumerate(fl_test):
-    data_t = np.load(ff)
-    data_t = reader.normalize_data(data_t)
-    data_t = reader.rebin_arr(data_t, 64, 250)
-    data_t = pca.transform(data_t.reshape(-1))
-    data_test.append(data_t)
-
-    yp, DM = model.predict(data_t)[0], int(ff.split('/')[-1].split('_')[0][2:])
-
-    if DM==287:
-        yt=1
-        y_test.append(1)
-    else:
-        yt=0
-        y_test.append(0)
-
-    print "pred test correct? dm"
-    print yp, yt, abs(yp-yt), DM
-
-    counter += abs(yp-yt)
-    print ii, counter
-
-print counter / float(ii)
-
-data_test = np.concatenate(data_test, axis=0)
-ndm, ntimes = data_t.shape
-data_test.shape = (-1, ndm*ntimes)
-print y_test
-print data_test.shape
-
-fit_model.predict_test(data_test, model, y_test=y_test, pca=None)
-"""
