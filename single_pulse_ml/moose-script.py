@@ -49,7 +49,7 @@ print data_full.shape
 
 h, w = data.shape
 
-plotting-tools.plot_gallery(data_arr, y, h, w, n_row=3, n_col=4)
+plotting-tools.plot_gallery(data_arr, y, h, w, n_row=3, n_col=4, figname='out.png')
 
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
