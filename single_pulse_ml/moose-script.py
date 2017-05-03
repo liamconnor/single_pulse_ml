@@ -21,8 +21,8 @@ assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/' # good test
 
-#dir_name = '/home/connor/python_envs/2.7_L1mock/src/\
-#    ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/' # good train set
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/\
+    ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/' # good train set
 
 array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
 train_set = bool(int(sys.argv[1])) # Creates training set if True, creates test set if False
