@@ -78,7 +78,6 @@ if plot:
 
     if train_set:
         prediction_titles = y.astype(str)
-        print prediction_titles
         prediction_titles[prediction_titles=='0'] = target_names[0]
         prediction_titles[prediction_titles=='1'] = target_names[1]
         print "Plotting training set"
@@ -87,7 +86,7 @@ if plot:
         prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
                      for i in range(y_pred.shape[0])]        
         print "Plotting test set"
-
+    print prediction_titles
     plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
 
 
