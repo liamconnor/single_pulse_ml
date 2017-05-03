@@ -18,17 +18,17 @@ assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 
 # Data directory
 
-dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_1c_triggers/20-100sim_ml/' # B0329 directory
+#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_1c_triggers/20-100sim_ml/' # B0329 directory
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/' # good test
-#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/' # good train set
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/' # good train set
 
 array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
 train_set = bool(int(sys.argv[1])) # Creates training set if True, creates test set if False
 run_predict = bool(int(sys.argv[2])) # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287, 26)
-DMsim = (26,)
+#DMsim = (26,)
 plot = True
 
 # Grab all the files in directory 
@@ -68,7 +68,7 @@ print "\nData set has %d pulses %d nonpulses\n" \
 
 if train_set is True:
     reader.write_data(data_full, y, './single_pulse_ml/data/training_data_pf%s.npy' % array_name)
-    model, pca = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
+    model, pca = fit_model.fit_kneighbors('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
     reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
     reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)
 
