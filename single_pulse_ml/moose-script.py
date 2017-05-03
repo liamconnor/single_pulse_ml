@@ -13,13 +13,14 @@ import plot_tools
 # Data directory
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
-#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
-array_name = 'DM' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
-train_set = False # Creates training set if True, creates test set if False
-run_predict = True # Applies saved fit, makes predictions on test data if True
+array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
+train_set = True # Creates training set if True, creates test set if False
+run_predict = False # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
+plot = True
 
 # Grab all the files in directory 
 # with array type "array_name"
@@ -27,9 +28,14 @@ file_list = glob.glob('%sDM*%s*.npy' % (dir_name, array_name))
 
 data_full, y = [], []
 
+astart, aend = 0, -1
+
+if array_name is 'DM':
+    astart, aend = 200, 400
+
 for fn in file_list:
     data = np.load(fn)
-    data = reader.normalize_data(data)[200:400, :]
+    data = reader.normalize_data(data)[astart:aend, :]
     data = reader.rebin_arr(data, 32, 250) 
     data_full.append(data)
     DM = fn.split('/')[-1].split('_')[0][2:]
@@ -45,11 +51,10 @@ data_full.shape = (len(y), -1)
 data_full[data_full!=data_full] = 0.0
 y = np.array(y)
 
-print data_full.shape
-
 h, w = data.shape
 
-plot_tools.plot_gallery(data_full, y, h, w, n_row=3, n_col=4, figname='out.png')
+if plot:
+    plot_tools.plot_gallery(data_full, y, h, w, n_row=3, n_col=4, figname='out.png')
 
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
