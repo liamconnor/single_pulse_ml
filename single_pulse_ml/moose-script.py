@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 import fit_model
 import reader
+import plotting-tools
 
 # Data directory
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
@@ -46,6 +47,10 @@ y = np.array(y)
 
 print data_full.shape
 
+h, w = data.shape
+
+plotting-tools.plot_gallery(data_arr, y, h, w, n_row=3, n_col=4)
+
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
 
@@ -65,4 +70,13 @@ if run_predict is True:
     data_test, y_test = reader.read_training_data('test_data_pf%s.npy' % array_name)
     y_pred, class_report, conf_matrix = fit_model.predict_test(
                 data_test, model, y_test=y_test, pca=pca)  
+
+
+
+
+
+
+
+
+
 
