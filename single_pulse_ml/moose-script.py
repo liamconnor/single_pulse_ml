@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 import fit_model
 import reader
-import plotting-tools
+import plot_tools
 
 # Data directory
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
@@ -49,7 +49,7 @@ print data_full.shape
 
 h, w = data.shape
 
-plotting-tools.plot_gallery(data_arr, y, h, w, n_row=3, n_col=4, figname='out.png')
+plot_tools.plot_gallery(data_arr, y, h, w, n_row=3, n_col=4, figname='out.png')
 
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
