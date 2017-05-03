@@ -37,7 +37,7 @@ if array_name is 'DM':
 for fn in file_list:
     data = np.load(fn)
     data = reader.normalize_data(data)[astart:aend, :]
-    data = reader.rebin_arr(data, 32, 250) 
+    data = reader.rebin_arr(data, 128, 250) 
     data_full.append(data)
     DM = fn.split('/')[-1].split('_')[0][2:]
 
@@ -92,7 +92,7 @@ if plot:
                         for ii in range(len(pred_name))]
         # prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
         #              for i in range(y_pred.shape[0])]        
-        print "Plotting test set"
+        print "Plotting test set to file: %s" % figname
 
     plot_tools.plot_gallery(data_full, prediction_titles, 
                       h, w, n_row=5, n_col=4, figname=figname)
