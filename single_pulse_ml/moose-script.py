@@ -54,7 +54,11 @@ y = np.array(y)
 h, w = data.shape
 
 if plot:
-    plot_tools.plot_gallery(data_full, y, h, w, n_row=3, n_col=4, figname='out.png')
+    target_names = np.array(['RFI', 'Pulse'], dtype='|S17')
+    prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
+                     for i in range(y_pred.shape[0])]
+                     
+    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
 
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
