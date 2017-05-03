@@ -87,6 +87,7 @@ if plot:
         figname = './single_pulse_ml/plots/%s_test.png' % array_name 
         pred_name = plot_tools.get_title(y_pred, target_names)
         true_name = plot_tools.get_title(y_pred, target_names)
+        print pred_name
         prediction_titles = ['predicted: %s\ntrue:      %s' % (pred_name[ii], true_name[ii])     
                         for ii in range(len(pred_name))]
         # prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
