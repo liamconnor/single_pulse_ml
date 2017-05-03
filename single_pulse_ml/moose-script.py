@@ -1,14 +1,16 @@
+import sys
+
 import glob
 import numpy as np
-
-# Allows for plotting with no $DISPLAY environment variable 
-import matplotlib 
+import matplotlib # Allows for plotting with no $DISPLAY environment variable 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import fit_model
 import reader
 import plot_tools
+
+assert len(sys.argv)==2
 
 # Data directory
 
@@ -17,8 +19,8 @@ dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_inco
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
 array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
-train_set = False # Creates training set if True, creates test set if False
-run_predict = True # Applies saved fit, makes predictions on test data if True
+train_set = sys.argv[0] # Creates training set if True, creates test set if False
+run_predict = sys.argv[1] # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
 plot = True
@@ -90,8 +92,6 @@ if plot:
         print pred_name
         prediction_titles = ['predicted: %s\ntrue:      %s' % (pred_name[ii], true_name[ii])     
                         for ii in range(len(pred_name))]
-        # prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
-        #              for i in range(y_pred.shape[0])]        
         print "Plotting test set to file: %s" % figname
 
     plot_tools.plot_gallery(data_full, prediction_titles, 
