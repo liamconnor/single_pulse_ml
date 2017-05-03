@@ -79,16 +79,17 @@ if plot:
 
     if train_set:
         figname = './single_pulse_ml/plots/%s_train.png' % array_name
-        prediction_titles = y.astype(str)
-        prediction_titles[prediction_titles=='0'] = target_names[0]
-        prediction_titles[prediction_titles=='1'] = target_names[1]
+        prediction_titles = plot_tools.get_title(y, target_names)
         print "Plotting training set to file: %s" % figname
 
     elif train_set is False and run_predict is True:
         print y_pred
-        figname = './single_pulse_ml/plots/%s_test.png' % array_name        
-        prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
-                     for i in range(y_pred.shape[0])]        
+        figname = './single_pulse_ml/plots/%s_test.png' % array_name 
+        prediction_titles = plot_tools.get_title(y_pred, target_names)
+        prediction_titles.append(plot_tools.get_title(y_test, target_names))
+      
+        # prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
+        #              for i in range(y_pred.shape[0])]        
         print "Plotting test set"
 
     plot_tools.plot_gallery(data_full, prediction_titles, 

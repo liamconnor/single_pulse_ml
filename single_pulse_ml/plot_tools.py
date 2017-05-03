@@ -18,7 +18,14 @@ def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4, figname=None):
     	plt.savefig(figname)
 
 
-def get_title(y_pred, y_test, target_names, i):
+def get_title(y, target_names):
+    prediction_titles = y.astype(str)
+    prediction_titles[prediction_titles=='0'] = target_names[0]
+    prediction_titles[prediction_titles=='1'] = target_names[1]
+
+    return prediction_titles
+
+def get_title2(y_pred, y_test, target_names, i):
     pred_name = target_names[y_pred[i]]
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
