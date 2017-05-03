@@ -1,3 +1,7 @@
+# To do: - include crab and b0329 pulses, but not to training set
+#        - include other ML algorithms than just SVM
+#
+
 import sys
 
 import glob
@@ -91,7 +95,6 @@ if plot:
         figname = './single_pulse_ml/plots/%s_test.png' % array_name 
         pred_name = plot_tools.get_title(y_pred.astype(int), target_names)
         true_name = plot_tools.get_title(y_pred.astype(int), target_names)
-        print pred_name
         prediction_titles = ['predicted: %s\ntrue:      %s' % (pred_name[ii], true_name[ii])     
                         for ii in range(len(pred_name))]
         print "Plotting test set to file: %s" % figname
