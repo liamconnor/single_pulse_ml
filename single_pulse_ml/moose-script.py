@@ -85,9 +85,9 @@ if plot:
     elif train_set is False and run_predict is True:
         print y_pred
         figname = './single_pulse_ml/plots/%s_test.png' % array_name 
-        prediction_titles = plot_tools.get_title(y_pred, target_names)
-        prediction_titles.append(plot_tools.get_title(y_test, target_names))
-      
+        prediction_titles_pred = plot_tools.get_title(y_pred, target_names)
+        prediction_titles_test = plot_tools.get_title(y_pred, target_names)
+        prediction_titles = (prediction_titles_pred, prediction_titles_test)      
         # prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
         #              for i in range(y_pred.shape[0])]        
         print "Plotting test set"
