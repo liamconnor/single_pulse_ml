@@ -19,6 +19,6 @@ def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4, figname=None):
 
 
 def get_title(y_pred, y_test, target_names, i):
-    pred_name = target_names[y_pred[i]].rsplit(' ', 1)[-1]
-    true_name = target_names[y_test[i]].rsplit(' ', 1)[-1]
+    pred_name = target_names[y_pred[i]]
+    true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)

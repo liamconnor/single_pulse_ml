@@ -14,11 +14,11 @@ import plot_tools
 
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
-dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
+#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
 array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
-train_set = True # Creates training set if True, creates test set if False
-run_predict = False # Applies saved fit, makes predictions on test data if True
+train_set = False # Creates training set if True, creates test set if False
+run_predict = True # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
 plot = True
@@ -68,8 +68,8 @@ if train_set is False:
     reader.write_data(data_full, y, 'test_data_pf%s.npy' % array_name)
 
 if run_predict is True:
-    model = reader.read_pkl('./single_pulse_ml/data/training_data_pf_model%s.pkl' % array_name)
-    pca = reader.read_pkl('./single_pulse_ml/data/training_data_pf_pca%s.pkl' % array_name)
+    model = reader.read_pkl('./single_pulse_ml/model/training_data_pf_model%s.pkl' % array_name)
+    pca = reader.read_pkl('./single_pulse_ml/model/training_data_pf_pca%s.pkl' % array_name)
     data_test, y_test = reader.read_data('test_data_pf%s.npy' % array_name)
     y_pred, class_report, conf_matrix = fit_model.predict_test(
                 data_test, model, y_test=y_test, pca=pca)  
@@ -85,12 +85,14 @@ if plot:
         print "Plotting training set to file: %s" % figname
 
     elif train_set is False and run_predict is True:
+        print y_pred
         figname = './single_pulse_ml/plots/%s_test.png' % array_name        
-        prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
+        prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)\
                      for i in range(y_pred.shape[0])]        
         print "Plotting test set"
 
-    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname=figname)
+    plot_tools.plot_gallery(data_full, prediction_titles, 
+                      h, w, n_row=3, n_col=4, figname=figname)
 
 
 
