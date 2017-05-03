@@ -58,10 +58,10 @@ print "\nData set has %d pulses %d nonpulses\n" \
 
 
 if train_set is True:
-    reader.write_training_data(data_full, y, 'training_data_pf%s.npy' % array_name)
-    model, pca = fit_model.fit_svm('training_data_pf%s.npy' % array_name)
-    reader.write_pkl(pca, 'training_data_pf_pca%s' % array_name)
-    reader.write_pkl(model, 'training_data_pf_model%s' % array_name)
+    reader.write_training_data(data_full, y, './single_pulse_ml/data/training_data_pf%s.npy' % array_name)
+    model, pca = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
+    reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
+    reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)
 
 if train_set is False:
     reader.write_training_data(data_full, y, 'test_data_pf%s.npy' % array_name)
@@ -89,7 +89,7 @@ if plot:
                      for i in range(y_pred.shape[0])]        
         print "Plotting test set"
 
-    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
+    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname=figname)
 
 
 

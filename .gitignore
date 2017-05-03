@@ -1,6 +1,7 @@
 *.pyc
 
-./single_pulse_ml/data/
+./single_pulse_ml/data/*.npy
+./single_pulse_ml/model/*.pkl
 ./single_pulse_ml/*pkl
 ./single_pulse_ml/*npy
 ./single_pulse_ml/plots/*png
