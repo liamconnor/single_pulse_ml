@@ -39,7 +39,6 @@ if array_name is 'DM':
     astart, aend = 200, 400
 
 for fn in file_list:
-    print fn
     data = np.load(fn)
     data = reader.normalize_data(data)[astart:aend, :]
     data = reader.rebin_arr(data, 32, 250) 
