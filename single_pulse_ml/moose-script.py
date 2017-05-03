@@ -42,7 +42,7 @@ for fn in file_list:
     print fn
     data = np.load(fn)
     data = reader.normalize_data(data)[astart:aend, :]
-    data = reader.rebin_arr(data, 128, 250) 
+    data = reader.rebin_arr(data, 32, 250) 
     data_full.append(data)
     DM = fn.split('/')[-1].split('_')[0][2:]
 
