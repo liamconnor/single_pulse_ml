@@ -10,7 +10,7 @@ import fit_model
 import reader
 import plot_tools
 
-assert len(sys.argv)==2:
+assert len(sys.argv)==2,
     print "Need two arguments: train_set run_predict"
 
 # Data directory
