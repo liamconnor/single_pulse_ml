@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
@@ -34,6 +35,14 @@ def fit_svm(fn_training_data, n_components=10):
 	clf = clf.fit(data_train_pca, y_train)
 
 	return clf, pca
+
+def fit_kneighbors(fn_training_data):
+	data_train, y_train = reader.read_data(fn_training_data)
+
+	clf = KNeighborsClassifier()
+	clf.fit(data_train, y_train)
+
+	return clf
 
 def predict_test(data_test, model, y_test=None, pca=None):
 
