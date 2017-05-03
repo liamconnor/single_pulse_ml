@@ -9,11 +9,11 @@ import plot_tools
 
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
 dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
-#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
 array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
-train_set = False # Creates training set if True, creates test set if False
-run_predict = True # Applies saved fit, makes predictions on test data if True
+train_set = True # Creates training set if True, creates test set if False
+run_predict = False # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375) # Gives the DMs of simulated pulses
 DMsim = (287,)
 plot = True
