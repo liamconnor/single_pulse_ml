@@ -10,28 +10,29 @@ import fit_model
 import reader
 
 # Data directory
-dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
-#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
+#dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_3b_triggers/200-525sim_ml/'
+dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml_test/'
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_2b_triggers/200-525sim_ml/'
 
-
-array_name = 'Freq' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
+array_name = 'DM' # Data array type. Either 'Freq' or 'DM' (freq/time vs. dm/time)
 train_set = False # Creates training set if True, creates test set if False
 run_predict = True # Applies saved fit, makes predictions on test data if True
 DMsim = (376, 375)
-#DMsim = (287,)
+DMsim = (287,)
 
-fl = glob.glob('%sDM*%s*.npy' % (dir_name, array_name))
+# Grab all the files in directory 
+# with array type "array_name"
+file_list = glob.glob('%sDM*%s*.npy' % (dir_name, array_name))
 
 data_full, y = [], []
 
-for ff in fl:
-    data = np.load(ff)
-    data = reader.normalize_data(data)
+for fn in file_list:
+    data = np.load(fn)
+    data = reader.normalize_data(data)[200:400, :]
     data = reader.rebin_arr(data, 32, 250) 
     data_full.append(data)
-    DM = ff.split('/')[-1].split('_')[0][2:]
-    print ff
+    DM = fn.split('/')[-1].split('_')[0][2:]
+
     if int(DM) in DMsim:
         y.append(1)
     else:
@@ -42,6 +43,10 @@ ndm, ntimes = data.shape
 data_full.shape = (len(y), -1)
 data_full[data_full!=data_full] = 0.0
 y = np.array(y)
+
+print "\nData set has %d pulses %d nonpulses\n" \
+        % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
+
 
 if train_set is True:
     reader.write_training_data(data_full, y, 'training_data_pf%s.npy' % array_name)
