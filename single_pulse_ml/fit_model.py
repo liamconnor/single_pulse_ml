@@ -39,10 +39,7 @@ def fit_svm(fn_training_data, n_components=10):
 def fit_kneighbors(fn_training_data):
 	data_train, y_train = reader.read_data(fn_training_data)
 
-	param_grid = {'C': [1e3, 5e3, 1e4, 5e4, 1e5],
-              'gamma': [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], }
-
-	clf = GridSearchCV(KNeighborsClassifier(), param_grid)
+	clf = KNeighborsClassifier()
 	clf.fit(data_train, y_train)
 
 	return clf
