@@ -77,16 +77,18 @@ if plot:
     target_names = np.array(['RFI', 'Pulse'], dtype='|S17')
 
     if train_set:
+        figname = './single_pulse_ml/plots/%s_train.png' % array_name
         prediction_titles = y.astype(str)
         prediction_titles[prediction_titles=='0'] = target_names[0]
         prediction_titles[prediction_titles=='1'] = target_names[1]
-        print "Plotting training set"
+        print "Plotting training set to file: %s" % figname
 
     elif train_set is False and run_predict is True:
+        figname = './single_pulse_ml/plots/%s_test.png' % array_name        
         prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
                      for i in range(y_pred.shape[0])]        
         print "Plotting test set"
-    print prediction_titles
+
     plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
 
 
