@@ -10,7 +10,6 @@ import fit_model
 import reader
 import plot_tools
 
-print len(sys.argv)
 assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 
 # Data directory
@@ -41,6 +40,7 @@ if array_name is 'DM':
     astart, aend = 200, 400
 
 for fn in file_list:
+    print fn
     data = np.load(fn)
     data = reader.normalize_data(data)[astart:aend, :]
     data = reader.rebin_arr(data, 128, 250) 
