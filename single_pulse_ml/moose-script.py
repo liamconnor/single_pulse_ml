@@ -53,13 +53,6 @@ y = np.array(y)
 
 h, w = data.shape
 
-if plot:
-    target_names = np.array(['RFI', 'Pulse'], dtype='|S17')
-    prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
-                     for i in range(y_pred.shape[0])]
-                     
-    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
-
 print "\nData set has %d pulses %d nonpulses\n" \
         % (len(np.where(y==1)[0]), len(np.where(y==0)[0]))
 
@@ -80,7 +73,19 @@ if run_predict is True:
     y_pred, class_report, conf_matrix = fit_model.predict_test(
                 data_test, model, y_test=y_test, pca=pca)  
 
+if plot:
+    target_names = np.array(['RFI', 'Pulse'], dtype='|S17')
 
+    if train_set:
+        prediction_titles = y.astype(str)
+        prediction_titles[prediction_titles=='0.0'] = target_names[0]
+        prediction_titles[prediction_titles=='1.0'] = target_names[1]
+
+    elif train_set is False and run_predict is True:
+        prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
+                     for i in range(y_pred.shape[0])]        
+
+    plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
 
 
 
