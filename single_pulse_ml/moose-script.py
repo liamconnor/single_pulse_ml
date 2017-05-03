@@ -95,7 +95,7 @@ if plot:
         print "Plotting test set"
 
     plot_tools.plot_gallery(data_full, prediction_titles, 
-                      h, w, n_row=3, n_col=4, figname=figname)
+                      h, w, n_row=5, n_col=4, figname=figname)
 
 
 
