@@ -85,6 +85,8 @@ if plot:
         prediction_titles = [plot_tools.get_title(y_pred, y_test, target_names, i)
                      for i in range(y_pred.shape[0])]        
 
+    print prediction_titles
+
     plot_tools.plot_gallery(data_full, prediction_titles, h, w, n_row=3, n_col=4, figname='out.png')
 
 
