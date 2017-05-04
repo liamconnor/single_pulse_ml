@@ -16,7 +16,7 @@ def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4,
         plt.subplot(n_row, n_col, i + 1)
 #        plt.imshow(data_arr[i].reshape((h, w)), cmap=plt.cm.gray, aspect='auto')
         plt.imshow(d_arr, cmap=cmap, aspect='auto')        
-        plt.title(titles[i], size=14, color='red')
+        plt.title(titles[i], size=12, color='red')
         plt.xticks(())
         plt.yticks(())
     if figname:
