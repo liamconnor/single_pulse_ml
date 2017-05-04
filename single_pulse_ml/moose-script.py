@@ -92,6 +92,7 @@ if run_predict is True:
         pca = None 
 
     data_test, y_test = reader.read_data('test_data_pf%s.npy' % array_name)
+    print data_test.shape, y_test
     y_pred, class_report, conf_matrix = fit_model.predict_test(
                 data_test, model, y_test=y_test, pca=pca)  
 
