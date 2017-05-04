@@ -16,7 +16,7 @@ import plot_tools
 
 assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 
-algorithm = 'kneighbors'#'SVM'
+algorithm = 'SVM'
 
 # Data directory
 
