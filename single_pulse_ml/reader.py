@@ -131,6 +131,8 @@ def read_data(fn):
 	return data, y
 
 def read_pkl(fn):
+	if fn[-4:]!='.pkl': fn+='.pkl'
+
 	file = open(fn, 'rb')
 
 	model = pickle.load(file)
@@ -138,7 +140,8 @@ def read_pkl(fn):
 	return model
 
 def write_pkl(model, fn):
-	fn += '.pkl'
+	if fn[-4:]!='.pkl': fn+='.pkl'
+	
 	file = open(fn, 'wb')
 	pickle.dump(model, file)
 
