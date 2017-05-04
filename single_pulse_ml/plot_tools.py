@@ -8,7 +8,7 @@ def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4,
                     figname=None, cmap='RdBu', suptitle=''):
     """Helper function to plot a gallery of portraits"""
     plt.figure(figsize=(1.8 * n_col, 2.4 * n_row))
-    plt.suptitle(suptitle, fontsize=50, color='blue', alpha=0.5)
+    plt.suptitle(suptitle, fontsize=35, color='blue', alpha=0.5)
     plt.subplots_adjust(bottom=0, left=.01, right=.99, top=.90, hspace=.35)
     for i in range(min(n_row * n_col, len(data_arr))):
         d_arr = data_arr[i].reshape((h, w))
