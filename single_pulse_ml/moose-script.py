@@ -78,13 +78,13 @@ if train_set is True:
     elif algorithm is 'kneighbors':
         model = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)    
 
-    reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_%s%s' % (algorithm, array_name))
+    reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_%s%s.pkl' % (algorithm, array_name))
 
 if train_set is False:
     reader.write_data(data_full, y, 'test_data_pf%s.npy' % array_name)
 
 if run_predict is True:
-    model = reader.read_pkl('./single_pulse_ml/model/training_data_pf_%s%s' % (algorithm, array_name))
+    model = reader.read_pkl('./single_pulse_ml/model/training_data_pf_%s%s.pkl' % (algorithm, array_name))
 
     if algorithm is 'SVM':
         pca = reader.read_pkl('./single_pulse_ml/model/training_data_pf_pca%s.pkl' % array_name)
