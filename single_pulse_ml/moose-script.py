@@ -115,8 +115,14 @@ if plot:
                         for ii in range(len(pred_name))]
         print "Plotting test set to file: %s" % figname
 
+    if train_set is True:
+        suptitle = 'Training Data'
+    else:
+        suptitle = 'Test Data'
+
     plot_tools.plot_gallery(data_full, prediction_titles, 
-                      h, w, n_row=5, n_col=4, figname=figname, cmap=cmap_dict[array_name])
+                      h, w, n_row=5, n_col=4, figname=figname, 
+                      cmap=cmap_dict[array_name], suptitle=suptitle)
 
 
 
