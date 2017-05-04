@@ -76,7 +76,7 @@ if train_set is True:
         reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
 
     elif algorithm is 'kneighbors':
-        model = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)    
+        model = fit_model.fit_kneighbors('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)    
 
     reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_%s%s.pkl' % (algorithm, array_name))
 
