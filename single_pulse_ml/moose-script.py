@@ -16,6 +16,8 @@ import plot_tools
 
 assert len(sys.argv)==3, "Need two arguments: train_set run_predict"
 
+algorithm = 'kneighbors'#'SVM'
+
 # Data directory
 
 #dir_name = '/home/connor/python_envs/2.7_L1mock/src/ch_L1mock/ch_L1mock/frb_incoherent_1c_triggers/20-100sim_ml/' # B0329 directory
@@ -68,16 +70,27 @@ print "\nData set has %d pulses %d nonpulses\n" \
 
 if train_set is True:
     reader.write_data(data_full, y, './single_pulse_ml/data/training_data_pf%s.npy' % array_name)
-    model, pca = fit_model.fit_kneighbors('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
-    reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
-    reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)
+
+    if algorithm is 'SVM':
+        model, pca = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)
+        reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)        
+        reader.write_pkl(pca, './single_pulse_ml/model/training_data_pf_pca%s' % array_name)
+
+    elif algorithm is 'kneighbors'
+        model = fit_model.fit_svm('./single_pulse_ml/data/training_data_pf%s.npy' % array_name)    
+        reader.write_pkl(model, './single_pulse_ml/model/training_data_pf_model%s' % array_name)
 
 if train_set is False:
     reader.write_data(data_full, y, 'test_data_pf%s.npy' % array_name)
 
 if run_predict is True:
     model = reader.read_pkl('./single_pulse_ml/model/training_data_pf_model%s.pkl' % array_name)
-    pca = reader.read_pkl('./single_pulse_ml/model/training_data_pf_pca%s.pkl' % array_name)
+
+    if algorithm is 'SVM':
+        pca = reader.read_pkl('./single_pulse_ml/model/training_data_pf_pca%s.pkl' % array_name)
+    else:
+        pca = None 
+
     data_test, y_test = reader.read_data('test_data_pf%s.npy' % array_name)
     y_pred, class_report, conf_matrix = fit_model.predict_test(
                 data_test, model, y_test=y_test, pca=pca)  
