@@ -33,6 +33,7 @@ DMsim = (287, 26)
 #DMsim = (287,)
 #DMsim = (26,)
 plot = True
+cmap_dict = {'DM': 'Greys', 'Freq': 'RdBu'}
 
 # Grab all the files in directory 
 # with array type "array_name"
@@ -115,7 +116,7 @@ if plot:
         print "Plotting test set to file: %s" % figname
 
     plot_tools.plot_gallery(data_full, prediction_titles, 
-                      h, w, n_row=5, n_col=4, figname=figname)
+                      h, w, n_row=5, n_col=4, figname=figname, cmap=cmap_dict[array_name])
 
 
 
