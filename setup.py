@@ -13,7 +13,8 @@ setup(name='single_pulse_ml',
       license='MIT',
       packages=['single_pulse_ml'],
       install_requires=[
-          'sklearn',],
+          'sklearn',
+          'tensorflow'],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
