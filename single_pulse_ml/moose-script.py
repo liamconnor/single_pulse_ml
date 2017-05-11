@@ -16,7 +16,7 @@ import fit_model
 import reader
 import plot_tools
 
-assert len(sys.argv)==5, "Need two arguments: train_set run_predict"
+assert len(sys.argv)==5, "Need four arguments: data_dir train_set run_predict array_name"
 
 algorithm = 'SVM'
 
