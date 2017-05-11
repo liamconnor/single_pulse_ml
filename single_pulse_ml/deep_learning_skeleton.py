@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 """Convolutional Neural Network Estimator for MNIST, built with tf.layers."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+import sys
 
 import numpy as np
 import tensorflow as tf
@@ -25,14 +26,29 @@ from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_f
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
+#print(sess.run(tf.argmax(y, 1), feed_dict={x: mnist.test.images}))
+
+def get_predictions(data, classifier):
+  predictions = classifier.predict(data, input_fn=None)
+
+  label, prob = [], []
+
+  while True:
+    try:
+      pred = predictions.next()
+      label.append(pred['classes'])
+      prob.append(pred['probabilities'])
+    except StopIteration:
+      return label, prob 
 
 def cnn_model_fn(features, labels, mode):
   """Model function for CNN."""
   # Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
-  input_layer = tf.reshape(features, [-1, 28, 28, 1])
-#  input_layer = tf.reshape(features, [-1, 32, 50, 1])
+#  input_layer = tf.reshape(features, [-1, 28, 28, 1])
+  print(features.shape)
+  input_layer = tf.reshape(features, [-1, 32, 50, 1])
 
 
   # Convolutional Layer #1
@@ -74,8 +90,8 @@ def cnn_model_fn(features, labels, mode):
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
-  pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-#  pool2_flat = tf.reshape(pool2, [-1, 8*12*64])
+#  pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
+  pool2_flat = tf.reshape(pool2, [-1, 8 * 8 * 64])
 
   # Dense Layer
   # Densely connected layer with 1024 neurons
@@ -90,14 +106,14 @@ def cnn_model_fn(features, labels, mode):
   # Logits layer
   # Input Tensor Shape: [batch_size, 1024]
   # Output Tensor Shape: [batch_size, 10]
-  logits = tf.layers.dense(inputs=dropout, units=10)
+  logits = tf.layers.dense(inputs=dropout, units=2)
 
   loss = None
   train_op = None
 
   # Calculate Loss (for both TRAIN and EVAL modes)
   if mode != learn.ModeKeys.INFER:
-    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=2)
     loss = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels, logits=logits)
 
@@ -141,7 +157,7 @@ def liamsmain(train_data, train_labels, eval_data, eval_labels):
       x=train_data,
       y=train_labels,
       batch_size=50,
-      steps=500,
+      steps=250,
       monitors=[logging_hook])
 
   # Configure the accuracy metric for evaluation
@@ -166,17 +182,34 @@ def liamsmain(train_data, train_labels, eval_data, eval_labels):
 
   return eval_results, mnist_classifier
 
-
-if __name__ == "__main__":
-
-  f = np.load('/Users/connor/training_data_pfFreq.npy')
   td, tl, ed, el = f[:200, :-1],f[:200, -1],f[200:, :-1],f[200:, -1]
   td = td.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
+#  td = td.reshape(-1, 32, 50, 5).mean(-1)
   ed = ed.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
+#  ed = ed.reshape(-1, 32, 50, 5).mean(-1)
 
   print(td.shape, ed.shape)
   td, tl, ed, el = td.astype(np.float32)[:, :], tl.astype(np.int32), ed.astype(np.float32)[:], el.astype(np.int32)
   res, mn = liamsmain(td, tl, ed, el)
+
+# if __name__ == "__main__":
+#   if len(sys.argv) < 2:
+#     fn = '/Users/connor/training_data_pfFreq.npy'
+#   else:
+#     fn = sys.argv[1]
+
+#   f = np.load(fn)
+#   print(f.shape)
+
+#   td, tl, ed, el = f[:200, :-1],f[:200, -1],f[200:, :-1],f[200:, -1]
+# #  td = td.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
+#   td = td.reshape(-1, 32, 50, 5).mean(-1)
+# #  ed = ed.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
+#   ed = ed.reshape(-1, 32, 50, 5).mean(-1)
+
+#   print(td.shape, ed.shape)
+#   td, tl, ed, el = td.astype(np.float32)[:, :], tl.astype(np.int32), ed.astype(np.float32)[:], el.astype(np.int32)
+#   res, mn = liamsmain(td, tl, ed, el)
 
 #  tf.app.run()
 

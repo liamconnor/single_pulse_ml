@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
 def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4, 
                     figname=None, cmap='RdBu', suptitle=''):
@@ -33,3 +34,38 @@ def get_title2(y_pred, y_test, target_names, i):
     pred_name = target_names[y_pred[i]]
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
+
+
+def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
+
+    assert (len(FT_arr.shape)==2) and (len(DT_arr.shape)==2), "Input data should be (nfreq, ntimes)"
+
+    gs2 = gridspec.GridSpec(4, 3)
+    ax1 = plt.subplot(gs2[:2, :2])
+    ax1.xaxis.set_ticklabels('')
+    ax1.yaxis.set_ticklabels('')
+    plt.ylabel('Freq', fontsize=18)
+    plt.xlabel('Time', fontsize=18)
+    ax1.imshow(FT_arr, cmap='RdBu', interpolation='nearest', aspect='auto')
+
+    ax2 = plt.subplot(gs2[:2, 2:])
+    ax2.yaxis.tick_right()
+    ax2.yaxis.set_label_position('right')
+    plt.ylabel('probability', fontsize=18)
+    ax2.plot(FT_prob_spec)
+    ax2.semilogy()
+
+    ax3 = plt.subplot(gs2[2:, :2])
+    ax3.xaxis.set_ticklabels('')
+    ax3.yaxis.set_ticklabels('')
+    plt.ylabel('Freq', fontsize=18)
+    plt.xlabel('Time', fontsize=18)
+    ax3.imshow(DT_arr, cmap='RdBu', interpolation='nearest', aspect='auto')
+
+    ax4 = plt.subplot(gs2[2:, 2:])
+    ax4.yaxis.set_label_position('right')
+    ax4.yaxis.tick_right()
+    plt.ylabel('probability', fontsize=18)
+    ax4.bar([0, 1], DT_prob_spec)
+    plt.xticks([0.5, 1.5], ['RFI', 'Pulse'])
+    #ax4.semilogy()
