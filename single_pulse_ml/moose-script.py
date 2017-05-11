@@ -35,7 +35,7 @@ array_name = sys.argv[4] # Data array type. Either 'Freq' or 'DM' (freq/time vs.
 assert array_name in ['DM', 'Freq'], "array_name should be in ['DM', 'Freq']"
 
 DMsim = (376, 375) # Gives the DMs of simulated pulses
-DMsim = (287)#, 26, 376, 375)
+DMsim = (287,)#, 26, 376, 375)
 #DMsim = (287,)
 #DMsim = (26,)
 plot = True
