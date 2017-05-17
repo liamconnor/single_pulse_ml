@@ -23,6 +23,7 @@ import tensorflow as tf
 
 from tensorflow.contrib import learn
 from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_fn_lib
+from sklearn.model_selection import train_test_split
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -39,7 +40,8 @@ def get_predictions(data, classifier):
       label.append(pred['classes'])
       prob.append(pred['probabilities'])
     except StopIteration:
-      return label, prob 
+      return label, np.array(prob)
+
 
 def cnn_model_fn(features, labels, mode):
   """Model function for CNN."""
@@ -47,8 +49,8 @@ def cnn_model_fn(features, labels, mode):
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
 #  input_layer = tf.reshape(features, [-1, 28, 28, 1])
-  print(features.shape)
-  input_layer = tf.reshape(features, [-1, 32, 50, 1])
+  h, w = int(features.shape[1]), int(features.shape[2])
+  input_layer = tf.reshape(features, [-1, h, w, 1])
 
 
   # Convolutional Layer #1
@@ -90,8 +92,9 @@ def cnn_model_fn(features, labels, mode):
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
-#  pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-  pool2_flat = tf.reshape(pool2, [-1, 8 * 8 * 64])
+  #  pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
+  # data have been pooled twice; new shape is h//4, w//4, nfeatures
+  pool2_flat = tf.reshape(pool2, [-1, h//4 * w//4 * 64])
 
   # Dense Layer
   # Densely connected layer with 1024 neurons
@@ -103,6 +106,7 @@ def cnn_model_fn(features, labels, mode):
   dropout = tf.layers.dropout(
       inputs=dense, rate=0.4, training=mode == learn.ModeKeys.TRAIN)
 
+
   # Logits layer
   # Input Tensor Shape: [batch_size, 1024]
   # Output Tensor Shape: [batch_size, 10]
@@ -110,6 +114,8 @@ def cnn_model_fn(features, labels, mode):
 
   loss = None
   train_op = None
+
+  print(learn.ModeKeys.INFER, learn.ModeKeys.TRAIN)
 
   # Calculate Loss (for both TRAIN and EVAL modes)
   if mode != learn.ModeKeys.INFER:
@@ -182,15 +188,59 @@ def liamsmain(train_data, train_labels, eval_data, eval_labels):
 
   return eval_results, mnist_classifier
 
-  td, tl, ed, el = f[:200, :-1],f[:200, -1],f[200:, :-1],f[200:, -1]
-  td = td.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
-#  td = td.reshape(-1, 32, 50, 5).mean(-1)
-  ed = ed.reshape(-1, 32, 250)[:, 4:, 125-14:125+14]
-#  ed = ed.reshape(-1, 32, 50, 5).mean(-1)
+def dedisp(data, dm, freq=np.linspace(800, 400, 1024)):
 
-  print(td.shape, ed.shape)
-  td, tl, ed, el = td.astype(np.float32)[:, :], tl.astype(np.int32), ed.astype(np.float32)[:], el.astype(np.int32)
-  res, mn = liamsmain(td, tl, ed, el)
+    dm_del = 4.148808e3 * dm * (freq**(-2) - 600.0**(-2))
+    dt = 512 * 2.56e-6
+
+    A2 = np.zeros_like(data)
+
+    for ii, ff in enumerate(freq):
+        dmd = int(round(dm_del[ii] / dt))
+        A2[ii] = np.roll(data[ii], -dmd, axis=-1)
+
+    return A2
+
+def dm_delays(dm, freq, f_ref):
+
+    return 4.148808e3 * dm * (freq**(-2) - f_ref**(-2))
+
+def straighten_arr(data):
+
+    sn = []
+
+    for dm in dms:
+      d_ = dedisp(data.copy(), dm, freq=linspace(800,400,16))
+      sn.append(d_.mean(0).max() / np.std(d_.mean(0)))
+
+    d_ = dedisp(data, dms[np.argmax(sn)], freq=linspace(800,400,16))
+
+    return d_
+
+def run_straightening(dd):
+  for ii in range(len(dd)):
+    dd_ = dd[ii].reshape(-1, 250)                
+    dd[ii] = (straighten_arr(dd_)).reshape(-1)
+
+  return dd
+
+fn = '/Users/connor/training_data_pfFreq.npy'
+fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/full_data_pfFreq_sims.npy'
+fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/full_data_pfFreq_all_sims.npy'
+
+f = np.load(fn)
+
+td, ed, tl, el = train_test_split(f[:, :-1], f[:, -1], train_size=0.75)
+#td, tl, ed, el = f[:200, :-1],f[:200, -1],f[200:, :-1],f[200:, -1]
+#td, tl, ed, el = f[:1e3, :-1],f[:1e3, -1],f[1e3:, :-1],f[1e3:, -1]
+td = td.reshape(-1, 16, 250)[:, :, 125-64:125+64]
+#td = td.reshape(-1, 32, 50, 5).mean(-1)
+ed = ed.reshape(-1, 16, 250)[:, :, 125-64:125+64]
+#ed = ed.reshape(-1, 32, 50, 5).mean(-1)
+
+print(td.shape, ed.shape)
+td, tl, ed, el = td.astype(np.float32)[:, :], tl.astype(np.int32), ed.astype(np.float32)[:], el.astype(np.int32)
+res, mn = liamsmain(td, tl, ed, el)
 
 # if __name__ == "__main__":
 #   if len(sys.argv) < 2:

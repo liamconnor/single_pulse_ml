@@ -3,7 +3,12 @@
 TO DO LIST
 ==========
 
-
+-- Code must run 4 or 5 different
+algorithms and produce confusion matrices for each. 
+--- Should include a deep-learning
+approach with tensor flow. 
+-- Inject larger variety of simulated events e.g. spectral index 
+between -5,+5, scintillation, scattering. etc. Can re-write Kiyo's thing. 
 """
 
 

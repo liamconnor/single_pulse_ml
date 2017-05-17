@@ -35,6 +35,31 @@ def get_title2(y_pred, y_test, target_names, i):
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
 
+def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False):
+
+    assert len(data.shape) == 3, "data should be (batchsize, nside, nside)"
+
+    ranking = np.argsort(prob_arr[:, 0])
+
+    if ascending is True:
+        ranking = ranking[::-1]
+
+    fig = plt.figure(figsize=(10,10))
+
+    if h is None:
+        h = data.shape[1]
+    if w is None:
+        w = data.shape[2]
+
+    for ii in range(min(h*w, len(prob_arr))):
+        plt.subplot(h, w, ii+1)
+        plt.imshow(data[ranking[ii]], 
+            cmap='RdBu', interpolation='nearest', aspect='auto')
+        plt.axis('off')
+#        plt.title(11, 25, str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
+        plt.title(str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
+
+    plt.suptitle('Top Events', fontsize=40)
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
@@ -52,8 +77,10 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position('right')
     plt.ylabel('probability', fontsize=18)
-    ax2.plot(FT_prob_spec)
-    ax2.semilogy()
+    ax2.bar([0, 1], FT_prob_spec, color='red', alpha=0.75)
+    plt.xticks([0.5, 1.5], ['RFI', 'Pulse'])
+    plt.ylim(0, 1)
+    plt.xlim(-.25, 2.)
 
     ax3 = plt.subplot(gs2[2:, :2])
     ax3.xaxis.set_ticklabels('')
@@ -66,6 +93,12 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
     ax4.yaxis.set_label_position('right')
     ax4.yaxis.tick_right()
     plt.ylabel('probability', fontsize=18)
-    ax4.bar([0, 1], DT_prob_spec)
+    ax4.bar([0, 1], DT_prob_spec, color='red', alpha=0.75)
     plt.xticks([0.5, 1.5], ['RFI', 'Pulse'])
-    #ax4.semilogy()
+    plt.ylim(0, 1)
+    plt.xlim(-.25, 2.)
+
+    plt.suptitle('TensorFlow Deep Learn', fontsize=45, )
+
+
+
