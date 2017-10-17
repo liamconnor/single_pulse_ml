@@ -1,7 +1,10 @@
 *.pyc
+*.npy
+*.hdf5
 
 ./single_pulse_ml/*pkl
 ./single_pulse_ml/*npy
+./single_pulse_ml/*hdf5
 #./single_pulse_ml/plots/*png
 
 /*.egg-info
