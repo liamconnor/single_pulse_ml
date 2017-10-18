@@ -20,14 +20,6 @@ def read_pathfinder_npy(fn):
 
 	return data
 
-def normalize_data(data):
-	# subtract each channel's median
-	data -= np.median(data, axis=-1)[:, None]
-	# demand unit variance
-	data /= np.std(data, axis=-1)[:, None]	
-
-	return data
-
 def rebin_arr(data, n0_f=1, n1_f=1):
 	""" Rebin 2d array data to have shape 
 		(n0_f, n1_f)
@@ -36,10 +28,8 @@ def rebin_arr(data, n0_f=1, n1_f=1):
 
 	n0, n1 = data.shape
 	data_rb = data[:n0/n0_f * n0_f, :n1/n1_f * n1_f]
-
 	data_rb = data_rb.reshape(n0_f, n0/n0_f, n1_f, n1/n1_f)
 	data_rb = data_rb.mean(1).mean(-1)
-
 	return data_rb
 
 def im(data, title='',figname='out.png'):
@@ -76,7 +66,6 @@ def combine_data_DT(fn):
 		label = int(ff[-2])
 		y.append(label)
 		data = normalize_data(data)
-		print data.shape, y
 		data = rebin_arr(data, 64, 250)
 
 		data_full.append(data)
@@ -84,7 +73,6 @@ def combine_data_DT(fn):
 	ndm, ntimes = data.shape
 
 	data_full = np.concatenate(data_full, axis=0)
-	print data_full.shape, len(y)
 	data_full.shape = (k, -1)
 
 	return data_full, np.array(y)
@@ -103,7 +91,7 @@ def combine_data_FT(fn):
 		fn, label = line[0], int(line[1])
 
 		y.append(label)
-		print fn
+		print(fn)
 		tstamp = fn.split('+')[-2]
 				
 		#fdm = glob.glob('./*DM-T*%s*.npy' % tstamp)
@@ -123,6 +111,7 @@ def write_data(data, y, fname='out'):
 	training_arr = np.concatenate((data, y[:, None]), axis=-1)
 
 	np.save(fname, training_arr)
+
 
 def read_data(fn):
 	arr = np.load(fn)
@@ -145,7 +134,7 @@ def write_pkl(model, fn):
 	file = open(fn, 'wb')
 	pickle.dump(model, file)
 
-	print "Wrote to pkl file: %s" % fn
+	print("Wrote to pkl file: %s" % fn)
 
 def get_labels():
 	""" Cross reference DM-T files with Freq-T 
