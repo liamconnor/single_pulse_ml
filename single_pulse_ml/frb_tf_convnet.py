@@ -587,19 +587,6 @@ def classify_dataset(fn, model_dir, nfreq=16, ntime=250, twidth=32):
 
   return eval_results, label, prob, eval_data, eval_labels
 
-fn = '/Users/connor/training_data_pfFreq.npy'
-fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/full_data_pfFreq_all_sims.npy'
-fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/10000_triggers.npy'
-fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/test_triggers.npy'
-fn_1d = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/data_1d.npy'
-fn_disp = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/test_triggers_disp.npy'
-
-#fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/pathfinder_all_sim.npy'
-# pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, ntime=250, train_size=0.75, plot=False, twidth=64)
-# run_cnn_2d(fn, nfreq=16, ntime=250, train_size=0.1, plot=False, twidth=64, train_only=True)
-# pred, prob, ev, clf, d, p, e = run_cnn_1d(fn, nfreq=16, ntime=250, train_size=0.75, plot=False, twidth=64)
-# pred, prob, ev, clf, d, p, e = run_cnn_1d(fn, sum_freq=True, nfreq=16, ntime=250, train_size=0.75, plot=False)
-
 def time_classification(data, clf):
   import time 
 
@@ -633,7 +620,7 @@ def loop():
   EV = []
   D = []
 
-  model_dir="/tmp/frb_convnet_model"
+  model_dir="/model/frb_convnet_model/"
 
   for ii in widths:
     for nf in nfilters:
@@ -655,8 +642,6 @@ def loop():
 
 if __name__=='__main__':
 
-  fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/test_triggers_mixed.npy'
-  fn = './data/data_nt250_nf16_dm0.npy'
   fn = './data/_data_nt250_nf16_dm0_snr15.npy'
 
   global nfilt2
@@ -667,13 +652,13 @@ if __name__=='__main__':
 
   os.system('rm -rf ./model/tf_models/')
 
-  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-            ntime=250, train_size=0.5, plot=False, twidth=16, \
-            model_dir='./model/tf_models/')
+  #pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
+  #          ntime=250, train_size=0.5, plot=False, twidth=16, \
+  #          model_dir='./model/tf_models/')
 
-  print(ev)
+  #print(ev)
 
-  #loop()
+  loop()
 
 #  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
 #            ntime=250, train_size=0.75, plot=False, twidth=32)
