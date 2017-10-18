@@ -668,6 +668,8 @@ if __name__=='__main__':
             ntime=250, train_size=0.5, plot=False, twidth=16, \
             model_dir='./model/tf_models/')
 
+  print(ev)
+
   #loop()
 
 #  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
