@@ -463,7 +463,7 @@ def save_results(fout, results):
   import pickle
 
   print(results)
-  f = open(fout, 'w')
+  f = open(fout, 'wb')
 #  print(json.dumps(results))
 #  json.dump(json.dumps(results), f)
 #  f.close()
