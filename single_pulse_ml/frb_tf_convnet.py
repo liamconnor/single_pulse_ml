@@ -468,7 +468,7 @@ def save_results(fout, results):
 #  json.dump(json.dumps(results), f)
 #  f.close()
 
-  pickle.dump(results, f, protocol=2))
+  pickle.dump(results, f, protocol=2)
   f.close()
 
   print("Wrote to json file: %s" % fout)
