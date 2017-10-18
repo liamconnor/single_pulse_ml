@@ -661,7 +661,7 @@ if __name__=='__main__':
   global nfilt2
   nfilt2 = 64
 
-  if len(sys.argv[1]) > 1:
+  if len(sys.argv) > 1:
     fn = sys.argv[1]
 
   pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
