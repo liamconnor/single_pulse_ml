@@ -620,7 +620,7 @@ def loop():
   EV = []
   D = []
 
-  model_dir="/model/frb_convnet_model/"
+  model_dir="./model/frb_convnet_model/"
 
   for ii in widths:
     for nf in nfilters:
