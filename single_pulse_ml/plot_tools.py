@@ -1,9 +1,13 @@
 import numpy as np
-import matplotlib 
-matplotlib.use('Agg')
 
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
+try:
+    import matplotlib 
+    matplotlib.use('Agg')
+
+    import matplotlib.pyplot as plt
+    from matplotlib import gridspec
+except:
+    pass
 
 def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4, 
                     figname=None, cmap='RdBu', suptitle=''):
