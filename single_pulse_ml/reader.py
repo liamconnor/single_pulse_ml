@@ -30,10 +30,10 @@ def rebin_arr(data, n0_f=1, n1_f=1):
 	assert len(data.shape)==2
 
 	n0, n1 = data.shape
-	print(data.shape, n0, n0//n0_f*n0_f, n1, n1//n1_f * n1_f)
 	data_rb = data[:n0//n0_f * n0_f, :n1//n1_f * n1_f]
-	data_rb = data_rb.reshape(n0_f, n0/n0_f, n1_f, n1/n1_f)
+	data_rb = data_rb.reshape(n0_f, n0//n0_f, n1_f, n1//n1_f)
 	data_rb = data_rb.mean(1).mean(-1)
+	
 	return data_rb
 
 def im(data, title='',figname='out.png'):
