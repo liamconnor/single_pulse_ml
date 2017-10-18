@@ -368,7 +368,6 @@ if __name__=='__main__':
     # width = (log(5*0.0016), 0.1)
     # spec_ind = (0.)
     # ntime = 1000
-    ntriggers = 10000
     # fluence=(0.03,0.3)*5
 
     # snr_min = 0.
@@ -382,7 +381,7 @@ if __name__=='__main__':
 
     # Read in false positive triggers from the Pathfinder
     fn_rfi = './data/all_RFI_8001.npy'
-    f_rfi = np.load(fn_rfi)[:ntriggers]
+    f_rfi = np.load(fn_rfi)
 
     # f_rfi = np.random.normal(0, 1, ntriggers*(nfreq*ntime+1)).reshape(ntriggers, -1)
     # f_rfi[:, -1] = 0
@@ -394,10 +393,9 @@ if __name__=='__main__':
 
     f_noise = None
 
-    outdir = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/'
+    outdir = './data/'
     outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.npy" \
                     % (ntime, nfreq, round(max(dm)), SNR_MAX)
-    print outfn
     figname = './plots/training_set' 
 
     # Read in data array and labels from RFI file
@@ -415,11 +413,10 @@ if __name__=='__main__':
     jj = 0
 
     # Loop through total number of events
-#    for ii in xrange(nrfi + nsim):
     while len(arr_sim_full) < (NRFI + NSIM):
         ii += 1
         if ii % 500 == 0:
-            print "Trigger number %d" % ii
+            print("Trigger number %d" % ii)
         # If ii is greater than the number of RFI events in f, 
         # simulate an FRB
         #sim = bool(ii >= NRFI)
@@ -462,13 +459,13 @@ if __name__=='__main__':
     yfull = np.array(yfull)
     arr_sim_full = np.concatenate(arr_sim_full, axis=-1).reshape(-1, nfreq*ntime)
 
-    print "\nGenerated %d simulated FRBs with mean SNR: %f" % (NSIM, snr.mean())
-    print "Used %d RFI triggers" % NRFI
-    print "Total triggers with SNR>10: %d" % arr_sim_full.shape[0]
+    print("\nGenerated %d simulated FRBs with mean SNR: %f" % (NSIM, snr.mean()))
+    print("Used %d RFI triggers" % NRFI)
+    print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
 
     full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
 
-    print "Saving training/label data to:\n%s" % outfn
+    print("Saving training/label data to:\n%s" % outfn)
 
     # save down the training data with labels
     np.save(outfn, full_label_arr)
