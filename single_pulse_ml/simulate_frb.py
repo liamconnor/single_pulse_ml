@@ -9,6 +9,7 @@ import glob
 try:
     import matplotlib.pyplot as plt
 except:
+    plt = None
     pass
 
 import reader
@@ -325,7 +326,8 @@ def gen_simulated_frb(nfreq=16, ntime=250, sim=True, fluence=(0.03,0.3),
         return data
 
     # Call class using parameter ranges
-    ES = EventSimulator(dm=dm, scat_factor=scat_factor, fluence=fluence, width=width, spec_ind=spec_ind)
+    ES = EventSimulator(dm=dm, scat_factor=scat_factor, fluence=fluence, 
+                        width=width, spec_ind=spec_ind)
     # Realize event parameters for a single FRB
     dm, fluence, width, spec_ind, disp_ind, scat_factor = ES.draw_event_parameters()
     # Create event class with those parameters 
@@ -335,7 +337,8 @@ def gen_simulated_frb(nfreq=16, ntime=250, sim=True, fluence=(0.03,0.3),
 
     if plot_burst:
         subplot(211)
-        imshow(data.reshape(-1, ntime), aspect='auto', interpolation='nearest', vmin=0, vmax=10)
+        imshow(data.reshape(-1, ntime), aspect='auto', 
+               interpolation='nearest', vmin=0, vmax=10)
         subplot(313)
         plot(data.reshape(-1, ntime).mean(0))
 
@@ -472,6 +475,9 @@ if __name__=='__main__':
 
     # save down the training data with labels
     np.save(outfn, full_label_arr)
+
+    if plt==None:
+        mk_plot = False 
 
     if mk_plot == True:
         kk=0
