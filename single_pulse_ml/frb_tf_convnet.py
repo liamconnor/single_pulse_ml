@@ -468,7 +468,7 @@ def save_results(fout, results):
 #  json.dump(json.dumps(results), f)
 #  f.close()
 
-  pickle.dump(results, f)
+  pickle.dump(results, f, protocol=2))
   f.close()
 
   print("Wrote to json file: %s" % fout)
@@ -615,12 +615,12 @@ def time_parameters():
 def loop():
   import os
 
-  widths = [16, 32, 80]
+  widths = [16, 32, 80, 120]
   nfilters = [8, 16, 24, 32, 40, 48, 52, 64]
   EV = []
   D = []
 
-  model_dir="./model/frb_convnet_model/"
+  model_dir="./model/frb_convnet_model"
 
   for ii in widths:
     for nf in nfilters:
