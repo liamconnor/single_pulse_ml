@@ -7,9 +7,12 @@ import os
 import time
 import numpy as np
 import glob
-import matplotlib.pylab as plt
 import pickle
 
+try:
+	import matplotlib.pylab as plt
+except:
+	pass 
 
 def read_pathfinder_npy(fn):
 	data = np.load(fn)
