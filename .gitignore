@@ -6,5 +6,6 @@
 ./single_pulse_ml/*npy
 ./single_pulse_ml/*hdf5
 #./single_pulse_ml/plots/*png
+./single_pulse_ml/model
 
 /*.egg-info
