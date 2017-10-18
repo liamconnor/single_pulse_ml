@@ -653,7 +653,6 @@ def loop():
   return EV, widths, D
 
 if __name__=='__main__':
-  import h5py
 
   fn = '/Users/connor/code/machine_learning/single_pulse_ml/single_pulse_ml/data/test_triggers_mixed.npy'
   fn = './data/data_nt250_nf16_dm0.npy'
