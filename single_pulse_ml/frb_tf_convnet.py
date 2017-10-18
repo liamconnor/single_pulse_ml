@@ -26,11 +26,13 @@ from tensorflow.contrib import learn
 from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_fn_lib
 from sklearn.model_selection import train_test_split
 
-import single_pulse_ml.reader as reader
+import reader as reader
 import plot_tools
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
+# Check if python3 is being used
+py3 = sys.version_info[0] > 2
 
 def get_predictions(data, classifier):
   """ Take test data and a classifier and 
@@ -50,7 +52,11 @@ def get_predictions(data, classifier):
 
   while True:
     try:
-      pred = predictions.next()
+      if py3 is True:
+        pred = predictions.__next__()
+      else:
+        pred = predictions.next()
+
       label.append(pred['classes'])
       prob.append(pred['probabilities'])
     except StopIteration:
@@ -140,14 +146,11 @@ def cnn_model_1d(features, labels, mode):
 
   print(learn.ModeKeys.INFER, learn.ModeKeys.TRAIN)
 
-  print(1)
-
   # Calculate Loss (for both TRAIN and EVAL modes)
   if mode != learn.ModeKeys.INFER:
     onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=2)
     loss = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels, logits=logits)
-  print(2)
   # Configure the Training Op (for TRAIN mode)
   if mode == learn.ModeKeys.TRAIN:
     train_op = tf.contrib.layers.optimize_loss(
@@ -156,7 +159,6 @@ def cnn_model_1d(features, labels, mode):
         learning_rate=0.001,
         optimizer="SGD")
 
-  print(3)
   # Generate Predictions
   predictions = {
       "classes": tf.argmax(
@@ -657,11 +659,14 @@ if __name__=='__main__':
   fn = './data/data_nt250_nf16_dm0.npy'
   fn = './data/_data_nt250_nf16_dm0_snr15.npy'
 
+  global nfilt2
+  nfilt2 = 64
+
   pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-            ntime=250, train_size=0.5, plot=False, twidth=32, \
+            ntime=250, train_size=0.5, plot=False, twidth=16, \
             model_dir='./model/tf_models/')
 
-  loop()
+  #loop()
 
 #  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
 #            ntime=250, train_size=0.75, plot=False, twidth=32)

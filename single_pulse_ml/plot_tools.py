@@ -35,16 +35,26 @@ def get_title2(y_pred, y_test, target_names, i):
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
 
-def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False):
+def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outname='out'):
 
     assert len(data.shape) == 3, "data should be (batchsize, nside, nside)"
 
     ranking = np.argsort(prob_arr[:, 0])
 
-    if ascending is True:
+    if ascending == True:
         ranking = ranking[::-1]
+        title_str = 'RFI most probable'
+        outname = outname + 'rfi.png'
+    elif ascending == 'mid':
+        cp = np.argsort(abs(prob_arr[:,0]-0.5))
+        ranking = cp[:h*w]
+        title_str = 'Marginal events'
+        outname = outname + 'marginal.png'
+    else:
+        title_str = 'FRB most probable'
+        outname = outname + 'FRB.png '
 
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(15,15))
 
     if h is None:
         h = data.shape[1]
@@ -57,9 +67,14 @@ def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False):
             cmap='RdBu', interpolation='nearest', aspect='auto')
         plt.axis('off')
 #        plt.title(11, 25, str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
-        plt.title(str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
+        plt.title(str(round(prob_arr[ranking[ii], 1], 2)), fontsize=14)
 
-    plt.suptitle('Top Events', fontsize=40)
+    plt.suptitle(title_str, fontsize=40)
+
+    if outname is not None:
+        fig.savefig(outname)
+
+    plt.show()
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
