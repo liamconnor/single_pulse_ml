@@ -6,7 +6,10 @@ import logging
 import numpy as np
 import numpy.random as nprand
 import glob
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 
 import reader
 import dataproc
