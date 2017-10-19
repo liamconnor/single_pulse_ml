@@ -131,6 +131,7 @@ if __name__=='__main__':
     train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
 
     eval_labels = (2*np.random.rand(len(eval_data))).astype(int)
+    train_labels = (2*np.random.rand(len(train_data))).astype(int)
 
     train_data_1d = train_data.mean(1)
     eval_data_1d = eval_data.mean(1)
