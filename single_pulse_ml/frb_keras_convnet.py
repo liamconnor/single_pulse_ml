@@ -1,4 +1,5 @@
 import numpy as np
+from np.random import seed
 
 import keras
 from keras.models import Sequential
