@@ -56,10 +56,13 @@ def construct_conv2d(features_only=False, fit=False,
 
     model.add(Dense(1024, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(1, activation='softmax'))
+    model.add(Dense(2, activation='softmax'))
 
     sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
+
+    train_labels = keras.utils.to_categorical(train_labels)
+    eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
         model.fit(train_data, train_labels, batch_size=32, epochs=10)
