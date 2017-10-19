@@ -37,10 +37,10 @@ def construct_conv2d(features_only=False, fit=False,
     if train_data is not None:
         nfreq=train_data.shape[1]
         ntime=train_data.shape[2]
-        
+
     model = Sequential()
     # this applies 32 convolution filters of size 3x3 each.
-    model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(16, 250, 1)))
+    model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(nfreq, ntime, 1)))
     #model.add(Conv2D(32, (3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.4))
