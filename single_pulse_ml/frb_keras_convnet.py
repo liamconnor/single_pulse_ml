@@ -31,8 +31,13 @@ def split_data(fn, train_size=0.75):
 
 def construct_conv2d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
-                     eval_data=None, eval_labels=None):
+                     eval_data=None, eval_labels=None, 
+                     nfreq=16, ntime=250):
 
+    if train_data is not None:
+        nfreq=train_data.shape[1]
+        ntime=train_data.shape[2]
+        
     model = Sequential()
     # this applies 32 convolution filters of size 3x3 each.
     model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(16, 250, 1)))
