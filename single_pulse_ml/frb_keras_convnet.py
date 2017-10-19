@@ -54,7 +54,7 @@ def construct_conv2d(features_only=False, fit=False,
     model.add(Dense(1, activation='softmax'))
 
     sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
     if fit is True:
         model.fit(train_data, train_labels, batch_size=32, epochs=10)
