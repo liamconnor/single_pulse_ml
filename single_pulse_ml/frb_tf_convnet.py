@@ -620,7 +620,7 @@ def loop():
   EV = []
   D = []
 
-  model_dir="./model/frb_convnet_model"
+  model_dir="./model/frb_convnet_model2"
 
   for ii in widths:
     for nf in nfilters:
@@ -650,7 +650,7 @@ if __name__=='__main__':
   if len(sys.argv) > 1:
     fn = sys.argv[1]
 
-  os.system('rm -rf ./model/tf_models/')
+  #os.system('rm -rf ./model/tf_models/')
 
   #pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
   #          ntime=250, train_size=0.5, plot=False, twidth=16, \

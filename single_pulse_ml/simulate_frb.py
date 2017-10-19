@@ -365,8 +365,8 @@ if __name__=='__main__':
     scat_factor=(-3., -0.5)
     freq = np.linspace(freq_low, freq_up, nfreq)
 
-    SNR_MIN = 8.
-    SNR_MAX = 100.
+    SNR_MIN = 6.
+    SNR_MAX = 50.
 
     # Let's try the dispersion version:
     # dm = (1.0, 25)
