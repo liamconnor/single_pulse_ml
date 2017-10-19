@@ -119,7 +119,7 @@ if __name__=='__main__':
     nfreq=16
     ntime=250
     tslice = (ntime//2-width, ntime//2+width)
-
+    print(train_data[:,:,tslice].shape)
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
