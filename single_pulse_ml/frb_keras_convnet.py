@@ -64,7 +64,9 @@ def construct_conv2d(features_only=False, fit=False,
 
     return model 
 
-def construct_conv1d(features_only=False, fit=False):
+def construct_conv1d(features_only=False, fit=False, 
+                     train_data=None, train_labels=None,
+                     eval_data=None, eval_labels=None):
 
     model = Sequential()
     model.add(Conv1D(64, 3, activation='relu', input_shape=(250, 1)))
@@ -122,7 +124,7 @@ if __name__=='__main__':
     eval_data_1d = eval_data.mean(1)
 
     left_branch_1d = construct_conv1d(features_only=False, fit=True,
-                            train_data=train_data, eval_data=eval_data, 
+                            train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels)
 
     right_branch_2d = construct_conv2d(features_only=False, fit=True,
