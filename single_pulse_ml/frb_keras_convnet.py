@@ -87,8 +87,8 @@ def construct_conv1d(features_only=False, fit=False,
                    metrics=['accuracy'])
 
     if fit is True:
-        model.fit(d_train.mean(1), y_train, batch_size=16, epochs=10)
-        score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
+        model.fit(train_data.mean(1), train_labels, batch_size=16, epochs=10)
+        score = model.evaluate(eval_data, y_test, batch_size=16)
         print("Conv1d only")
         print(score)
 
