@@ -80,7 +80,7 @@ def construct_conv1d(features_only=False, fit=False,
         return model
 
     model.add(Dropout(0.5))
-    model.add(Dense(2, activation='sigmoid'))
+    model.add(Dense(1, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                    optimizer='rmsprop',
