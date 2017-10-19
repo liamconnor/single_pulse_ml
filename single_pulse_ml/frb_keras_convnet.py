@@ -59,6 +59,7 @@ def construct_conv2d(features_only=False, fit=False,
     if fit is True:
         model.fit(train_data, train_labels, batch_size=32, epochs=10)
         score = model.evaluate(eval_data, eval_labels, batch_size=32)
+        print("Conv1d only")
         print(score)
 
     return model 
@@ -86,6 +87,7 @@ def construct_conv1d(features_only=False, fit=False):
     if fit is True:
         model.fit(d_train.mean(1), y_train, batch_size=16, epochs=10)
         score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
+        print("Conv1d only")
         print(score)
 
     return model
