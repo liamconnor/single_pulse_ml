@@ -1,3 +1,9 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import sys
+
 import numpy as np
 from numpy.random import seed
 
@@ -93,11 +99,21 @@ def merge_models(left_branch, right_branch):
 if __name__=='__main__':
 	nfreq=16
 	ntime=250
+
+	fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
+
+	if len(sys.argv) > 1:
+	    fn = sys.argv[1]
+
+	train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
+
 	left_branch_1d = construct_conv1d(features_only=True, fit=False)
 	right_branch_2d = construct_conv2d(features_only=True, fit=False)
 	model = merge_models(left_branch_1d, right_branch_2d)
 	seed(2017)
 	model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
+	score = m.evaluate([d_test.mean(1), d_test], y_test, batch_size=32)
+
 
 #	seed(2017)
 #	model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)

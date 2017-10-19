@@ -640,42 +640,6 @@ def loop():
 
   return EV, widths, D
 
-if __name__=='__main__':
-
-  fn = './data/_data_nt250_nf16_dm0_snr15.npy'
-
-  global nfilt2
-  nfilt2 = 64
-
-  if len(sys.argv) > 1:
-    fn = sys.argv[1]
-
-  #os.system('rm -rf ./model/tf_models/')
-
-  #pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-  #          ntime=250, train_size=0.5, plot=False, twidth=16, \
-  #          model_dir='./model/tf_models/')
-
-  #print(ev)
-
-  loop()
-
-#  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-#            ntime=250, train_size=0.75, plot=False, twidth=32)
-#  print(ev)
-
-#  pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-#            ntime=250, train_size=0.75, plot=False, twidth=16)
-
-  # f = h5py.File('output.hdf5', 'w')
-  # f.create_dataset('data', d)
-  # f.create_dataset('probability', np.array(prob))
-  # f.create_dataset('true_label', np.array(e))
-  # f.create_dataset('pred_label', np.array(p))
-  # f.close()
-  # print("Wrote to output.hdf5")
-
-
 
 def tfun(f):
   nfreq, ntime = 16, 250
@@ -703,7 +667,25 @@ def gen_1d_timestream(n_batches=1000, ntime=1000, fnout='./data/data_1d.npy', si
   reader.write_data(data, labels, fname=fnout)
 
 
+if __name__=='__main__':
 
+  fn = './data/_data_nt250_nf16_dm0_snr15.npy'
+
+  global nfilt2
+  nfilt2 = 64
+
+  if len(sys.argv) > 1:
+    fn = sys.argv[1]
+
+  #os.system('rm -rf ./model/tf_models/')
+
+  #pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
+  #          ntime=250, train_size=0.5, plot=False, twidth=16, \
+  #          model_dir='./model/tf_models/')
+
+  #print(ev)
+
+  loop()
 
 
 
