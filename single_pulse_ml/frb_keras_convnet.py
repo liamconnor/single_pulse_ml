@@ -118,7 +118,7 @@ if __name__=='__main__':
     width=32
     nfreq=16
     ntime=250
-    tl, th = ntime//2-width, ntime//2+width)
+    tl, th = ntime//2-width, ntime//2+width
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
