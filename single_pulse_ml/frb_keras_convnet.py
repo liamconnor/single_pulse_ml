@@ -117,6 +117,7 @@ if __name__=='__main__':
 	seed(2017)
 	model.fit([train_data_1d, train_data], train_labels, 
 		batch_size = 2000, nb_epoch = 10, verbose = 1)
+	print(eval_data.shape, eval_data_1d.shape, eval_labels.shape)
 	score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
 	print(score)
 
