@@ -17,77 +17,77 @@ from sklearn.model_selection import train_test_split
 
 
 def split_data(fn, train_size=0.75):
-	fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
-	f = np.load(fn)
+    fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
+    f = np.load(fn)
 
-	train_data, eval_data, train_labels, eval_labels = \
+    train_data, eval_data, train_labels, eval_labels = \
               train_test_split(f[:, :-1], f[:, -1], train_size=train_size)
 
-	train_data = train_data[..., None].reshape(-1, 16, 250, 1)
-	eval_data = eval_data[..., None].reshape(-1, 16, 250, 1)
+    train_data = train_data[..., None].reshape(-1, 16, 250, 1)
+    eval_data = eval_data[..., None].reshape(-1, 16, 250, 1)
 
-	return train_data, eval_data, train_labels, eval_labels
+    return train_data, eval_data, train_labels, eval_labels
 
 
 def construct_conv2d(features_only=False, fit=False):
-	model = Sequential()
-	# this applies 32 convolution filters of size 3x3 each.
-	model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(16, 250, 1)))
-	#model.add(Conv2D(32, (3, 3), activation='relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	model.add(Dropout(0.4))
+    model = Sequential()
+    # this applies 32 convolution filters of size 3x3 each.
+    model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(16, 250, 1)))
+    #model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.4))
 
-	model.add(Conv2D(64, (5, 5), activation='relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	model.add(Dropout(0.4))
-	model.add(Flatten())
-	model.add(Dense(1024, activation='relu'))
+    model.add(Conv2D(64, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.4))
+    model.add(Flatten())
+    model.add(Dense(1024, activation='relu'))
 
-	if features_only is True:
-		return model
+    if features_only is True:
+        return model
 
-	model.add(Dense(1024, activation='relu'))
-	model.add(Dropout(0.5))
-	model.add(Dense(2, activation='softmax'))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(2, activation='softmax'))
 
-	sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-	model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-	if fit is True:
-		model.fit(d_train, y_train, batch_size=32, epochs=10)
-	#score = model.evaluate(d_test, y_test, batch_size=32)
+    if fit is True:
+        model.fit(d_train, y_train, batch_size=32, epochs=10)
+    #score = model.evaluate(d_test, y_test, batch_size=32)
 
-	return model 
+    return model 
 
 def construct_conv1d(features_only=False, fit=False):
 
-	model = Sequential()
-	model.add(Conv1D(64, 3, activation='relu', input_shape=(250, 1)))
-	model.add(Conv1D(64, 3, activation='relu'))
-	model.add(MaxPooling1D(3))
-	model.add(Conv1D(128, 3, activation='relu'))
-	model.add(Conv1D(128, 3, activation='relu'))
-	model.add(GlobalAveragePooling1D())
+    model = Sequential()
+    model.add(Conv1D(64, 3, activation='relu', input_shape=(250, 1)))
+    model.add(Conv1D(64, 3, activation='relu'))
+    model.add(MaxPooling1D(3))
+    model.add(Conv1D(128, 3, activation='relu'))
+    model.add(Conv1D(128, 3, activation='relu'))
+    model.add(GlobalAveragePooling1D())
 
-	if features_only is True:
-		return model
+    if features_only is True:
+        return model
 
-	model.add(Dropout(0.5))
-	model.add(Dense(2, activation='sigmoid'))
+    model.add(Dropout(0.5))
+    model.add(Dense(2, activation='sigmoid'))
 
-	model.compile(loss='binary_crossentropy',
-	               optimizer='rmsprop',
-	               metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy',
+                   optimizer='rmsprop',
+                   metrics=['accuracy'])
 
-	if fit is True:
-		model.fit(d_train.mean(1), y_train, batch_size=16, epochs=10)
-		#score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
+    if fit is True:
+        model.fit(d_train.mean(1), y_train, batch_size=16, epochs=10)
+        #score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
 
-	return model
+    return model
 
 def merge_models(left_branch, right_branch):
-  	# Configure the accuracy metric for evaluation
-  	metrics = {
+    # Configure the accuracy metric for evaluation
+    metrics = {
       "accuracy":
           learn.MetricSpec(
               metric_fn=tf.metrics.accuracy, prediction_key="classes"),
@@ -101,46 +101,46 @@ def merge_models(left_branch, right_branch):
           learn.MetricSpec(
               metric_fn=tf.metrics.recall, prediction_key="classes"),}
 
-  	model = Sequential()
-  	model.add(Merge([left_branch, right_branch], mode = 'concat'))
-  	#model.add(Dense(256, activation='relu'))
-  	model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
-	sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
-	model.compile(loss = 'binary_crossentropy', 
-				  optimizer = sgd, 
-				  metrics = metrics)
+    model = Sequential()
+    model.add(Merge([left_branch, right_branch], mode = 'concat'))
+    #model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
+    sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
+    model.compile(loss = 'binary_crossentropy', 
+                  optimizer = sgd, 
+                  metrics = metrics)
 
-	return model
+    return model
 
 
 if __name__=='__main__':
-	nfreq=16
-	ntime=250
+    nfreq=16
+    ntime=250
 
-	fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
+    fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
-	if len(sys.argv) > 1:
-	    fn = sys.argv[1]
+    if len(sys.argv) > 1:
+        fn = sys.argv[1]
 
-	train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
-	
-	train_data_1d = train_data.mean(1)
-	eval_data_1d = eval_data.mean(1)
+    train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
+    
+    train_data_1d = train_data.mean(1)
+    eval_data_1d = eval_data.mean(1)
 
-	left_branch_1d = construct_conv1d(features_only=True, fit=False)
-	right_branch_2d = construct_conv2d(features_only=True, fit=False)
-	model = merge_models(left_branch_1d, right_branch_2d)
+    left_branch_1d = construct_conv1d(features_only=True, fit=False)
+    right_branch_2d = construct_conv2d(features_only=True, fit=False)
+    model = merge_models(left_branch_1d, right_branch_2d)
 
-	seed(2017)
-	model.fit([train_data_1d, train_data], train_labels, 
-		batch_size = 2000, nb_epoch = 10, verbose = 1)
-	print(eval_data.shape, eval_data_1d.shape, eval_labels.shape)
-	score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
-	print(score)
+    seed(2017)
+    model.fit([train_data_1d, train_data], train_labels, 
+        batch_size = 2000, nb_epoch = 10, verbose = 1)
+    print(eval_data.shape, eval_data_1d.shape, eval_labels.shape)
+    score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
+    print(score)
 
 
-#	seed(2017)
-#	model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
+#   seed(2017)
+#   model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
 
 # Junk Code that might not be junk.
 # Generate dummy data
