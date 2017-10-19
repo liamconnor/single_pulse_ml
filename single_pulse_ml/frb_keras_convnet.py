@@ -9,34 +9,18 @@ from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 
 
-nfreq=16
-ntime=250
+def split_data(fn, train_size=0.75):
+	fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
+	f = np.load(fn)
 
-# Generate dummy data
-x_train = np.random.random((100, 100, 100, 3))
-y_train = keras.utils.to_categorical(np.random.randint(10, size=(100, 1)), num_classes=10)
-x_test = np.random.random((20, 100, 100, 3))
-y_test = keras.utils.to_categorical(np.random.randint(10, size=(20, 1)), num_classes=10)
+	train_data, eval_data, train_labels, eval_labels = \
+              train_test_split(f[:, :-1], f[:, -1], train_size=train_size)
 
-fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
-f = load(fn)
-d, y = f[:, :-1], f[:, -1]
+	train_data = train_data[..., None].reshape(-1, 16, 250, 1)
+	eval_data = eval_data[..., None].reshape(-1, 16, 250, 1)
 
-d_train, y_train = (f[::10, :-1]).astype(np.float32), (f[::10, -1]).astype(np.int32)
-d_test, y_test = (f[1::10, :-1]).astype(np.float32), (f[1::10, -1]).astype(np.int32)
+	return train_data, eval_data, train_labels, eval_labels
 
-d_train = d_train[..., None].reshape(-1, 16, 250, 1)
-d_test = d_test[..., None].reshape(-1, 16, 250, 1)
-
-# Turn these into categorical vectors
-y_train_cat = keras.utils.to_categorical(y_train)
-y_test_cat = keras.utils.to_categorical(y_test)
-
-train_data, eval_data, train_labels, eval_labels = \
-              train_test_split(d, y, train_size=0.75)
-
-train_data = train_data.reshape(-1, nfreq, ntime)[..., None]
-eval_data = eval_data.reshape(-1, nfreq, ntime)[..., None]
 
 def construct_conv2d(features_only=False, fit=False):
 	model = Sequential()
@@ -104,12 +88,44 @@ def merge_models(left_branch, right_branch):
 
 	return model
 
+
+if __name__='__main__':
+	nfreq=16
+	ntime=250
+	left_branch_1d = construct_conv1d(features_only=True, fit=False)
+	right_branch_2d = construct_conv2d(features_only=True, fit=False)
+	model = merge_models(left_branch_1d, right_branch_2d)
+	seed(2017)
+	model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
+
 #	seed(2017)
 #	model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
 
+# Junk Code that might not be junk.
+# Generate dummy data
+# x_train = np.random.random((100, 100, 100, 3))
+# y_train = keras.utils.to_categorical(np.random.randint(10, size=(100, 1)), num_classes=10)
+# x_test = np.random.random((20, 100, 100, 3))
+# y_test = keras.utils.to_categorical(np.random.randint(10, size=(20, 1)), num_classes=10)
 
-m.fit([d_train.mean(1), d_train], y_train, batch_size = 2000, nb_epoch = 100, verbose = 1)
+# fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
+# f = np.load(fn)
+# d, y = f[:, :-1], f[:, -1]
 
+# d_train, y_train = (f[::10, :-1]).astype(np.float32), (f[::10, -1]).astype(np.int32)
+# d_test, y_test = (f[1::10, :-1]).astype(np.float32), (f[1::10, -1]).astype(np.int32)
 
+# d_train = d_train[..., None].reshape(-1, 16, 250, 1)
+# d_test = d_test[..., None].reshape(-1, 16, 250, 1)
+
+# # Turn these into categorical vectors
+# y_train_cat = keras.utils.to_categorical(y_train)
+# y_test_cat = keras.utils.to_categorical(y_test)
+
+# train_data, eval_data, train_labels, eval_labels = \
+#               train_test_split(d, y, train_size=0.75)
+
+# train_data = train_data.reshape(-1, nfreq, ntime)[..., None]
+# eval_data = eval_data.reshape(-1, nfreq, ntime)[..., None]
 
 
