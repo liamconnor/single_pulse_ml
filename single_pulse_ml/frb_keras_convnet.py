@@ -89,7 +89,7 @@ def merge_models(left_branch, right_branch):
 	return model
 
 
-if __name__='__main__':
+if __name__=='__main__':
 	nfreq=16
 	ntime=250
 	left_branch_1d = construct_conv1d(features_only=True, fit=False)
