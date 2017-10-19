@@ -95,8 +95,8 @@ def merge_models(left_branch, right_branch):
     model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
     sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
     model.compile(loss = 'binary_crossentropy', 
-                  optimizer = sgd, 
-                  metrics = metrics)
+                  optimizer=sgd, 
+                  metrics=['accuracy'])
 
     return model
 
