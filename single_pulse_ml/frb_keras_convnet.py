@@ -121,8 +121,13 @@ if __name__=='__main__':
     train_data_1d = train_data.mean(1)
     eval_data_1d = eval_data.mean(1)
 
-    left_branch_1d = construct_conv1d(features_only=True, fit=True)
-    right_branch_2d = construct_conv2d(features_only=True, fit=True)
+    left_branch_1d = construct_conv1d(features_only=False, fit=True,
+                            train_data=train_data, eval_data=eval_data, 
+                            train_labels=train_labels, eval_labels=eval_labels)
+
+    right_branch_2d = construct_conv2d(features_only=False, fit=True,
+                            train_data=train_data, eval_data=eval_data, 
+                            train_labels=train_labels, eval_labels=eval_labels)
 
     model = merge_models(left_branch_1d, right_branch_2d)
 
