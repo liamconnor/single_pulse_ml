@@ -126,6 +126,7 @@ if __name__=='__main__':
         fn = sys.argv[1]
 
     train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
+    print(train_data.shape, tslice)
     print(train_data[:,:,tslice].shape)
 
     train_data_1d = train_data.mean(1)
