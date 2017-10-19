@@ -108,7 +108,7 @@ if __name__=='__main__':
 	train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
 	
 	train_data_1d = train_data.mean(1)
-	eval_data_1d = train_data.mean(1)
+	eval_data_1d = eval_data.mean(1)
 
 	left_branch_1d = construct_conv1d(features_only=True, fit=False)
 	right_branch_2d = construct_conv2d(features_only=True, fit=False)
