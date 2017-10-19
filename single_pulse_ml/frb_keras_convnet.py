@@ -87,19 +87,7 @@ def construct_conv1d(features_only=False, fit=False):
 
 def merge_models(left_branch, right_branch):
     # Configure the accuracy metric for evaluation
-    metrics = {
-      "accuracy":
-          learn.MetricSpec(
-              metric_fn=tf.metrics.accuracy, prediction_key="classes"),
-      "precision":
-          learn.MetricSpec(
-              metric_fn=tf.metrics.precision, prediction_key="classes"),
-      "false_negatives":
-          learn.MetricSpec(
-              metric_fn=tf.metrics.false_negatives, prediction_key="classes"),
-      "recall":
-          learn.MetricSpec(
-              metric_fn=tf.metrics.recall, prediction_key="classes"),}
+    metrics = ["accuracy", "precision", "false_negatives", "recall"] 
 
     model = Sequential()
     model.add(Merge([left_branch, right_branch], mode = 'concat'))
