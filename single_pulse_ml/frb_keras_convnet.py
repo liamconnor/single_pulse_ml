@@ -86,12 +86,30 @@ def construct_conv1d(features_only=False, fit=False):
 	return model
 
 def merge_models(left_branch, right_branch):
+  	# Configure the accuracy metric for evaluation
+  	metrics = {
+      "accuracy":
+          learn.MetricSpec(
+              metric_fn=tf.metrics.accuracy, prediction_key="classes"),
+      "precision":
+          learn.MetricSpec(
+              metric_fn=tf.metrics.precision, prediction_key="classes"),
+      "false_negatives":
+          learn.MetricSpec(
+              metric_fn=tf.metrics.false_negatives, prediction_key="classes"),
+      "recall":
+          learn.MetricSpec(
+              metric_fn=tf.metrics.recall, prediction_key="classes"),
+  	}
+
 	model = Sequential()
 	model.add(Merge([left_branch, right_branch], mode = 'concat'))
 	#model.add(Dense(256, activation='relu'))
 	model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
 	sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
-	model.compile(loss = 'binary_crossentropy', optimizer = sgd, metrics = ['accuracy'])
+	model.compile(loss = 'binary_crossentropy', 
+				  optimizer = sgd, 
+				  metrics = metrics)
 
 	return model
 
