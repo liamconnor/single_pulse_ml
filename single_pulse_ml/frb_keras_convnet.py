@@ -29,7 +29,10 @@ def split_data(fn, train_size=0.75):
     return train_data, eval_data, train_labels, eval_labels
 
 
-def construct_conv2d(features_only=False, fit=False):
+def construct_conv2d(features_only=False, fit=False, 
+                     train_data=None, train_labels=None,
+                     eval_data=None, eval_labels=None):
+
     model = Sequential()
     # this applies 32 convolution filters of size 3x3 each.
     model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(16, 250, 1)))
@@ -54,8 +57,9 @@ def construct_conv2d(features_only=False, fit=False):
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
     if fit is True:
-        model.fit(d_train, y_train, batch_size=32, epochs=10)
-    #score = model.evaluate(d_test, y_test, batch_size=32)
+        model.fit(train_data, train_labels, batch_size=32, epochs=10)
+        score = model.evaluate(eval_data, eval_labels, batch_size=32)
+        print(score)
 
     return model 
 
@@ -81,7 +85,8 @@ def construct_conv1d(features_only=False, fit=False):
 
     if fit is True:
         model.fit(d_train.mean(1), y_train, batch_size=16, epochs=10)
-        #score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
+        score = model.evaluate(d_test.mean(1), y_test, batch_size=16)
+        print(score)
 
     return model
 
@@ -100,7 +105,6 @@ def merge_models(left_branch, right_branch):
 
     return model
 
-
 if __name__=='__main__':
     nfreq=16
     ntime=250
@@ -116,15 +120,16 @@ if __name__=='__main__':
     eval_data_1d = eval_data.mean(1)
 
     left_branch_1d = construct_conv1d(features_only=True, fit=False)
-    right_branch_2d = construct_conv2d(features_only=True, fit=False)
+    right_branch_2d = construct_conv2d(features_only=True, fit=True)
+
     model = merge_models(left_branch_1d, right_branch_2d)
 
     seed(2017)
     model.fit([train_data_1d, train_data], train_labels, 
         batch_size = 2000, nb_epoch = 10, verbose = 1)
-    print(eval_data.shape, eval_data_1d.shape, eval_labels.shape)
     score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
     print(score)
+
 
 
 #   seed(2017)
