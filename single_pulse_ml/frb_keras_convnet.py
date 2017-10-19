@@ -118,7 +118,7 @@ if __name__=='__main__':
     width=32
     nfreq=16
     ntime=250
-    tslice = (ntime//2-width, ntime//2+width)
+    tl, th = ntime//2-width, ntime//2+width)
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
@@ -126,14 +126,12 @@ if __name__=='__main__':
         fn = sys.argv[1]
 
     train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
-    print(train_data.shape, tslice)
-    print(train_data[:,:,tslice].shape)
 
     train_data_1d = train_data.mean(1)
     eval_data_1d = eval_data.mean(1)
 
     right_branch_2d = construct_conv2d(features_only=False, fit=True,
-                            train_data=train_data[:,:,tslice], eval_data=eval_data[:,:,tslice], 
+                            train_data=train_data[:,:,tl:th], eval_data=eval_data[:,:,tl:th], 
                             train_labels=train_labels, eval_labels=eval_labels)
 
     left_branch_1d = construct_conv1d(features_only=False, fit=True,
