@@ -99,10 +99,9 @@ def merge_models(left_branch, right_branch):
               metric_fn=tf.metrics.false_negatives, prediction_key="classes"),
       "recall":
           learn.MetricSpec(
-              metric_fn=tf.metrics.recall, prediction_key="classes"),
-  	}
+              metric_fn=tf.metrics.recall, prediction_key="classes"),}
 
-	model = Sequential()
+  	model = Sequential()
 	model.add(Merge([left_branch, right_branch], mode = 'concat'))
 	#model.add(Dense(256, activation='relu'))
 	model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
