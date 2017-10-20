@@ -17,6 +17,26 @@ from sklearn.model_selection import train_test_split
 
 
 def split_data(fn, train_size=0.75):
+    """ Read in numpy file and split randomly into 
+    train and test data 
+
+    Parameters:
+    ----------
+    fn : str 
+        file name
+    train_size : np.float 
+        fraction of data to train on 
+
+    Return: 
+    ------
+    train_data: np.array
+
+    eval_data: np.array
+
+    train_labels: np.array
+
+    eval_labels: np.array
+    """
     fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
     f = np.load(fn)
 
@@ -65,7 +85,7 @@ def construct_conv2d(features_only=False, fit=False,
     eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
-        model.fit(train_data, train_labels, batch_size=32, epochs=10)
+        model.fit(train_data, train_labels, batch_size=32, epochs=5)
         score = model.evaluate(eval_data, eval_labels, batch_size=32)
         print("Conv2d only")
         print(score)
@@ -74,10 +94,14 @@ def construct_conv2d(features_only=False, fit=False,
 
 def construct_conv1d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
-                     eval_data=None, eval_labels=None):
+                     eval_data=None, eval_labels=None,
+                     NTIME=250):
+
+    if train_data is not None:
+        NTIME=train_data.shape[1]
 
     model = Sequential()
-    model.add(Conv1D(64, 3, activation='relu', input_shape=(250, 1)))
+    model.add(Conv1D(64, 3, activation='relu', input_shape=(NTIME, 1)))
     model.add(Conv1D(64, 3, activation='relu'))
     model.add(MaxPooling1D(3))
     model.add(Conv1D(128, 3, activation='relu'))
@@ -118,10 +142,10 @@ def merge_models(left_branch, right_branch):
     return model
 
 if __name__=='__main__':
-    width=32
-    nfreq=16
-    ntime=250
-    tl, th = ntime//2-width, ntime//2+width
+    WIDTH=32
+    NFREQ=16
+    NTIME=250
+    tl, th = NTIME//2-WIDTH, NTIME//2+WIDTH
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
@@ -130,26 +154,27 @@ if __name__=='__main__':
 
     train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
 
-    eval_labels = (2*np.random.rand(len(eval_data))).astype(int)
-    train_labels = (2*np.random.rand(len(train_data))).astype(int)
+    train_data = train_data[:,:,tl:th]
+    eval_data = eval_data[:,:,tl:th]
 
     train_data_1d = train_data.mean(1)
     eval_data_1d = eval_data.mean(1)
 
     right_branch_2d = construct_conv2d(features_only=False, fit=True,
-                            train_data=train_data[:,:,tl:th], eval_data=eval_data[:,:,tl:th], 
+                            train_data=train_data, eval_data=eval_data, 
                             train_labels=train_labels, eval_labels=eval_labels)
 
     left_branch_1d = construct_conv1d(features_only=False, fit=True,
-                            train_data=train_data_1d, eval_data=eval_data_1d, 
-                            train_labels=train_labels, eval_labels=eval_labels)
+                            train_data=train_data_1d, eval_data=eval_data_1d[:,tl:th], 
+                            train_labels=train_labels, eval_labels=eval_labels,
+                            NTIME=64)
 
 
     model = merge_models(left_branch_1d, right_branch_2d)
 
     seed(2017)
     model.fit([train_data_1d, train_data], train_labels, 
-        batch_size = 2000, nb_epoch = 10, verbose = 1)
+        batch_size = 2000, nb_epoch = 5, verbose = 1)
     score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
     print(score)
 

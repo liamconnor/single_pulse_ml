@@ -347,14 +347,17 @@ def gen_simulated_frb(nfreq=16, ntime=250, sim=True, fluence=(0.03,0.3),
 
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
+def run_full_simulation():
+    pass
+
 if __name__=='__main__':
 
-    freq_low = 800. # first freq in array in MHz
-    freq_up = 400. # last freq in array in MHz
-    nfreq = 16
-    ntime = 250
+    FREQ_LOW = 800. # first freq in array in MHz
+    FREQ_UP = 400. # last freq in array in MHz
+    NFREQ = 16
+    NTIME = 250
 
-    delta_t = 0.0016 # Time resolution in seconds
+    DELTA_T = 0.0016 # Time resolution in seconds
 
     dm=(-.01, 0.01)
     fluence=(0.03,0.3)
@@ -363,9 +366,9 @@ if __name__=='__main__':
     spec_ind=(-1, 1)
     disp_ind=2.
     scat_factor=(-3., -0.5)
-    freq = np.linspace(freq_low, freq_up, nfreq)
+    freq = np.linspace(FREQ_LOW, FREQ_UP, NFREQ)
 
-    SNR_MIN = 6.
+    SNR_MIN = 7.
     SNR_MAX = 50.
 
     # Let's try the dispersion version:
@@ -381,8 +384,8 @@ if __name__=='__main__':
 
     # Plotting parameters
     mk_plot = True
-    nside = 7
-    nfig = nside**2
+    NSIDE = 7
+    NFIG = NSIDE**2
     lab_dict = {0 : 'RFI', 1 : 'FRB'}
 
     # Read in false positive triggers from the Pathfinder
@@ -401,7 +404,7 @@ if __name__=='__main__':
 
     outdir = './data/'
     outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.npy" \
-                    % (ntime, nfreq, round(max(dm)), SNR_MAX)
+                    % (NTIME, NFREQ, round(max(dm)), SNR_MAX)
     figname = './plots/training_set' 
 
     # Read in data array and labels from RFI file
@@ -433,14 +436,14 @@ if __name__=='__main__':
             noise = None
 
         if ii < NRFI:
-            arr_sim_full.append(data_rfi[ii].reshape(-1, nfreq*ntime))
+            arr_sim_full.append(data_rfi[ii].reshape(-1, NFREQ*NTIME))
             yfull.append(0) # Label the RFI with '0'
 
         elif (ii >=NRFI and jj < (NRFI + NSIM)):
 
-            arr_sim, params = gen_simulated_frb(nfreq=nfreq, ntime=ntime, sim=True, \
+            arr_sim, params = gen_simulated_frb(nfreq=NFREQ, ntime=NTIME, sim=True, \
                         spec_ind=spec_ind, width=width, scat_factor=scat_factor, \
-                        background_noise=noise, freq=(freq_low, freq_up), \
+                        background_noise=noise, freq=(FREQ_LOW, FREQ_UP), \
                         plot_burst=False, dm=dm, fluence=fluence)
 
             # get SNR of simulated pulse. Center should be at ntime//2
@@ -450,7 +453,7 @@ if __name__=='__main__':
 
             # for now, reject events outside of some snr range
             if snr_ > SNR_MIN and snr_ < SNR_MAX:
-                arr_sim_full.append(arr_sim.reshape(-1, nfreq*ntime))
+                arr_sim_full.append(arr_sim.reshape(-1, NFREQ*NTIME))
                 yfull.append(1) # Label the simulated FRB with '1'
 
                 ww_.append(ww)
@@ -463,7 +466,7 @@ if __name__=='__main__':
     ww_ = np.array(ww_)
     snr = np.array(snr)
     yfull = np.array(yfull)
-    arr_sim_full = np.concatenate(arr_sim_full, axis=-1).reshape(-1, nfreq*ntime)
+    arr_sim_full = np.concatenate(arr_sim_full, axis=-1).reshape(-1, NFREQ*NTIME)
 
     print("\nGenerated %d simulated FRBs with mean SNR: %f" % (NSIM, snr.mean()))
     print("Used %d RFI triggers" % NRFI)
@@ -483,9 +486,9 @@ if __name__=='__main__':
         kk=0
 
         fig = plt.figure(figsize=(15,15))
-        for ii in range(nfig):
-            plt.subplot(nside,nside,ii+1)
-            plt.imshow(arr_sim_full[ii+kk].reshape(-1, ntime), 
+        for ii in range(NFIG):
+            plt.subplot(NSIDE,NSIDE,ii+1)
+            plt.imshow(arr_sim_full[ii+kk].reshape(-1, NTIME), 
                        aspect='auto', interpolation='nearest', 
                        cmap='RdBu', vmin=-3, vmax=3)
             plt.axis('off')
@@ -495,9 +498,9 @@ if __name__=='__main__':
         fig.savefig('%s_rfi.png' % figname)
 
         fig = plt.figure(figsize=(15,15))
-        for ii in range(nfig):
-            plt.subplot(nside,nside,ii+1)
-            plt.imshow(arr_sim_full[-ii-1+kk].reshape(-1, ntime), 
+        for ii in range(NFIG):
+            plt.subplot(NSIDE,NSIDE,ii+1)
+            plt.imshow(arr_sim_full[-ii-1+kk].reshape(-1, NTIME), 
                        aspect='auto', interpolation='nearest', 
                        cmap='RdBu', vmin=-3, vmax=3)
             plt.axis('off')
