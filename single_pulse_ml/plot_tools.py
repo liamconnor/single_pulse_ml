@@ -9,6 +9,40 @@ try:
 except:
     pass
 
+
+def plot_simulated_events(figname, NSIDE, NFREQ, NTIME):
+    """ Make series of waterfall plots of training / test 
+    set. 
+    """
+
+    NFIG=NSIDE**2
+
+
+    fig = plt.figure(figsize=(15,15))
+    for ii in range(NFIG):
+        plt.subplot(NSIDE,NSIDE,ii+1)
+        plt.imshow(arr_sim_full[ii+kk].reshape(-1, NTIME), 
+                   aspect='auto', interpolation='nearest', 
+                   cmap='RdBu', vmin=-3, vmax=3)
+        plt.axis('off')
+        plt.colorbar()
+        plt.title(lab_dict[y[ii+kk]])
+        plt.xlim(125-32,125+32)
+    fig.savefig('%s_rfi.png' % figname)
+
+    fig = plt.figure(figsize=(15,15))
+    for ii in range(NFIG):
+        plt.subplot(NSIDE,NSIDE,ii+1)
+        plt.imshow(arr_sim_full[-ii-1+kk].reshape(-1, NTIME), 
+                   aspect='auto', interpolation='nearest', 
+                   cmap='RdBu', vmin=-3, vmax=3)
+        plt.axis('off')
+        plt.colorbar()
+        plt.title(lab_dict[y[ii+kk]])
+        plt.xlim(125-32,125+32)
+
+    fig.savefig('%s_frb.png' % figname)
+
 def plot_gallery(data_arr, titles, h, w, n_row=3, n_col=4, 
                     figname=None, cmap='RdBu', suptitle=''):
     """Helper function to plot a gallery of portraits"""

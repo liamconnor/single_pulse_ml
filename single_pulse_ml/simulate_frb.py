@@ -479,36 +479,14 @@ if __name__=='__main__':
     # save down the training data with labels
     np.save(outfn, full_label_arr)
 
+
     if plt==None:
         mk_plot = False 
 
     if mk_plot == True:
         kk=0
 
-        fig = plt.figure(figsize=(15,15))
-        for ii in range(NFIG):
-            plt.subplot(NSIDE,NSIDE,ii+1)
-            plt.imshow(arr_sim_full[ii+kk].reshape(-1, NTIME), 
-                       aspect='auto', interpolation='nearest', 
-                       cmap='RdBu', vmin=-3, vmax=3)
-            plt.axis('off')
-            plt.colorbar()
-            plt.title(lab_dict[y[ii+kk]])
-            plt.xlim(125-32,125+32)
-        fig.savefig('%s_rfi.png' % figname)
-
-        fig = plt.figure(figsize=(15,15))
-        for ii in range(NFIG):
-            plt.subplot(NSIDE,NSIDE,ii+1)
-            plt.imshow(arr_sim_full[-ii-1+kk].reshape(-1, NTIME), 
-                       aspect='auto', interpolation='nearest', 
-                       cmap='RdBu', vmin=-3, vmax=3)
-            plt.axis('off')
-            plt.colorbar()
-            plt.title(lab_dict[y[ii+kk]])
-            plt.xlim(125-32,125+32)
-
-        fig.savefig('%s_frb.png' % figname)
+        plot_tools.plot_simulated_events(figname, NSIDE, NFREQ, NTIME)
 
 
 
