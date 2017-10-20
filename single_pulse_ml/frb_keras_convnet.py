@@ -165,7 +165,7 @@ if __name__=='__main__':
                             train_labels=train_labels, eval_labels=eval_labels)
 
     left_branch_1d = construct_conv1d(features_only=False, fit=True,
-                            train_data=train_data_1d, eval_data=eval_data_1d[:,tl:th], 
+                            train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             NTIME=64)
 
