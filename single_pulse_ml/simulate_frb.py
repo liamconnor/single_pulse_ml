@@ -369,7 +369,7 @@ if __name__=='__main__':
     freq = np.linspace(FREQ_LOW, FREQ_UP, NFREQ)
 
     SNR_MIN = 7.
-    SNR_MAX = 50.
+    SNR_MAX = 15.
 
     # Let's try the dispersion version:
     # dm = (1.0, 25)
