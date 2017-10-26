@@ -37,7 +37,6 @@ def split_data(fn, train_size=0.75):
 
     eval_labels: np.array
     """
-    fn = './data/_data_nt250_nf16_dm0_snrmax200.npy'
     f = np.load(fn)
 
     train_data, eval_data, train_labels, eval_labels = \
