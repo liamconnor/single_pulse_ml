@@ -10,35 +10,36 @@ except:
     pass
 
 
-def plot_simulated_events(figname, NSIDE, NFREQ, NTIME):
+def plot_simulated_events(data, labels, figname, NSIDE, NFREQ, NTIME):
     """ Make series of waterfall plots of training / test 
     set. 
     """
 
     NFIG=NSIDE**2
-
+    lab_dict = {0 : 'RFI', 1 : 'FRB'}
 
     fig = plt.figure(figsize=(15,15))
     for ii in range(NFIG):
         plt.subplot(NSIDE,NSIDE,ii+1)
-        plt.imshow(arr_sim_full[ii+kk].reshape(-1, NTIME), 
+        plt.imshow(data[ii].reshape(-1, NTIME), 
                    aspect='auto', interpolation='nearest', 
                    cmap='RdBu', vmin=-3, vmax=3)
         plt.axis('off')
         plt.colorbar()
-        plt.title(lab_dict[y[ii+kk]])
+        plt.title(lab_dict[labels[ii]])
         plt.xlim(125-32,125+32)
+    
     fig.savefig('%s_rfi.png' % figname)
 
     fig = plt.figure(figsize=(15,15))
     for ii in range(NFIG):
         plt.subplot(NSIDE,NSIDE,ii+1)
-        plt.imshow(arr_sim_full[-ii-1+kk].reshape(-1, NTIME), 
+        plt.imshow(data[-ii-1].reshape(-1, NTIME), 
                    aspect='auto', interpolation='nearest', 
                    cmap='RdBu', vmin=-3, vmax=3)
         plt.axis('off')
         plt.colorbar()
-        plt.title(lab_dict[y[ii+kk]])
+        plt.title(lab_dict[labels[ii]])
         plt.xlim(125-32,125+32)
 
     fig.savefig('%s_frb.png' % figname)
