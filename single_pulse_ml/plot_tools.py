@@ -176,6 +176,7 @@ class VisualizeLayers:
         self._model = model 
         self._NFREQ = model.get_input_shape_at(0)[1]
         self._NTIME = model.get_input_shape_at(0)[2]
+        self.grid_counter = 0
 
     def print_layers(self):
         for layer in self._model.layers:
@@ -183,7 +184,7 @@ class VisualizeLayers:
 
     def imshow_custom(self, data, **kwargs):
         plt.imshow(data, aspect='auto', interpolation='nearest', 
-                         cmap="Greys", **kwargs)
+                         **kwargs)
 
     def get_activations(self, model_inputs, 
                         print_shape_only=True, 
@@ -223,35 +224,54 @@ class VisualizeLayers:
 
         return activations
 
-    def im_feature_layer(self, activation):
+    def im_feature_layer(self, activation, cmap='viridis'):
         N_SUBFIG = activation.shape[-1]
 
         if N_SUBFIG==1:
-            figsize = (7,7)
+            #figsize = (7,7)
+            cmap = 'RdBu'
+            ax = plt.subplot2grid((16,16), (self.grid_counter, 6), colspan=4, rowspan=4)            
+            self.grid_counter += 5 # Add one extra unit of space 
+            self.imshow_custom(activation[0, :, :, 0], cmap=cmap)
+            plt.axis('off')
+            return
         else:
             figwidth = 4*N_SUBFIG*activation.shape[1]//self._NFREQ
             figheight = figwidth//N_SUBFIG
             figsize = (figwidth, figheight)
+            # ax = plt.subplot2grid((16,16), (self.grid_counter, 8-N_SUBFIG//2), 
+            #                       colspan=N_SUBFIG, rowspan=activation.shape[1]//self._NFREQ)
+            # self.grid_counter += 4#activation.shape[1]//self._NFREQ
 
-        fig = plt.figure(figsize=figsize)
-        #ax = fig.add_subplot(111)
+#        fig = plt.figure(figsize=figsize)
 
         for ii in range(N_SUBFIG):
-            ax = fig.add_subplot(1, N_SUBFIG, ii+1)
-            self.imshow_custom(activation[0, :, :, ii])
+#            ax = fig.add_subplot(1, N_SUBFIG, ii+1)
+            size=1+int(np.round(activation.shape[1]/self._NFREQ))
+            start_grid = 8 - N_SUBFIG*size//2
+            print(self.grid_counter, start_grid + ii*size, self.grid_counter+size, start_grid + ii*size+size)
+            ax = plt.subplot2grid((16,16), (self.grid_counter, start_grid + ii*size), 
+                        colspan=size, rowspan=size)
+#            self.grid_counter += size
+            self.imshow_custom(activation[0, :, :, ii], cmap=cmap)
             plt.axis('off')
 
-        plt.show()
+        self.grid_counter += size
+
+        #plt.show()
 
     def im_all(self, activations):
+        fig = figure(figsize=(15,15))
         for activation in activations:
-
+            print(activation.shape)
             if activation.shape[-1]==2: # For binary classification
                 activation = activation[0]
-                activation[0] += 0.25 # Hack for now, visualizing.
+                activation[0] = 0.25 # Hack for now, visualizing.
                 ind = np.array([0, 1])
                 width = 0.75
-                fig, ax = plt.subplots()
+#                fig, ax = plt.subplots()
+                ax = plt.subplot2grid((16,16), (13, 6), colspan=4, rowspan=3)
+
                 rects1 = ax.bar(ind[1], activation[1], width, color='r', alpha=0.5)
                 rects2 = ax.bar(ind[0], activation[0], width, color='green', alpha=0.5)
 
@@ -259,7 +279,13 @@ class VisualizeLayers:
                 ax.set_xticklabels(('Noise', 'FRB'))
                 ax.set_ylim(0, 1.25)
                 ax.set_xlim(-0.25, 2.0)
+            elif activation.shape[-1]>64:
+                ax = plt.subplot2grid((16,16), (12, 0), colspan=16, rowspan=1)
 
+                activation = activation*np.ones([8, 1])
+                plt.imshow((activation[:, :]), interpolation='nearest', 
+                           cmap='Greys')
+                #plt.show()
             else:
                 self.im_feature_layer(activation)
 
