@@ -9,8 +9,11 @@ try:
 except:
     pass
 
+import keras.backend as backend 
 
-def plot_simulated_events(data, labels, figname, NSIDE, NFREQ, NTIME):
+
+def plot_simulated_events(data, labels, figname,
+                          NSIDE, NFREQ, NTIME, cmap='RdBu'):
     """ Make series of waterfall plots of training / test 
     set. 
     """
@@ -23,7 +26,7 @@ def plot_simulated_events(data, labels, figname, NSIDE, NFREQ, NTIME):
         plt.subplot(NSIDE,NSIDE,ii+1)
         plt.imshow(data[ii].reshape(-1, NTIME), 
                    aspect='auto', interpolation='nearest', 
-                   cmap='RdBu', vmin=-3, vmax=3)
+                   cmap=cmap, vmin=-3, vmax=3)
         plt.axis('off')
         plt.colorbar()
         plt.title(lab_dict[labels[ii]])
@@ -36,7 +39,7 @@ def plot_simulated_events(data, labels, figname, NSIDE, NFREQ, NTIME):
         plt.subplot(NSIDE,NSIDE,ii+1)
         plt.imshow(data[-ii-1].reshape(-1, NTIME), 
                    aspect='auto', interpolation='nearest', 
-                   cmap='RdBu', vmin=-3, vmax=3)
+                   cmap=cmap, vmin=-3, vmax=3)
         plt.axis('off')
         plt.colorbar()
         plt.title(lab_dict[labels[ii]])
@@ -89,6 +92,7 @@ def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outnam
         ranking = cp[:h*w]
         title_str = 'Marginal events'
         outname = outname + 'marginal.png'
+        print(prob_arr[ranking,0])
     else:
         title_str = 'FRB most probable'
         outname = outname + 'FRB.png '
@@ -103,7 +107,8 @@ def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outnam
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
         plt.imshow(data[ranking[ii]], 
-            cmap='RdBu', interpolation='nearest', aspect='auto')
+            cmap='RdBu', interpolation='nearest', 
+            aspect='auto')#, vmin=-2, vmax=4)
         plt.axis('off')
 #        plt.title(11, 25, str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
         plt.title(str(round(prob_arr[ranking[ii], 1], 2)), fontsize=14)
@@ -153,6 +158,110 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
     plt.xlim(-.25, 2.)
 
     plt.suptitle('TensorFlow Deep Learn', fontsize=45, )
+
+
+#
+# Code scraped from https://github.com/philipperemy/keras-visualize-activations/blob/master/read_activations.py
+# for layer visualization 
+#
+
+
+class VisualizeLayers:
+    """ Class to visualize the hidden 
+    layers of a deep neural network in 
+    keras. 
+    """
+
+    def __init__(self, model):
+        self._model = model 
+        self._NFREQ = model.get_input_shape_at(0)[1]
+        self._NTIME = model.get_input_shape_at(0)[2]
+
+    def print_layers(self):
+        for layer in self._model.layers:
+            print("%s: %10s" % (layer.name, layer.input.shape))
+
+    def imshow_custom(self, data, **kwargs):
+        plt.imshow(data, aspect='auto', interpolation='nearest', 
+                         cmap="Greys", **kwargs)
+
+    def get_activations(self, model_inputs, 
+                        print_shape_only=True, 
+                        layer_name=None):
+
+        print('----- activations -----')
+        activations = []
+        inp = self._model.input
+
+        model_multi_inputs_cond = True
+        if not isinstance(inp, list):
+            # only one input! let's wrap it in a list.
+            inp = [inp]
+            model_multi_inputs_cond = False
+
+        outputs = [layer.output for layer in self._model.layers if
+                   layer.name == layer_name or layer_name is None]  # all layer outputs
+
+        funcs = [backend.function(inp + [backend.learning_phase()], [out]) for out in outputs]  # evaluation functions
+
+        if model_multi_inputs_cond:
+            list_inputs = []
+            list_inputs.extend(model_inputs)
+            list_inputs.append(0.)
+        else:
+            list_inputs = [model_inputs, 0.]
+
+        # Learning phase. 0 = Test mode (no dropout or batch normalization)
+        # layer_outputs = [func([model_inputs, 0.])[0] for func in funcs]
+        layer_outputs = [func(list_inputs)[0] for func in funcs]
+
+        # Append input data
+        activations.append(model_inputs)
+
+        for layer_activations in layer_outputs:
+            activations.append(layer_activations)
+
+        return activations
+
+    def im_feature_layer(self, activation):
+        N_SUBFIG = activation.shape[-1]
+
+        if N_SUBFIG==1:
+            figsize = (7,7)
+        else:
+            figwidth = 4*N_SUBFIG*activation.shape[1]//self._NFREQ
+            figheight = figwidth//N_SUBFIG
+            figsize = (figwidth, figheight)
+
+        fig = plt.figure(figsize=figsize)
+        #ax = fig.add_subplot(111)
+
+        for ii in range(N_SUBFIG):
+            ax = fig.add_subplot(1, N_SUBFIG, ii+1)
+            self.imshow_custom(activation[0, :, :, ii])
+            plt.axis('off')
+
+        plt.show()
+
+    def im_all(self, activations):
+        for activation in activations:
+
+            if activation.shape[-1]==2: # For binary classification
+                activation = activation[0]
+                activation[0] += 0.25 # Hack for now, visualizing.
+                ind = np.array([0, 1])
+                width = 0.75
+                fig, ax = plt.subplots()
+                rects1 = ax.bar(ind[1], activation[1], width, color='r', alpha=0.5)
+                rects2 = ax.bar(ind[0], activation[0], width, color='green', alpha=0.5)
+
+                ax.set_xticks(ind + width / 2)
+                ax.set_xticklabels(('Noise', 'FRB'))
+                ax.set_ylim(0, 1.25)
+                ax.set_xlim(-0.25, 2.0)
+
+            else:
+                self.im_feature_layer(activation)
 
 
 
