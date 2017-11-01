@@ -169,7 +169,7 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 class VisualizeLayers:
     """ Class to visualize the hidden 
     layers of a deep neural network in 
-    keras. 
+    keras.
     """
 
     def __init__(self, model):
@@ -177,14 +177,32 @@ class VisualizeLayers:
         self._NFREQ = model.get_input_shape_at(0)[1]
         self._NTIME = model.get_input_shape_at(0)[2]
         self.grid_counter = 0
+        # Create empty list for non-redundant activations
+        self._activations_nonred = []
 
     def print_layers(self):
+        """ Print layer names and shapes of keras model
+        """
         for layer in self._model.layers:
             print("%s: %10s" % (layer.name, layer.input.shape))
 
     def imshow_custom(self, data, **kwargs):
+        """ matplotlib imshow with custom arguments
+        """
         plt.imshow(data, aspect='auto', interpolation='nearest', 
                          **kwargs)
+
+    def remove_doubles(self, activations):
+        """ Remove layers with identical shapes, e.g. 
+        dropout layers
+        """
+        self._activations_nonred.append(activations[0])
+
+        # Start from first element, skip input data
+        for ii, activation in enumerate(activations[1:]):
+            act_shape = activation.shape
+            if act_shape != activations[ii].shape:
+                self._activations_nonred.append(activation)
 
     def get_activations(self, model_inputs, 
                         print_shape_only=True, 
@@ -224,53 +242,56 @@ class VisualizeLayers:
 
         return activations
 
-    def im_feature_layer(self, activation, cmap='viridis'):
+    def im_feature_layer(self, activation, cmap='viridis', NSIDE=16):
         N_SUBFIG = activation.shape[-1]
 
         if N_SUBFIG==1:
-            #figsize = (7,7)
             cmap = 'RdBu'
-            ax = plt.subplot2grid((16,16), (self.grid_counter, 6), colspan=4, rowspan=4)            
-            self.grid_counter += 5 # Add one extra unit of space 
-            self.imshow_custom(activation[0, :, :, 0], cmap=cmap)
-            plt.axis('off')
+            ax = plt.subplot2grid((NSIDE,NSIDE), 
+                          (self.grid_counter, 3*NSIDE//8), 
+                          colspan=NSIDE//4, rowspan=NSIDE//4)            
+            self.grid_counter += (NSIDE//4+NSIDE//16) # Add one extra unit of space 
+            self.imshow_custom(activation[0, :, :, 0], cmap=cmap, extent=[0, 1, 400, 800])
+#            plt.axis('off')
+            plt.xlabel('Time')
+            plt.ylabel('Freq [MHz]')
             return
         else:
             figwidth = 4*N_SUBFIG*activation.shape[1]//self._NFREQ
             figheight = figwidth//N_SUBFIG
             figsize = (figwidth, figheight)
-            # ax = plt.subplot2grid((16,16), (self.grid_counter, 8-N_SUBFIG//2), 
-            #                       colspan=N_SUBFIG, rowspan=activation.shape[1]//self._NFREQ)
-            # self.grid_counter += 4#activation.shape[1]//self._NFREQ
-
-#        fig = plt.figure(figsize=figsize)
 
         for ii in range(N_SUBFIG):
-#            ax = fig.add_subplot(1, N_SUBFIG, ii+1)
-            size=1+int(np.round(activation.shape[1]/self._NFREQ))
-            start_grid = 8 - N_SUBFIG*size//2
-            print(self.grid_counter, start_grid + ii*size, self.grid_counter+size, start_grid + ii*size+size)
-            ax = plt.subplot2grid((16,16), (self.grid_counter, start_grid + ii*size), 
+            size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
+            size=min(size, NSIDE//8)
+            start_grid = NSIDE//2 - N_SUBFIG*size//2
+
+            ax = plt.subplot2grid((NSIDE,NSIDE), 
+                        (self.grid_counter, start_grid + ii*size), 
                         colspan=size, rowspan=size)
-#            self.grid_counter += size
+
             self.imshow_custom(activation[0, :, :, ii], cmap=cmap)
             plt.axis('off')
 
-        self.grid_counter += size
+        self.grid_counter += (NSIDE//32+size)
 
         #plt.show()
 
-    def im_all(self, activations):
+    def im_all(self, activations, NSIDE=16):
         fig = figure(figsize=(15,15))
-        for activation in activations:
+        self.grid_counter = 0
+
+        for activation in activations[:]: #hack
             print(activation.shape)
             if activation.shape[-1]==2: # For binary classification
                 activation = activation[0]
-                activation[0] = 0.25 # Hack for now, visualizing.
+                activation[0] = 0.025 # Hack for now, visualizing.
                 ind = np.array([0, 1])
                 width = 0.75
 #                fig, ax = plt.subplots()
-                ax = plt.subplot2grid((16,16), (13, 6), colspan=4, rowspan=3)
+                ax = plt.subplot2grid((NSIDE,NSIDE), 
+                                      (self.grid_counter, 3*NSIDE//8), 
+                                       colspan=NSIDE//4, rowspan=NSIDE//4)
 
                 rects1 = ax.bar(ind[1], activation[1], width, color='r', alpha=0.5)
                 rects2 = ax.bar(ind[0], activation[0], width, color='green', alpha=0.5)
@@ -279,15 +300,31 @@ class VisualizeLayers:
                 ax.set_xticklabels(('Noise', 'FRB'))
                 ax.set_ylim(0, 1.25)
                 ax.set_xlim(-0.25, 2.0)
-            elif activation.shape[-1]>64:
-                ax = plt.subplot2grid((16,16), (12, 0), colspan=16, rowspan=1)
-
-                activation = activation*np.ones([8, 1])
+            elif (activation.shape[-1]>64) and (activation.shape[-1]<1024):
+                ax = plt.subplot2grid((NSIDE,NSIDE), (self.grid_counter, 0), 
+                                      colspan=NSIDE, rowspan=NSIDE//32)
+                activation = activation*np.ones([NSIDE//8, 1])
                 plt.imshow((activation[:, :]), interpolation='nearest', 
                            cmap='Greys')
-                #plt.show()
-            else:
-                self.im_feature_layer(activation)
+                self.grid_counter += NSIDE//8
+                ax.get_yaxis().set_visible(False)
 
+            elif activation.shape[-1]<64:
+                self.im_feature_layer(activation, NSIDE=NSIDE)
 
+    def make_figure(self, data, NSIDE=16):
+        dsh = data.shape
+
+        if len(dsh)==2:
+            data = data[None,:,:,None]
+        elif len(dsh)==3:
+            if dsh[0]==1:
+                data = data[..., None]
+            elif dsh[-1]==1:
+                data = data[None]
+
+        print(data.shape)
+        activations = self.get_activations(data)
+        self.remove_doubles(activations)
+        self.im_all(self._activations_nonred, NSIDE=NSIDE)
 
