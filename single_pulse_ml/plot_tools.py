@@ -252,7 +252,6 @@ class VisualizeLayers:
                           colspan=NSIDE//4, rowspan=NSIDE//4)            
             self.grid_counter += (NSIDE//4+NSIDE//16) # Add one extra unit of space 
             self.imshow_custom(activation[0, :, :, 0], cmap=cmap, extent=[0, 1, 400, 800])
-#            plt.axis('off')
             plt.xlabel('Time')
             plt.ylabel('Freq [MHz]')
             return
@@ -277,7 +276,7 @@ class VisualizeLayers:
 
         #plt.show()
 
-    def im_all(self, activations, NSIDE=16):
+    def im_all(self, activations, NSIDE=32, figname=None, color='linen'):
         fig = figure(figsize=(15,15))
         self.grid_counter = 0
 
@@ -312,7 +311,10 @@ class VisualizeLayers:
             elif activation.shape[-1]<64:
                 self.im_feature_layer(activation, NSIDE=NSIDE)
 
-    def make_figure(self, data, NSIDE=16):
+            if figname is not None:
+                plt.savefig(figname, facecolor=color)
+
+    def make_figure(self, data, NSIDE=16, figname=None):
         dsh = data.shape
 
         if len(dsh)==2:
@@ -323,8 +325,7 @@ class VisualizeLayers:
             elif dsh[-1]==1:
                 data = data[None]
 
-        print(data.shape)
         activations = self.get_activations(data)
         self.remove_doubles(activations)
-        self.im_all(self._activations_nonred, NSIDE=NSIDE)
+        self.im_all(self._activations_nonred, NSIDE=NSIDE, figname=figname)
 
