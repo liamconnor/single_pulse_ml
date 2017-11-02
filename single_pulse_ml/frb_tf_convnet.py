@@ -444,11 +444,13 @@ def estimate_time_complexity(n_nu=16, n_t=250, n_k1=32, n_k2=64,
     print("n_nu * n_t * n_k1 = %f" % (n_nu*n_t*n_k1 / 1e6))
 
     print("n_nu * n_t / n_r**2 * n_k2 * log(n_t/n_r)= %d" % \
-      (n_nu * n_t / n_r**2 * n_k2 * np.log2(n_t / n_r) / 1e6))
+          (n_nu * n_t / n_r**2 * n_k2 * np.log2(n_t / n_r) / 1e6))
 
-    print("n_nu * n_t / n_r**2 * n_k2 = %f" % (n_nu * n_t / n_r**2 * n_k2 / 1e6))
+    print("n_nu * n_t / n_r**2 * n_k2 = %f" % 
+          (n_nu * n_t / n_r**2 * n_k2 / 1e6))
 
-    print("n_nu * n_t / n_r**4 * n_k2 * n_d1 = %f" % (n_nu * n_t / n_r**4 * n_k2 * n_d1 / 1e6))
+    print("n_nu * n_t / n_r**4 * n_k2 * n_d1 = %f" % 
+          (n_nu * n_t / n_r**4 * n_k2 * n_d1 / 1e6))
 
     print("n_k2**2 * n_d1 = %f" % (n_k2**2 * n_d1 / 1e6))
 
@@ -680,7 +682,7 @@ if __name__=='__main__':
   os.system('rm -rf ./model/tf_models/')
 
   pred, prob, ev, clf, d, p, e = run_cnn_2d(fn, nfreq=16, \
-           ntime=250, train_size=0.75, plot=True, twidth=32, \
+           ntime=250, train_size=0.75, plot=False, twidth=32, \
            model_dir='./model/tf_models/')
 
   print(ev)
