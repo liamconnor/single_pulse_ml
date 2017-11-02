@@ -179,6 +179,7 @@ class VisualizeLayers:
         self.grid_counter = 0
         # Create empty list for non-redundant activations
         self._activations_nonred = []
+        self._NFREQ_min = min([mm.input.shape[1] for mm in model.layers])
 
     def print_layers(self):
         """ Print layer names and shapes of keras model
@@ -242,23 +243,44 @@ class VisualizeLayers:
 
         return activations
 
+    def plot_feature_layer(self, activation, NSIDE=16):
+        N_SUBFIG = activation.shape[-1]
+
+        if N_SUBFIG==1:
+
+            ax = plt.subplot2grid((NSIDE,NSIDE), 
+                          (self.grid_counter, 3*NSIDE//8), 
+                          colspan=NSIDE//4, rowspan=NSIDE//4) 
+            plt.plot(activation[0,:,0])
+            return 
+
+        for ii in range(N_SUBFIG):
+            size=int(activation.shape[1] / self._NFREQ_min)
+#            size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
+#            size=min(size, NSIDE//8)
+            start_grid = NSIDE//2 - N_SUBFIG*size//2
+            print(NSIDE, self.grid_counter, start_grid + ii*size, size)
+            ax = plt.subplot2grid((NSIDE,NSIDE), 
+                        (self.grid_counter, start_grid + ii*size), 
+                        colspan=size, rowspan=size)
+            plt.plot(activation[0,:,ii])
+            plt.axis('off')
+
     def im_feature_layer(self, activation, cmap='viridis', NSIDE=16):
         N_SUBFIG = activation.shape[-1]
 
         if N_SUBFIG==1:
             cmap = 'RdBu'
+
             ax = plt.subplot2grid((NSIDE,NSIDE), 
                           (self.grid_counter, 3*NSIDE//8), 
-                          colspan=NSIDE//4, rowspan=NSIDE//4)            
+                          colspan=NSIDE//4, rowspan=NSIDE//4) 
+
             self.grid_counter += (NSIDE//4+NSIDE//16) # Add one extra unit of space 
             self.imshow_custom(activation[0, :, :, 0], cmap=cmap, extent=[0, 1, 400, 800])
             plt.xlabel('Time')
             plt.ylabel('Freq [MHz]')
             return
-        else:
-            figwidth = 4*N_SUBFIG*activation.shape[1]//self._NFREQ
-            figheight = figwidth//N_SUBFIG
-            figsize = (figwidth, figheight)
 
         for ii in range(N_SUBFIG):
             size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
@@ -287,7 +309,6 @@ class VisualizeLayers:
                 activation[0] = 0.025 # Hack for now, visualizing.
                 ind = np.array([0, 1])
                 width = 0.75
-#                fig, ax = plt.subplots()
                 ax = plt.subplot2grid((NSIDE,NSIDE), 
                                       (self.grid_counter, 3*NSIDE//8), 
                                        colspan=NSIDE//4, rowspan=NSIDE//4)
@@ -326,6 +347,15 @@ class VisualizeLayers:
                 data = data[None]
 
         activations = self.get_activations(data)
+
+        # Make sure there's no activation 
+        # which has more filters than NSIDE
+        for activation in activations:
+            if len(activation.shape) > 2:
+                NSIDE = max(NSIDE, activation.shape[-1])
+
+        print("Using NSIDE: %d" % NSIDE) 
+
         self.remove_doubles(activations)
         self.im_all(self._activations_nonred, NSIDE=NSIDE, figname=figname)
 
