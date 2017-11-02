@@ -15,8 +15,19 @@ from keras.layers import MaxPooling2D, MaxPooling1D, GlobalAveragePooling1D
 from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 
+def get_predictions(model, data, true_labels=None):
+    prob = model.predict(data)
+    predictions = np.round(prob[:])
 
-def split_data(fn, train_size=0.75):
+    if true_labels is not None:
+        mistakes = np.where(predictions!=true_labels)[0]
+    else:
+        mistakes = []
+
+    return prob, predictions, mistakes
+
+
+def split_data(fn, NFREQ=16, NTIME=250, train_size=0.75):
     """ Read in numpy file and split randomly into 
     train and test data 
 
@@ -42,8 +53,8 @@ def split_data(fn, train_size=0.75):
     train_data, eval_data, train_labels, eval_labels = \
               train_test_split(f[:, :-1], f[:, -1], train_size=train_size)
 
-    train_data = train_data[..., None].reshape(-1, 16, 250, 1)
-    eval_data = eval_data[..., None].reshape(-1, 16, 250, 1)
+    train_data = train_data[..., None].reshape(-1, NFREQ, NTIME, 1)
+    eval_data = eval_data[..., None].reshape(-1, NFREQ, NTIME, 1)
 
     return train_data, eval_data, train_labels, eval_labels
 
@@ -51,7 +62,8 @@ def split_data(fn, train_size=0.75):
 def construct_conv2d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
                      eval_data=None, eval_labels=None, 
-                     nfreq=16, ntime=250):
+                     nfreq=16, ntime=250, epochs=5,
+                     nfilt1=32, nfilt2=64):
 
     if train_data is not None:
         nfreq=train_data.shape[1]
@@ -59,21 +71,23 @@ def construct_conv2d(features_only=False, fit=False,
 
     model = Sequential()
     # this applies 32 convolution filters of size 3x3 each.
-    model.add(Conv2D(32, (5, 5), activation='relu', input_shape=(nfreq, ntime, 1)))
+    model.add(Conv2D(nfilt1, (5, 5), activation='relu', input_shape=(nfreq, ntime, 1)))
+
     #model.add(Conv2D(32, (3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    # Randomly drop some fraction of nodes (set weights to 0)
     model.add(Dropout(0.4))
 
-    model.add(Conv2D(64, (5, 5), activation='relu'))
+    model.add(Conv2D(nfilt2, (5, 5), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.4))
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(256, activation='relu')) # should be 1024 hack
 
     if features_only is True:
         return model
 
-    model.add(Dense(1024, activation='relu'))
+#    model.add(Dense(1024, activation='relu')) # remove for now hack
     model.add(Dropout(0.5))
     model.add(Dense(2, activation='softmax'))
 
@@ -84,7 +98,7 @@ def construct_conv2d(features_only=False, fit=False,
     eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
-        model.fit(train_data, train_labels, batch_size=32, epochs=5)
+        model.fit(train_data, train_labels, batch_size=32, epochs=epochs)
         score = model.evaluate(eval_data, eval_labels, batch_size=32)
         print("Conv2d only")
         print(score)
@@ -94,28 +108,31 @@ def construct_conv2d(features_only=False, fit=False,
 def construct_conv1d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
                      eval_data=None, eval_labels=None,
-                     NTIME=250):
+                     NTIME=250, nfilt1=64, nfilt2=128):
 
     if train_data is not None:
         NTIME=train_data.shape[1]
 
     model = Sequential()
-    model.add(Conv1D(64, 3, activation='relu', input_shape=(NTIME, 1)))
-    model.add(Conv1D(64, 3, activation='relu'))
+    model.add(Conv1D(nfilt1, 3, activation='relu', input_shape=(NTIME, 1)))
+    model.add(Conv1D(nfilt1, 3, activation='relu'))
     model.add(MaxPooling1D(3))
-    model.add(Conv1D(128, 3, activation='relu'))
-    model.add(Conv1D(128, 3, activation='relu'))
+    model.add(Conv1D(nfilt2, 3, activation='relu'))
+    model.add(Conv1D(nfilt2, 3, activation='relu'))
     model.add(GlobalAveragePooling1D())
 
     if features_only is True:
         return model
 
     model.add(Dropout(0.5))
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(2, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                    optimizer='rmsprop',
                    metrics=['accuracy'])
+
+    train_labels = keras.utils.to_categorical(train_labels)
+    eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
         model.fit(train_data, train_labels, batch_size=16, epochs=5)
@@ -140,18 +157,39 @@ def merge_models(left_branch, right_branch):
 
     return model
 
+def merge_models_three(left_branch, right_branch):
+    # Configure the accuracy metric for evaluation
+    metrics = ["accuracy", "precision", "false_negatives", "recall"] 
+
+    model = Sequential()
+    model.add(Merge([left_branch, right_branch, left_branch], mode = 'concat'))
+    #model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
+    sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
+    model.compile(loss = 'binary_crossentropy', 
+                  optimizer=sgd, 
+                  metrics=['accuracy'])
+
+    return model
+
 if __name__=='__main__':
-    WIDTH=32
-    NFREQ=16
-    NTIME=250
-    tl, th = NTIME//2-WIDTH, NTIME//2+WIDTH
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
 
     if len(sys.argv) > 1:
         fn = sys.argv[1]
+    
+    fn = './data/_data_nt250_nf16_dm0_snrmax150.npy'
 
-    train_data, eval_data, train_labels, eval_labels = split_data(fn, train_size=0.75)
+    print("Using %s" % fn)
+
+    WIDTH=32
+    NFREQ=128#16
+    NTIME=250
+    tl, th = NTIME//2-WIDTH, NTIME//2+WIDTH
+
+    train_data, eval_data, train_labels, eval_labels = \
+                    split_data(fn, train_size=0.25, NFREQ=NFREQ, NTIME=NTIME,)
 
     train_data = train_data[:,:,tl:th]
     eval_data = eval_data[:,:,tl:th]
@@ -161,26 +199,37 @@ if __name__=='__main__':
 
     right_branch_2d = construct_conv2d(features_only=False, fit=True,
                             train_data=train_data, eval_data=eval_data, 
-                            train_labels=train_labels, eval_labels=eval_labels)
+                            train_labels=train_labels, eval_labels=eval_labels,
+                            epochs=4, nfilt1=8, nfilt2=16)
 
-    left_branch_1d = construct_conv1d(features_only=False, fit=True,
+    left_branch_1d = construct_conv1d(features_only=True, fit=True,
                             train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels,
-                            NTIME=64)
-
+                            NTIME=64, nfilt1=64, nfilt2=128)   
 
     model = merge_models(left_branch_1d, right_branch_2d)
 
     seed(2017)
     model.fit([train_data_1d, train_data], train_labels, 
-        batch_size = 2000, nb_epoch = 5, verbose = 1)
-    score = model.evaluate([eval_data_1d, eval_data], eval_labels, batch_size=32)
+        batch_size = 2000, nb_epoch = 10, verbose = 1)
+    score = model.evaluate([eval_data_1d, eval_data], 
+                            eval_labels, batch_size=32)
+
     print(score)
 
+    prob, predictions, mistakes = get_predictions(
+                                model, [eval_data_1d, eval_data], 
+                                true_labels=eval_labels)
 
 
 #   seed(2017)
 #   model.fit([X1, X2], Y.values, batch_size = 2000, nb_epoch = 100, verbose = 1)
+
+# for ii in range(len(mis)):
+#     subplot(7,7,ii+1)
+#     imshow(eval_data[mis[ii],:,:,0],aspect='auto',interpolation='nearest',cmap='Greys')
+#     title(str(predm[mis[ii]]))
+#     axis('off')
 
 # Junk Code that might not be junk.
 # Generate dummy data
