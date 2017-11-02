@@ -1,6 +1,6 @@
 import numpy as np 
 
-class Sim_Parameters:
+class SimParams:
 
     def __init__(self, dm=(-0.01, 001), fluence=(0.1, 0.3),
                  width=(3*0.0016, 0.75), spec_ind=(-3., 3.),

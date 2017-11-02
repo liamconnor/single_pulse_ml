@@ -366,20 +366,16 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
             snr_ = tools.calc_snr(arr_sim.mean(0))
-            width_ii = params[2]
             # for now, reject events outside of some snr range
             if snr_ > sim_obj._SNR_MIN and snr_ < sim_obj._SNR_MAX:
                 arr_sim_full.append(arr_sim.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME))
                 yfull.append(1) # Label the simulated FRB with '1'
-
-                width_full_arr.append(width_ii)
-                params_full_arr.append(params)
+                params_full_arr.append(params) # Save parameters bursts
                 snr.append(snr_)
                 continue
             else:
                 continue
 
-    width_full_arr = np.array(width_full_arr)
     params_full_arr = np.concatenate(params_full_arr)
     snr = np.array(snr)
     yfull = np.array(yfull)
@@ -387,7 +383,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
     arr_sim_full = np.concatenate(arr_sim_full, axis=-1)
     arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME)
 
-    print("\nGenerated %d simulated FRBs with mean SNR: %f" % (sim_obj._NSIM, snr.mean()))
+    print("\nGenerated %d simulated FRBs with mean SNR: %f" 
+                            % (sim_obj._NSIM, snr.mean()))
     print("Used %d RFI triggers" % sim_obj._NRFI)
     print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
 
