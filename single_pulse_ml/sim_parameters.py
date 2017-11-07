@@ -2,7 +2,7 @@ import numpy as np
 
 class SimParams:
 
-    def __init__(self, dm=(-0.01, 001), fluence=(0.1, 0.3),
+    def __init__(self, dm=(-0.01, 0.01), fluence=(0.1, 0.3),
                  width=(3*0.0016, 0.75), spec_ind=(-3., 3.),
                  disp_ind=2., scat_factor=(-4., -1.), 
                  SNR_MIN=10., SNR_MAX=100., out_file_name=None, 

@@ -13,7 +13,7 @@ NAME = "CHIMEPathfinder"
 # SIMULATION PARAMETERS 
 NFREQ = 16 # Number of frequencies. Must agree with FP data
 NTIME = 250 # Number of time stamps per trigger
-dm = (-0.01, .001)
+dm = (-0.01, .01)
 fluence = (0.1, 0.3)
 width = width=(3*0.0016, 0.75) # width lognormal dist in seconds
 spec_ind=(-3., 3.)

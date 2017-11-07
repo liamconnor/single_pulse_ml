@@ -23,7 +23,6 @@ def save_background_data(fdir, outfile=None):
     ntime_pulse = 250
 
     for ff in fl[:75]:
-        print ff
         arr = np.load(ff)[:, 0]
         arr[arr!=arr] = 0.
         nfreq_arr, ntime = arr.shape
