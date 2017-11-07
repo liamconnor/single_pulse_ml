@@ -11,7 +11,7 @@ DELTA_T = 0.0016    # time res in seconds
 NAME = "CHIMEPathfinder"
 
 # SIMULATION PARAMETERS 
-NFREQ = 16 # Number of frequencies. Must agree with FP data
+NFREQ = 128 # Number of frequencies. Must agree with FP data
 NTIME = 250 # Number of time stamps per trigger
 dm = (-0.01, .01)
 fluence = (0.1, 0.3)

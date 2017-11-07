@@ -309,6 +309,11 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
     fn_rfi = './data/all_RFI_8001.npy'
     data_rfi, y = sim_obj.get_false_positives(fn_rfi)
 
+    if data_rfi[0].shape != (sim_obj._NFREQ, sim_obj._NTIME):
+        data_rfi = np.random.normal(0, 1, 
+                   sim_obj._NRFI*sim_obj._NFREQ*sim_obj._NTIME)
+        print("Using simulated noise")
+
     arr_sim_full = [] # data array with all events
     yfull = [] # label array FP=0, TP=1
 
