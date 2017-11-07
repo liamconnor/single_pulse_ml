@@ -1,0 +1,17 @@
+# Simulation setup. The sim should have a telescope whose class has all the
+# tel parameters. It should also have a list of paramters for the 
+# FRB distribution 
+
+freq_low = 800. # first freq in array in MHz
+freq_up = 400. # last freq in array in MHz
+nfreq = 32
+
+delta_t = 0.0016 # Time resolution in seconds
+
+rate=0.001
+dm=(0.,2000.)
+fluence=(0.03,0.3),
+width=(np.log(2*0.0016), np.log(2))
+spec_ind=(-4.,4), 
+disp_ind=2.
+scat_factor=(0, 0.5)
