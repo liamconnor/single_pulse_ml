@@ -35,10 +35,15 @@ class SimParams:
         np.random.shuffle(f_rfi)
         # Read in data array and labels from RFI file
         data_rfi, y = f_rfi[:, :-1], f_rfi[:, -1]
-
-        self.data_rfi = data_rfi
-        self.y = y
-        self._NRFI = len(y)
-        self._NSIM = len(y)
+    
+        if self._NRFI is not None:
+            self._NRFI = len(y)
+            self._NSIM = len(y)
+            self.data_rfi = data_rfi
+            self.y = y
+        else:
+            self._NSIM = self._NRFI 
+            self.data_rfi = data_rfi[:self._NSIM]
+            self.y = y[:self._NSIM]
 
         return data_rfi, y
