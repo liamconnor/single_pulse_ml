@@ -8,7 +8,7 @@ TIME1D=True
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 
-NDM=150
+NDM=32
 NFREQ=32
 NTIME=250
 WIDTH=64
