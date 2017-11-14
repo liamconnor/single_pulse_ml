@@ -47,54 +47,54 @@ if __name__=='__main__':
 
     if FREQTIME is True:
 
-	    model_2d_freq_time = frb_keras_convnet.construct_conv2d(features_only=False, fit=True,
+        model_2d_freq_time = frb_keras_convnet.construct_conv2d(features_only=False, fit=True,
                     train_data=train_data_freq, eval_data=eval_data_freq, 
                     train_labels=train_labels, eval_labels=eval_labels,
                     epochs=5, nfilt1=32, nfilt2=64, 
                     nfreq=NFREQ, ntime=WIDTH)
 
-	    model_list.append(model_2d_freq_time)
-	    train_data_list.append(train_data_freq)
-	    eval_data_list.append(eval_data_freq)
+        model_list.append(model_2d_freq_time)
+        train_data_list.append(train_data_freq)
+        eval_data_list.append(eval_data_freq)
 
-	if DMTIME is True:
-	
-	    model_2d_dm_time = frb_keras_convnet.construct_conv2d(features_only=False, fit=True,
+    if DMTIME is True:
+    
+        model_2d_dm_time = frb_keras_convnet.construct_conv2d(features_only=False, fit=True,
                     train_data=train_data_dm, eval_data=eval_data_dm, 
                     train_labels=train_labels, eval_labels=eval_labels,
                     epochs=5, nfilt1=32, nfilt2=64, 
                     nfreq=NDM, ntime=WIDTH)
     
-	    model_list.append(model_2d_dm_time)
-	    train_data_list.append(train_data_dm)
-	    eval_data_list.append(eval_data_dm)
+        model_list.append(model_2d_dm_time)
+        train_data_list.append(train_data_dm)
+        eval_data_list.append(eval_data_dm)
 
-	if TIME1D is True:
+    if TIME1D is True:
 
-	    model_1d_time = frb_keras_convnet.construct_conv1d(features_only=False, fit=True,
+        model_1d_time = frb_keras_convnet.construct_conv1d(features_only=False, fit=True,
                         train_data=train_data_1d, eval_data=eval_data_1d, 
                         train_labels=train_labels, eval_labels=eval_labels,
                         NTIME=64, nfilt1=64, nfilt2=128) 
 
-	    model_list.append(model_1d_time)
-	    train_data_list.append(train_data_1d)
-	    eval_data_list.append(eval_data_1d)
+        model_list.append(model_1d_time)
+        train_data_list.append(train_data_1d)
+        eval_data_list.append(eval_data_1d)
 
-	if len(model_list)==1:
-		prob, predictions, mistakes = frb_keras_convnet.get_predictions(
+    if len(model_list)==1:
+        prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model_list[0], eval_data_list[0], 
                                 true_labels=eval_labels)
-	elif len(model_list)==2:
-    	model = Sequential()
-    	model.add(Merge(model_list, mode = 'concat'))
-    	#model.add(Dense(256, activation='relu'))
-    	model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
-    	sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
-    	model.compile(loss = 'binary_crossentropy', 
+    elif len(model_list)==2:
+        model = Sequential()
+        model.add(Merge(model_list, mode = 'concat'))
+        #model.add(Dense(256, activation='relu'))
+        model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
+        sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
+        model.compile(loss = 'binary_crossentropy', 
               optimizer=sgd, 
               metrics=['accuracy'])
 
-		prob, predictions, mistakes = get_predictions(
+        prob, predictions, mistakes = get_predictions(
                                 model_list, eval_data_list, 
-                                true_labels=eval_labels)	
+                                true_labels=eval_labels)    
 
