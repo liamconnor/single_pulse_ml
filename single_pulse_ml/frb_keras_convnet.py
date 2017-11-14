@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 
 def get_predictions(model, data, true_labels=None):
     prob = model.predict(data)
-    predictions = np.round(prob[:])
+    predictions = np.round(prob[:, 0])
 
     if true_labels is not None:
         mistakes = np.where(predictions!=true_labels)[0]
@@ -172,6 +172,35 @@ def merge_models_three(left_branch, right_branch):
 
     return model
 
+def run_2dconv_freq_time(train_data, train_labels, eval_data=None, 
+                         eval_labels=None, 
+                         NFREQ=16, NTIME=250, WIDTH=64,
+                         epochs=5, nfilt1=32, nfilt2=64, 
+                         features_only=False):
+    """ Data array should be (NTRIGGER, NFREQ, NTIME)
+    """
+    assert(len(train_data.shape)==3)
+
+    train_data = train_data.reshape(-1, NFREQ, NTIME, 1)
+
+    if eval_data is not None:
+        assert(len(eval_data.shape)==3)
+        eval_data = eval_data.reshape(-1, NFREQ, NTIME, 1)
+
+    model_2d_freq_time = construct_conv2d(features_only=features_only, fit=True,
+                        train_data=train_data, eval_data=eval_data, 
+                        train_labels=train_labels, eval_labels=eval_labels,
+                        epochs=epochs, nfilt1=nfilt1, nfilt2=nfilt2, 
+                        nfreq=NFREQ, ntime=WIDTH)
+
+    return model_2d_freq_time
+
+def run_2dconv_dm_time():
+    pass
+
+def run_1dconv_time():
+    pass
+
 if __name__=='__main__':
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
@@ -183,42 +212,117 @@ if __name__=='__main__':
 
     NFREQ=32
     NTIME=250
-    WIDTH=32
+    WIDTH=64
+    tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
 
-    tl, th = NTIME//2-WIDTH, NTIME//2+WIDTH
+    ftype = fn.split('.')[-1]
 
-    train_data, eval_data, train_labels, eval_labels = \
-                    split_data(fn, train_size=0.25, NFREQ=NFREQ, NTIME=NTIME,)
+    if ftype is 'hdf5':
+        f = h5py.File(fn, 'r')
+        data_dm = f['data_dm_time'][:, :, tl:th]
+        data_freq = f['data_freq_time'][:,:,tl:th]
+        y = f['labels'][:]
+        
+        # tf expects 4D tensors
+        data_dm = data_dm[..., None]
+        data_freq = data_freq[..., None]
+        data_1d = data_freq.mean(1)
 
-    train_data = train_data[:,:,tl:th]
-    eval_data = eval_data[:,:,tl:th]
+        NTRIGGER = len(y)
+        NTRAIN = int(train_size * NTRIGGER)
+        train_size = 0.25
 
-    train_data_1d = train_data.mean(1)
-    eval_data_1d = eval_data.mean(1)
+        ind = range(NTRIGGER)
+        np.random.shuffle(ind)
 
-    right_branch_2d = construct_conv2d(features_only=False, fit=True,
-                            train_data=train_data, eval_data=eval_data, 
-                            train_labels=train_labels, eval_labels=eval_labels,
-                            epochs=1, nfilt1=8, nfilt2=16)
+        ind_train = ind[:NTRAIN]
+        ind_eval = ind[NTRAIN:]
 
-    left_branch_1d = construct_conv1d(features_only=True, fit=True,
+        train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
+        train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
+        train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
+
+        train_labels, eval_labels = y[ind_train], y[ind_eval]
+        
+        model_2d_freq_time = construct_conv2d(features_only=features_only, fit=True,
+                        train_data=train_data_freq, eval_data=eval_data_freq, 
+                        train_labels=train_labels, eval_labels=eval_labels,
+                        epochs=5, nfilt1=32, nfilt2=64, 
+                        nfreq=NFREQ, ntime=WIDTH)
+
+        model_2d_dm_time = construct_conv2d(features_only=features_only, fit=True,
+                        train_data=train_data_dm, eval_data=eval_data_dm, 
+                        train_labels=train_labels, eval_labels=eval_labels,
+                        epochs=5, nfilt1=32, nfilt2=64, 
+                        nfreq=NDM, ntime=WIDTH)
+        
+        model_1d_time = construct_conv1d(features_only=True, fit=True,
                             train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels,
-                            NTIME=64, nfilt1=64, nfilt2=128)   
+                            NTIME=64, nfilt1=64, nfilt2=128) 
+        # Configure the accuracy metric for evaluation
+        metrics = ["accuracy", "precision", "false_negatives", "recall"] 
 
-    model = merge_models(left_branch_1d, right_branch_2d)
+        model = Sequential()
+        model.add(Merge([model_2d_freq_time, model_2d_dm_time, model_1d_time], mode = 'concat'))
+        #model.add(Dense(256, activation='relu'))
+        model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
+        sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
+        model.compile(loss = 'binary_crossentropy', 
+                  optimizer=sgd, 
+                  metrics=['accuracy'])
 
-    seed(2017)
-    model.fit([train_data_1d, train_data], train_labels, 
-        batch_size = 2000, nb_epoch = 10, verbose = 1)
-    score = model.evaluate([eval_data_1d, eval_data], 
-                            eval_labels, batch_size=32)
+        seed(2017)
 
-    print(score)
+        model.fit([train_data_freq, train_data_dm, train_data_1d], train_labels, 
+                    batch_size = 2000, nb_epoch = 5, verbose = 1)
 
-    prob, predictions, mistakes = get_predictions(
-                                model, [eval_data_1d, eval_data], 
+        score = model.evaluate([eval_data_freq, eval_data_dm, eval_data_1d], 
+                                eval_labels, batch_size=32)
+
+        prob, predictions, mistakes = get_predictions(
+                                model, [eval_data_freq, eval_data_dm, eval_data_1d], 
                                 true_labels=eval_labels)
+
+
+    elif ftype is 'npy':
+        train_data, eval_data, train_labels, eval_labels = \
+                    split_data(fn, train_size=0.25, NFREQ=NFREQ, NTIME=NTIME,)
+
+    else:
+        print("Input file type not recognized")
+        raise 
+
+
+    # train_data = train_data[:,:,tl:th]
+    # eval_data = eval_data[:,:,tl:th]
+
+    # train_data_1d = train_data.mean(1)
+    # eval_data_1d = eval_data.mean(1)
+
+    # right_branch_2d = construct_conv2d(features_only=False, fit=True,
+    #                         train_data=train_data, eval_data=eval_data, 
+    #                         train_labels=train_labels, eval_labels=eval_labels,
+    #                         epochs=5, nfilt1=32, nfilt2=64, nfreq=NFREQ, ntime=WIDTH)
+
+    # left_branch_1d = construct_conv1d(features_only=True, fit=True,
+    #                         train_data=train_data_1d, eval_data=eval_data_1d, 
+    #                         train_labels=train_labels, eval_labels=eval_labels,
+    #                         NTIME=64, nfilt1=64, nfilt2=128)   
+
+    # model = merge_models(left_branch_1d, right_branch_2d)
+
+    # seed(2017)
+    # model.fit([train_data_1d, train_data], train_labels, 
+    #     batch_size = 2000, nb_epoch = 10, verbose = 1)
+    # score = model.evaluate([eval_data_1d, eval_data], 
+    #                         eval_labels, batch_size=32)
+
+    # print(score)
+
+    # prob, predictions, mistakes = get_predictions(
+    #                             model, [eval_data_1d, eval_data], 
+    #                             true_labels=eval_labels)
 
 
 #   seed(2017)

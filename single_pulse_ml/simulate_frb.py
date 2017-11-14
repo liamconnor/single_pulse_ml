@@ -317,14 +317,15 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                         fn_rfi='./data/all_RFI_8001.npy', ftype='hdf5'):
 
     dm_time_array = True
-    hdf5 = True # hack
     outdir = './data/'
     outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
                        round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
 
     data_rfi, y = sim_obj.get_false_positives(fn_rfi)
-    print(data_rfi.shape)
+
+    print("\nUsing %d false-positive triggers" % sim_obj._NRFI)
+    print("Simulating %d FRBs\n" % sim_obj._NSIM)
 
     if data_rfi[0].shape != (sim_obj._NFREQ*sim_obj._NTIME,):
         data_rfi = np.random.normal(0, 1, 
@@ -414,8 +415,10 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
         for ii, data in enumerate(arr_sim_full):
             if ii%500==0:
-                print("dm transformed:%d" % ii)
+                print("DM-transformed:%d" % ii)
+
             data = data.reshape(-1, sim_obj._NTIME)
+            data = dataproc.normalize_data(data)
             data_dm_time = E.dm_transform(tel_obj._DELTA_T, data, tel_obj._freq, dm=dms)
             arr_dm_time_full.append(data_dm_time)
 
@@ -424,7 +427,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     else:
         data_dm_time_full = None
 
-    params_full_arr = np.concatenate(params_full_arr)
+    params_full_arr = np.concatenate(params_full_arr).reshape(-1, 6)
     snr = np.array(snr) 
     yfull = np.array(yfull)
     
@@ -436,7 +439,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     print("Used %d RFI triggers" % sim_obj._NRFI)
     print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
 
-    if hdf5 is True:
+    if ftype is 'hdf5':
         arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ, sim_obj._NTIME)
         sim_obj.write_sim_data(arr_sim_full, yfull, outfn, 
                                data_dm_time=arr_dm_time_full,
@@ -444,7 +447,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                                snr=snr)
     else:
         full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
-
         print("Saving training/label data to:\n%s" % outfn)
 
         # save down the training data with labels
