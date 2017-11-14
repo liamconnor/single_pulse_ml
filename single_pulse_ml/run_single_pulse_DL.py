@@ -89,16 +89,16 @@ if __name__=='__main__':
                                 true_labels=eval_labels)
     elif len(model_list)==2:
         print("Merging all models")
-        model = Sequential()
-        model.add(Merge(model_list, mode = 'concat'))
+        model = frb_keras_convnet.Sequential()
+        model.add(frb_keras_convnet.Merge(model_list, mode = 'concat'))
         #model.add(Dense(256, activation='relu'))
-        model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
-        sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
+        model.add(frb_keras_convnet.Dense(1, init = 'normal', activation = 'sigmoid'))
+        sgd = frb_keras_convnet.SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
         model.compile(loss = 'binary_crossentropy', 
               optimizer=sgd, 
               metrics=['accuracy'])
 
-        prob, predictions, mistakes = get_predictions(
+        prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model_list, eval_data_list, 
                                 true_labels=eval_labels)    
 
