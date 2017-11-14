@@ -101,6 +101,6 @@ if __name__=='__main__':
               metrics=['accuracy'])
 
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
-                                model_list, eval_data_list, 
+                                model, eval_data_list, 
                                 true_labels=eval_labels)    
 
