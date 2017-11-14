@@ -83,14 +83,12 @@ if __name__=='__main__':
         train_data_list.append(train_data_1d)
         eval_data_list.append(eval_data_1d)
 
-    print(model_list)
-
     if len(model_list)==1:
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model_list[0], eval_data_list[0], 
                                 true_labels=eval_labels)
     elif len(model_list)>1:
-        print("Merging all models")
+        print("Merging %d models" % len(model_list))
         model = frb_keras_convnet.Sequential()
         model.add(frb_keras_convnet.Merge(model_list, mode = 'concat'))
         #model.add(Dense(256, activation='relu'))
@@ -103,4 +101,4 @@ if __name__=='__main__':
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model, eval_data_list, 
                                 true_labels=eval_labels)    
-
+        print(mistakes)
