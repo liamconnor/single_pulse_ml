@@ -158,12 +158,6 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
     plt.suptitle('TensorFlow Deep Learn', fontsize=45, )
 
 
-#
-# Code scraped from https://github.com/philipperemy/keras-visualize-activations/blob/master/read_activations.py
-# for layer visualization 
-#
-
-
 class VisualizeLayers:
     """ Class to visualize the hidden 
     layers of a deep neural network in 

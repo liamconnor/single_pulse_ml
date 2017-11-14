@@ -170,6 +170,24 @@ def create_training_set(FT=True, fout='./single_pulse_ml/data/data_freqtime_trai
 
 	write_data(data, y, fname=fout)
 
+def shuffle_array(data_1, data_2=None):
+	""" Take one or two data array(s), shuffle 
+	in place, and shuffle the second array in the same 
+	ordering, if applicable.
+	"""
+	ntrigger = len(data_1)
+	index = np.arange(ntrigger)
+	
+	if data_1.shape > 2:
+		data_1 = data_1.reshape(ntrigger, -1)
+		data_2 = data_2.reshape(ntrigger, -1)
+
+	data_1_ = np.concatenate((data_1, index[:, None]), axis=-1)
+	np.random.shuffle(data_1_)
+	index_shuffle = (data_1_[:, -1]).astype(int)
+	data_2 = data_2[index_shuffle]
+
+	return data_1_[:, :-1], data_2
 
 
 

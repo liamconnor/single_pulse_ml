@@ -5,7 +5,7 @@ class SimParams:
 
     def __init__(self, dm=(-0.01, 0.01), fluence=(0.1, 0.3),
                  width=(3*0.0016, 0.75), spec_ind=(-3., 3.),
-                 disp_ind=2., scat_factor=(-4., -1.), 
+                 disp_ind=2., scat_factor=(-4., -1.), NRFI=None, NSIM=None,
                  SNR_MIN=10., SNR_MAX=100., out_file_name=None, 
                  NTIME=250, NFREQ=16, mk_plot=False, NSIDE=8):
 
@@ -22,8 +22,8 @@ class SimParams:
         self._NFREQ = NFREQ
         self._out_file_name = out_file_name
         
-        self._NRFI = None
-        self._NSIM = None
+        self._NRFI = NRFI
+        self._NSIM = NSIM
         self.data_rfi = None
         self.y = None # FP labels 
 
@@ -49,10 +49,11 @@ class SimParams:
             return 
     
         if self._NRFI is not None:
-            self._NRFI = len(y)
-            self._NSIM = len(y)
-            self.data_rfi = data_rfi
-            self.y = y
+            if self._NSIM is None:
+                self._NSIM = self._NRFI
+                
+            self.data_rfi = data_rfi[:self._NRFI]
+            self.y = y[:self._NRFI]
         else:
             self._NRFI = len(y)
             self._NSIM = self._NRFI 
