@@ -179,13 +179,12 @@ if __name__=='__main__':
     if len(sys.argv) > 1:
         fn = sys.argv[1]
     
-    fn = './data/_data_nt250_nf16_dm0_snrmax150.npy'
-
     print("Using %s" % fn)
 
-    WIDTH=32
-    NFREQ=128#16
+    NFREQ=32
     NTIME=250
+    WIDTH=32
+
     tl, th = NTIME//2-WIDTH, NTIME//2+WIDTH
 
     train_data, eval_data, train_labels, eval_labels = \
@@ -200,7 +199,7 @@ if __name__=='__main__':
     right_branch_2d = construct_conv2d(features_only=False, fit=True,
                             train_data=train_data, eval_data=eval_data, 
                             train_labels=train_labels, eval_labels=eval_labels,
-                            epochs=4, nfilt1=8, nfilt2=16)
+                            epochs=1, nfilt1=8, nfilt2=16)
 
     left_branch_1d = construct_conv1d(features_only=True, fit=True,
                             train_data=train_data_1d, eval_data=eval_data_1d, 

@@ -1,4 +1,5 @@
 import numpy as np 
+import h5py
 
 class SimParams:
 
@@ -30,11 +31,22 @@ class SimParams:
         self._NSIDE = NSIDE
 
     def get_false_positives(self, fn):
-        f_rfi = np.load(fn)
-        # Important step! Need to scramble RFI triggers. 
-        np.random.shuffle(f_rfi)
-        # Read in data array and labels from RFI file
-        data_rfi, y = f_rfi[:, :-1], f_rfi[:, -1]
+
+        ftype = fn.split('.')[-1]
+
+        if ftype in ('hdf5', 'h5'):
+            f = h5py.File(fn)
+            data_rfi = f['data_freq_time'][:]
+            data_rfi = data_rfi.reshape(len(data_rfi), -1)
+            y = f['labels'][:]
+        elif ftype in ('npy',):
+            f_rfi = np.load(fn)
+            # Important step! Need to scramble RFI triggers. 
+            np.random.shuffle(f_rfi)
+            # Read in data array and labels from RFI file
+            data_rfi, y = f_rfi[:, :-1], f_rfi[:, -1]
+        else:
+            return 
     
         if self._NRFI is not None:
             self._NRFI = len(y)
@@ -42,8 +54,38 @@ class SimParams:
             self.data_rfi = data_rfi
             self.y = y
         else:
+            self._NRFI = len(y)
             self._NSIM = self._NRFI 
             self.data_rfi = data_rfi[:self._NSIM]
             self.y = y[:self._NSIM]
 
         return data_rfi, y
+
+    def write_sim_data(self, data_freq_time, labels, fnout, 
+                       data_dm_time=None, params=None, snr=None):
+        ftype = fnout.split('.')[-1]
+
+        if ftype in ('hdf5', 'h5'):
+            f = h5py.File(fnout)
+            f.create_dataset('data_freq_time', data=data_freq_time)
+            f.create_dataset('labels', data=labels)
+
+            if data_dm_time is not None:
+                f.create_dataset('data_dm_time', data=data_dm_time)
+            if params is not None:
+                f.create_dataset('params', data=params)
+            if snr is not None:
+                f.create_dataset('snr', data=snr)
+
+
+            f.close()
+
+        elif ftype in ('npy'):
+            np.save(fnout, data)
+
+
+
+
+
+
+

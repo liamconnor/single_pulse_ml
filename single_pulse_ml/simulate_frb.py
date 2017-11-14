@@ -2,7 +2,6 @@ import random
 import logging
 
 import numpy as np
-import numpy.random as nprand
 import glob
 
 try:
@@ -28,7 +27,7 @@ class Event(object):
     add the event to data. 
     """
     def __init__(self, t_ref, f_ref, dm, fluence, width, 
-                 spec_ind, disp_ind, scat_factor=0):
+                 spec_ind, disp_ind=2, scat_factor=0):
         self._t_ref = t_ref
         self._f_ref = f_ref
         self._dm = dm
@@ -132,6 +131,24 @@ class Event(object):
             data[ii] += val
 
 
+    def dm_transform(self, delta_t, data, freq, dm=np.linspace(-7, 7, 300)):
+        """ Transform freq/time data to dm/time data.
+        """
+
+        ndm = len(dm)
+        ntime = data.shape[-1]
+
+        data_full = np.zeros([ndm, ntime])
+
+        for ii, dm in enumerate(dm):
+            for jj, f in enumerate(freq):
+                self._dm = dm
+                tpix = int(self.arrival_time(f) / delta_t)
+                data_rot = np.roll(data[jj], tpix, axis=-1)
+                data_full[ii] += data_rot
+
+        return data_full
+
 class EventSimulator():
     """Generates simulated fast radio bursts.
 
@@ -224,7 +241,8 @@ def uniform_range(min_, max_):
 def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
                 spec_ind=(-4, 4), width=(2*0.0016, 1), dm=(-0.01, 0.01),
                 scat_factor=(-3, -0.5), background_noise=None, delta_t=0.0016,
-                plot_burst=False, freq=(800, 400), FREQ_REF=600.):
+                plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+                ):
     """ Simulate fast radio bursts using the EventSimulator class.
 
     Parameters
@@ -293,35 +311,35 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
         subplot(313)
         plot(data.reshape(-1, ntime).mean(0))
 
-    data = reader.rebin_arr(data, NFREQ, NTIME)
-    data = dataproc.normalize_data(data)
-
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
-def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
+def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
+                        fn_rfi='./data/all_RFI_8001.npy', ftype='hdf5'):
 
+    dm_time_array = True
+    hdf5 = True # hack
     outdir = './data/'
-    outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.npy" \
+    outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
-                       round(max(sim_obj._dm)), sim_obj._SNR_MAX)
+                       round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
 
-    # need to figure out what to do with this one
-    fn_rfi = './data/all_RFI_8001.npy'
     data_rfi, y = sim_obj.get_false_positives(fn_rfi)
+    print(data_rfi.shape)
 
-    if data_rfi[0].shape != (sim_obj._NFREQ, sim_obj._NTIME):
+    if data_rfi[0].shape != (sim_obj._NFREQ*sim_obj._NTIME,):
         data_rfi = np.random.normal(0, 1, 
                    sim_obj._NRFI*sim_obj._NFREQ*sim_obj._NTIME)
         print("Using simulated noise")
 
     arr_sim_full = [] # data array with all events
     yfull = [] # label array FP=0, TP=1
+    arr_dm_time_full = []
 
     params_full_arr = []
     width_full_arr = []
 
     snr = [] # Keep track of simulated FRB signal-to-noise
-    ii = 0
+    ii = -1
     jj = 0
 
     # Hack
@@ -339,9 +357,13 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
         #sim = bool(ii >= NRFI)
 
         if ii < sim_obj._NRFI:
-            data_rfi = np.random.normal(0, 1, sim_obj._NTIME*sim_obj._NFREQ)[None]
-            arr_sim_full.append(data_rfi)
-            # arr_sim_full.append(data_rfi[ii].reshape(-1, NFREQ*NTIME)) hack
+            data = data_rfi[ii].reshape(sim_obj._NFREQ, sim_obj._NTIME)
+
+            # Normalize data to have unit variance and zero median
+            data = reader.rebin_arr(data, sim_obj._NFREQ, sim_obj._NTIME)
+            data = dataproc.normalize_data(data)
+
+            arr_sim_full.append(data.reshape(sim_obj._NFREQ*sim_obj._NTIME)[None])
             yfull.append(0) # Label the RFI with '0'
             continue
 
@@ -368,10 +390,15 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
                                                 sim=True,                                                
                                                 )
 
+            # Normalize data to have unit variance and zero median
+            arr_sim = reader.rebin_arr(arr_sim, sim_obj._NFREQ, sim_obj._NTIME)
+            arr_sim = dataproc.normalize_data(arr_sim)
+
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
             snr_ = tools.calc_snr(arr_sim.mean(0))
-            # for now, reject events outside of some snr range
+
+            # Only use events within a range of signal-to-noise
             if snr_ > sim_obj._SNR_MIN and snr_ < sim_obj._SNR_MAX:
                 arr_sim_full.append(arr_sim.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME))
                 yfull.append(1) # Label the simulated FRB with '1'
@@ -381,10 +408,26 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
             else:
                 continue
 
-    params_full_arr = np.concatenate(params_full_arr)
-    snr = np.array(snr)
-    yfull = np.array(yfull)
+    if dm_time_array is True:
+        dms = np.linspace(-7.0, 7.0, 300)
+        E = Event(0, tel_obj._FREQ_REF, 0.0, 1.0, tel_obj._DELTA_T, 0., )
 
+        for ii, data in enumerate(arr_sim_full):
+            if ii%500==0:
+                print("dm transformed:%d" % ii)
+            data = data.reshape(-1, sim_obj._NTIME)
+            data_dm_time = E.dm_transform(tel_obj._DELTA_T, data, tel_obj._freq, dm=dms)
+            arr_dm_time_full.append(data_dm_time)
+
+        arr_dm_time_full = np.concatenate(arr_dm_time_full)
+        arr_dm_time_full = arr_dm_time_full.reshape(-1, len(dms), sim_obj._NTIME)
+    else:
+        data_dm_time_full = None
+
+    params_full_arr = np.concatenate(params_full_arr)
+    snr = np.array(snr) 
+    yfull = np.array(yfull)
+    
     arr_sim_full = np.concatenate(arr_sim_full, axis=-1)
     arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME)
 
@@ -393,12 +436,19 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
     print("Used %d RFI triggers" % sim_obj._NRFI)
     print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
 
-    full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
+    if hdf5 is True:
+        arr_sim_full = arr_sim_full.reshape(-1, sim_obj._NFREQ, sim_obj._NTIME)
+        sim_obj.write_sim_data(arr_sim_full, yfull, outfn, 
+                               data_dm_time=arr_dm_time_full,
+                               params=params_full_arr, 
+                               snr=snr)
+    else:
+        full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
 
-    print("Saving training/label data to:\n%s" % outfn)
+        print("Saving training/label data to:\n%s" % outfn)
 
-    # save down the training data with labels
-    np.save(outfn, full_label_arr)
+        # save down the training data with labels
+        np.save(outfn, full_label_arr)
 
     if plt==None:
         mk_plot = False 
@@ -414,147 +464,9 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False):
 
     return arr_sim_full, yfull, params_full_arr, snr 
 
-if __name__=='__main__':
 
-    FREQ_LOW = 800. #telparam # first freq in array in MHz
-    FREQ_REF = 600.
-    FREQ_UP = 400. #telparam # last freq in array in MHz
-    NFREQ = 16 #telparam
-    NTIME = 250 #telparam
-    freq = np.linspace(FREQ_LOW, FREQ_UP, NFREQ) #telparam
 
-    DELTA_T = 0.0016 #telparam # Time resolution in seconds
 
-    dm=(-.01, 0.01) # bparam
-    fluence=(0.1,0.3) # bparam
-    width=(3*0.0016, 0.75) # bparam
-    spec_ind=(-3., 3.)  # bparam
-    disp_ind=2. # bparam
-    scat_factor=(-4., -1.) # bparam # hack
-
-    SNR_MIN = 8.0 # bparam
-    SNR_MAX = 100.0 # bparam
-
-    # Let's try the dispersion version:
-    # dm = (1.0, 25)
-    # scat_factor = (-4.5)
-    # width = (log(5*0.0016), 0.1)
-    # spec_ind = (0.)
-    # ntime = 1000
-    # fluence=(0.03,0.3)*5
-
-    # Plotting parameters
-    mk_plot = True # sim param
-    NSIDE = 7
-    NFIG = NSIDE**2
-
-    # Read in false positive triggers from the Pathfinder
-    fn_rfi = './data/all_RFI_8001.npy'
-    f_rfi = np.load(fn_rfi)
-    #f_rfi = np.random.normal(0, 1, 2500*NTIME*NFREQ).reshape(-1, NTIME*NFREQ)
-
-    # # Read in background data randomly selected and dedispersed
-    # fn_noise = './data/background_pf_data.npy'
-    # f_noise = np.load(fn_noise)
-    # f_noise.shape = (-1, NFREQ, NTIME)
-
-    outdir = './data/'
-    outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.npy" \
-                    % (NTIME, NFREQ, round(max(dm)), SNR_MAX)
-    figname = './plots/training_set' 
-
-    # Important step! Need to scramble RFI triggers. 
-    np.random.shuffle(f_rfi)
-
-    # Read in data array and labels from RFI file
-    data_rfi, y = f_rfi[:, :-1], f_rfi[:, -1]
-
-    # simulate two FRBs for each RFI trigger
-    NRFI = len(f_rfi)
-    NSIM = NRFI
-
-    arr_sim_full = []
-    snr = [] # Keep track of simulated FRB signal-to-noise
-    yfull = []
-    ww_ = []
-    ii = 0
-    jj = 0
-
-    # Hack
-    f_noise = None#data_rfi[NRFI:].copy().reshape(-1, 16, 250)
-
-    # Loop through total number of events
-    while jj < (NRFI + NSIM):
-        jj = len(arr_sim_full)
-        ii += 1
-        if ii % 500 == 0:
-            print("simulated:%d kept:%d" % (ii, jj))
-
-        # If ii is greater than the number of RFI events in f, 
-        # simulate an FRB
-        #sim = bool(ii >= NRFI)
-
-        if ii < NRFI:
-            data_rfi = np.random.normal(0, 1, NTIME*NFREQ)[None]
-            arr_sim_full.append(data_rfi)
-            # arr_sim_full.append(data_rfi[ii].reshape(-1, NFREQ*NTIME)) hack
-            yfull.append(0) # Label the RFI with '0'
-            continue
-
-        elif (ii >=NRFI and jj < (NRFI + NSIM)):
-            if f_noise is not None:
-                noise = (f_noise[jj-NRFI]).copy()
-            else:
-                noise = None
-
-            # maybe should feed gen_sim a tel object and 
-            # a set of burst parameters... 
-            arr_sim, params = gen_simulated_frb(NFREQ=NFREQ, NTIME=NTIME, sim=True, \
-                        spec_ind=spec_ind, width=width, delta_t=DELTA_T, scat_factor=scat_factor, \
-                        background_noise=noise, freq=(FREQ_LOW, FREQ_UP), FREQ_REF=FREQ_REF,\
-                        plot_burst=False, dm=dm, fluence=fluence)
-
-            # get SNR of simulated pulse. Center should be at ntime//2
-            # rebin until max SNR is found.
-            snr_ = tools.calc_snr(arr_sim.mean(0))
-            ww = params[2]
-            # for now, reject events outside of some snr range
-            if snr_ > SNR_MIN and snr_ < SNR_MAX:
-                arr_sim_full.append(arr_sim.reshape(-1, NFREQ*NTIME))
-                yfull.append(1) # Label the simulated FRB with '1'
-
-                ww_.append(ww)
-                snr.append(snr_)
-                continue
-            else:
-                continue
-
-    ww_ = np.array(ww_)
-    snr = np.array(snr)
-    yfull = np.array(yfull)
-    arr_sim_full = np.concatenate(arr_sim_full, axis=-1)
-    arr_sim_full = arr_sim_full.reshape(-1, NFREQ*NTIME)
-
-    print("\nGenerated %d simulated FRBs with mean SNR: %f" % (NSIM, snr.mean()))
-    print("Used %d RFI triggers" % NRFI)
-    print("Total triggers with SNR>10: %d" % arr_sim_full.shape[0])
-
-    full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
-
-    print("Saving training/label data to:\n%s" % outfn)
-
-    # save down the training data with labels
-    np.save(outfn, full_label_arr)
-
-    if plt==None:
-        mk_plot = False 
-
-    if mk_plot == True:
-        kk=0
-
-        plot_tools.plot_simulated_events(
-                arr_sim_full, y, figname, 
-                NSIDE, NFREQ, NTIME, cmap='Greys')
 
 
 
