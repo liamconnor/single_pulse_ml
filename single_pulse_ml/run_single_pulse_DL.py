@@ -4,7 +4,7 @@ import frb_keras_convnet
 
 FREQTIME=False
 DMTIME=True
-TIME1D=False
+TIME1D=True
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 
