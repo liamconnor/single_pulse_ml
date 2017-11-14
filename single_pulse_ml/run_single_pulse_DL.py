@@ -88,6 +88,7 @@ if __name__=='__main__':
                                 model_list[0], eval_data_list[0], 
                                 true_labels=eval_labels)
     elif len(model_list)==2:
+        print("Merging all models")
         model = Sequential()
         model.add(Merge(model_list, mode = 'concat'))
         #model.add(Dense(256, activation='relu'))
