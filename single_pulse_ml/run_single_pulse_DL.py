@@ -15,7 +15,10 @@ WIDTH=64
 tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
 train_size=0.75
 ftype = fn.split('.')[-1]
+
 model_list = []
+train_data_list = []
+eval_data_list = []
 
 # Configure the accuracy metric for evaluation
 metrics = ["accuracy", "precision", "false_negatives", "recall"] 
