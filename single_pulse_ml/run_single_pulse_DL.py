@@ -3,7 +3,7 @@ import numpy as np
 import frb_keras_convnet 
 
 FREQTIME=True
-DMTIME=True
+DMTIME=False
 TIME1D=True
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
