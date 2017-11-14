@@ -6,6 +6,7 @@ import sys
 
 import numpy as np
 from numpy.random import seed
+import h5py
 
 import keras
 from keras.models import Sequential
