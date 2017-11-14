@@ -89,7 +89,7 @@ if __name__=='__main__':
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model_list[0], eval_data_list[0], 
                                 true_labels=eval_labels)
-    elif len(model_list)==2:
+    elif len(model_list)>1:
         print("Merging all models")
         model = frb_keras_convnet.Sequential()
         model.add(frb_keras_convnet.Merge(model_list, mode = 'concat'))
