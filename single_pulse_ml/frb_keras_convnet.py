@@ -254,8 +254,7 @@ if __name__=='__main__':
         ind_train = ind[:NTRAIN]
         ind_eval = ind[NTRAIN:]
 
-        train_data_dm, eval_data_dm = data_dm[ind_tr
-        ain], data_dm[ind_eval]
+        train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
         train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
         train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
 
