@@ -21,7 +21,7 @@ model_list = []
 metrics = ["accuracy", "precision", "false_negatives", "recall"] 
 
 if __name__=='__main__':
-    data_freq, y, data_dm = read_hdf5(fn)
+    data_freq, y, data_dm = frb_keras_convnet.read_hdf5(fn)
     data_freq = data_freq[..., tl:th]
     data_dm = data_dm[..., tl:th]
     
