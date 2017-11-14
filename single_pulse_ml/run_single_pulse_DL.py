@@ -97,8 +97,11 @@ if __name__=='__main__':
         model.compile(loss = 'binary_crossentropy', 
               optimizer=sgd, 
               metrics=['accuracy'])
+        score = model.evaluate(eval_data_list, eval_labels, batch_size=32)
 
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model, eval_data_list, 
-                                true_labels=eval_labels)    
+                                true_labels=eval_labels)
+
         print(mistakes)
+        print(score)
