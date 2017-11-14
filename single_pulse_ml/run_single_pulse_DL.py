@@ -4,11 +4,11 @@ import frb_keras_convnet
 
 FREQTIME=False
 DMTIME=True
-TIME1D=True
+TIME1D=False
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 
-NDM=32
+NDM=100
 NFREQ=32
 NTIME=250
 WIDTH=64
@@ -28,7 +28,7 @@ if __name__=='__main__':
     tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
 
     data_freq = data_freq[..., tl:th]
-    data_dm = data_dm[..., tl:th]
+    data_dm = data_dm[:, 100:200, tl:th]
     
     # tf expects 4D tensors
     data_dm = data_dm[..., None]
