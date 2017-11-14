@@ -211,16 +211,18 @@ if __name__=='__main__':
     
     print("Using %s" % fn)
 
+    NDM=150
     NFREQ=32
     NTIME=250
     WIDTH=64
     tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
+    train_size=0.75
 
     ftype = fn.split('.')[-1]
     print(ftype)
-    if ftype is 'hdf5':
+    if ftype=='hdf5':
         f = h5py.File(fn, 'r')
-        data_dm = f['data_dm_time'][:, :, tl:th]
+        data_dm = f['data_dm_time'][:,75:225,tl:th]
         data_freq = f['data_freq_time'][:,:,tl:th]
         y = f['labels'][:]
         
@@ -233,7 +235,7 @@ if __name__=='__main__':
         NTRAIN = int(train_size * NTRIGGER)
         train_size = 0.25
 
-        ind = range(NTRIGGER)
+        ind = np.arange(NTRIGGER)
         np.random.shuffle(ind)
 
         ind_train = ind[:NTRAIN]
@@ -245,22 +247,23 @@ if __name__=='__main__':
 
         train_labels, eval_labels = y[ind_train], y[ind_eval]
         
-        model_2d_freq_time = construct_conv2d(features_only=features_only, fit=True,
+        model_2d_freq_time = construct_conv2d(features_only=False, fit=True,
                         train_data=train_data_freq, eval_data=eval_data_freq, 
                         train_labels=train_labels, eval_labels=eval_labels,
                         epochs=5, nfilt1=32, nfilt2=64, 
                         nfreq=NFREQ, ntime=WIDTH)
 
-        model_2d_dm_time = construct_conv2d(features_only=features_only, fit=True,
+        model_2d_dm_time = construct_conv2d(features_only=False, fit=True,
                         train_data=train_data_dm, eval_data=eval_data_dm, 
                         train_labels=train_labels, eval_labels=eval_labels,
                         epochs=5, nfilt1=32, nfilt2=64, 
                         nfreq=NDM, ntime=WIDTH)
         
-        model_1d_time = construct_conv1d(features_only=True, fit=True,
+        model_1d_time = construct_conv1d(features_only=False, fit=True,
                             train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             NTIME=64, nfilt1=64, nfilt2=128) 
+
         # Configure the accuracy metric for evaluation
         metrics = ["accuracy", "precision", "false_negatives", "recall"] 
 
@@ -275,6 +278,7 @@ if __name__=='__main__':
 
         seed(2017)
 
+        print("Now merging models")
         model.fit([train_data_freq, train_data_dm, train_data_1d], train_labels, 
                     batch_size = 2000, nb_epoch = 5, verbose = 1)
 
@@ -284,6 +288,7 @@ if __name__=='__main__':
         prob, predictions, mistakes = get_predictions(
                                 model, [eval_data_freq, eval_data_dm, eval_data_1d], 
                                 true_labels=eval_labels)
+        print(mistakes)
 
 
     elif ftype is 'npy':
