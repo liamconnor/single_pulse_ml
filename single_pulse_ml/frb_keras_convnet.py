@@ -217,7 +217,7 @@ if __name__=='__main__':
     tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
 
     ftype = fn.split('.')[-1]
-
+    print(ftype)
     if ftype is 'hdf5':
         f = h5py.File(fn, 'r')
         data_dm = f['data_dm_time'][:, :, tl:th]
