@@ -202,6 +202,19 @@ def run_2dconv_dm_time():
 def run_1dconv_time():
     pass
 
+def read_hdf5(fn):
+    f = h5py.File(fn, 'r')
+    data_freq = f['data_freq_time'][:]
+    y = f['labels'][:]
+
+    try:
+        data_dm = f['data_dm_time'][:]
+    except:
+        print("dm-time dataset not there")
+        data_dm = None
+
+    return data_freq, y, data_dm
+
 if __name__=='__main__':
 
     fn = './data/_data_nt250_nf16_dm0_snrmax100.npy'
@@ -221,10 +234,10 @@ if __name__=='__main__':
     ftype = fn.split('.')[-1]
     print(ftype)
     if ftype=='hdf5':
-        f = h5py.File(fn, 'r')
-        data_dm = f['data_dm_time'][:,75:225,tl:th]
-        data_freq = f['data_freq_time'][:,:,tl:th]
-        y = f['labels'][:]
+
+        data_freq, y, data_dm = read_hdf5(fn)
+        data_freq = data_freq[..., tl:th]
+        data_dm = data_dm[..., tl:th]
         
         # tf expects 4D tensors
         data_dm = data_dm[..., None]
@@ -241,7 +254,8 @@ if __name__=='__main__':
         ind_train = ind[:NTRAIN]
         ind_eval = ind[NTRAIN:]
 
-        train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
+        train_data_dm, eval_data_dm = data_dm[ind_tr
+        ain], data_dm[ind_eval]
         train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
         train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
 
