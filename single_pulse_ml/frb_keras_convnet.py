@@ -339,7 +339,7 @@ if __name__=='__main__':
     # right_branch_2d = construct_conv2d(features_only=False, fit=True,
     #                         train_data=train_data, eval_data=eval_data, 
     #                         train_labels=train_labels, eval_labels=eval_labels,
-    #                         epochs=5, nfilt1=32, nfilt2=64, nfreq=NFREQ, ntime=WIDTH)
+    #                         epochs=2, nfilt1=8, nfilt2=16, nfreq=NFREQ, ntime=WIDTH)
 
     # left_branch_1d = construct_conv1d(features_only=True, fit=True,
     #                         train_data=train_data_1d, eval_data=eval_data_1d, 
