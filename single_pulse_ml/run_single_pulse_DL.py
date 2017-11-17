@@ -2,13 +2,14 @@ import numpy as np
 
 import frb_keras_convnet 
 
-FREQTIME=False
-DMTIME=True
-TIME1D=True
+FREQTIME=True
+DMTIME=False
+TIME1D=False
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
+fn = "./data/_data_nt250_nf32_dm0_snrmax175.hdf5"
 
-NDM=100
+NDM=300
 NFREQ=32
 NTIME=250
 WIDTH=64
@@ -44,8 +45,10 @@ if __name__=='__main__':
     ind_train = ind[:NTRAIN]
     ind_eval = ind[NTRAIN:]
 
-    train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
+    #data_dm = data_dm.reshape(NTRIGGER, NDM//FREQ_RB, FREQ_RB, WIDTH, -1).mean(2)
+
     train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
+    train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
     train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
 
     train_labels, eval_labels = y[ind_train], y[ind_eval]

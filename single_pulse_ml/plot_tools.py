@@ -259,43 +259,87 @@ class VisualizeLayers:
             plt.plot(activation[0,:,ii])
             plt.axis('off')
 
-    def im_feature_layer(self, activation, cmap='viridis', NSIDE=16):
-        N_SUBFIG = activation.shape[-1]
+    def im_feature_layer(self, activation, cmap='Greys', NSIDE=16, 
+                         start_grid=0, N_SUBFIG=None, skip=1):
+        N_SUBFIG = activation.shape[-1] if N_SUBFIG is None else N_SUBFIG
 
         if N_SUBFIG==1:
-            cmap = 'RdBu'
+#            cmap = 'RdBu'
 
             ax = plt.subplot2grid((NSIDE,NSIDE), 
                           (self.grid_counter, 3*NSIDE//8), 
                           colspan=NSIDE//4, rowspan=NSIDE//4) 
 
             self.grid_counter += (NSIDE//4+NSIDE//16) # Add one extra unit of space 
-            self.imshow_custom(activation[0, :, :, 0], cmap=cmap, extent=[0, 1, 400, 800])
+            data = activation[0,:,:,0]
+            data -= np.median(data)
+            vmax = 6*np.std(data)
+            vmin = -1*np.std(data)
+            self.imshow_custom(data,
+                                cmap=cmap, extent=[0, 1, 400, 800], vmax=vmax, vmin=vmin)
+
             plt.xlabel('Time')
             plt.ylabel('Freq [MHz]')
             return
 
-        for ii in range(N_SUBFIG):
-            size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
-            size=min(size, NSIDE//8)
-            start_grid = NSIDE//2 - N_SUBFIG*size//2
+#         for ii in range(N_SUBFIG):
+#             size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
+#             size=min(size, NSIDE//8)
 
-            ax = plt.subplot2grid((NSIDE,NSIDE), 
-                        (self.grid_counter, start_grid + ii*size), 
-                        colspan=size, rowspan=size)
-
-            self.imshow_custom(activation[0, :, :, ii], cmap=cmap)
-            plt.axis('off')
+#             print(size, skip, ii*size*skip)
+#             ax = plt.subplot2grid((NSIDE,NSIDE), 
+#                         (self.grid_counter, start_grid + ii*size*skip), 
+#                         colspan=size, rowspan=size)
+#             data = activation[0, :, :, ii]
+# #            data -= np.median(data)
+#             vmax = 4*np.std(data)
+#             vmin = -4*np.std(data)
+#             self.imshow_custom(data, cmap=cmap)#, vmax=vmax, vmin=vmin)
+#             plt.axis('off')
 
         self.grid_counter += (NSIDE//32+size)
 
         #plt.show()
 
+    def im_layers(self, activations, loc):
+        
+        for jj, activation in enumerate(activations):
+            for ii in range(len(loc[jj])):
+
+                ax = plt.subplot2grid((NSIDE,NSIDE),(self.grid_counter, loc[jj][ii]), 
+                                      colspan=sizes[jj], rowspan=sizes[jj]) 
+
+                self.imshow_custom(activation[0,:,:,ii])
+                plt.axis('off')
+
+            self.grid_counter += (NSIDE//32+sizes[jj])
+
+        plt.show()
+
+    def get_image_index(self, NSIDE=100):
+        offset = 0
+        sizes = np.array([8, 4, 4, 2])
+        N_SUBFIG = np.array([8, 8, 16, 16])
+        offset = NSIDE//2 - N_SUBFIG*sizes//2
+        loc1 = (offset[0] + np.arange(8)*sizes[0]).astype(int)
+        loc2 = (loc1 + (sizes[0]/2 - sizes[1]/2)).astype(int)
+        loc3 = (offset[2] + arange(16)*(1+sizes[2])).astype(int)
+        offset3 = NSIDE//2 - (loc3[0] + (loc3[-1] - loc3[0])/2.)
+        loc3 += int(offset3)
+        loc4 = (loc3 + (sizes[2]/2 - sizes[3]/2)).astype(int)
+        loc = [loc1, loc2, loc3, loc4]
+
+        loc_obj = (sizes, loc)
+
+        return loc_obj 
+
     def im_all(self, activations, NSIDE=32, figname=None, color='linen'):
         fig = figure(figsize=(15,15))
         self.grid_counter = 0
+        start_grid_map = np.zeros([len(activations)]).astype(int)
+        n_neuron_map = [activation.shape[-1] for activation in activations]
 
-        for activation in activations[:]: #hack
+        for kk, activation in enumerate(activations[:]): #hack
             print(activation.shape)
             if activation.shape[-1]==2: # For binary classification
                 activation = activation[0]
@@ -316,19 +360,36 @@ class VisualizeLayers:
             elif (activation.shape[-1]>64) and (activation.shape[-1]<1024):
                 ax = plt.subplot2grid((NSIDE,NSIDE), (self.grid_counter, 0), 
                                       colspan=NSIDE, rowspan=NSIDE//32)
-                activation = activation*np.ones([NSIDE//8, 1])
+                activation = activation*np.ones([2, 1])
                 plt.imshow((activation[:, :]), interpolation='nearest', 
-                           cmap='Greys')
+                           cmap='RdBu')
+                plt.axis('off')
                 self.grid_counter += NSIDE//8
                 ax.get_yaxis().set_visible(False)
 
             elif activation.shape[-1]<64:
-                self.im_feature_layer(activation, NSIDE=NSIDE)
+                N_SUBFIG = n_neuron_map[kk]
+                if kk==1:
+                    skip = 1
+                    size = int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
+                    size = min(size, NSIDE//8)       
+                    start_grid = NSIDE//2 - N_SUBFIG*size//2
+                elif N_SUBFIG==n_neuron_map[kk-1]:
+                    start_grid = start_grid + size//3
+                    skip = size//2                    
+                    size = int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
+                    size = min(size, NSIDE//8)
+                else:
+                    start_grid=0
+                    skip = 1
+
+                self.im_feature_layer(activation, NSIDE=NSIDE, 
+                                        start_grid=start_grid, N_SUBFIG=N_SUBFIG, skip=skip)
 
             if figname is not None:
-                plt.savefig(figname, facecolor=color)
+                plt.savefig(figname)#, facecolor=color)
 
-    def make_figure(self, data, NSIDE=16, figname=None):
+    def make_figure(self, data, NSIDE=32, figname=None):
         dsh = data.shape
 
         if len(dsh)==2:
