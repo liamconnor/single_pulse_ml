@@ -15,13 +15,13 @@ NFREQ = 32 # Number of frequencies. Must agree with FP data
 NTIME = 250 # Number of time stamps per trigger
 dm = (-0.01, .01)
 fluence = (0.1, 0.3)
-width = width=(3*0.0016, 0.75) # width lognormal dist in seconds
+width = width=(2*0.0016, 0.75) # width lognormal dist in seconds
 spec_ind=(-3., 3.)
 disp_ind=2. 
 scat_factor=(-4., -1.)
 NRFI = 1000
 SNR_MIN=10.
-SNR_MAX=150.
+SNR_MAX=175.
 out_file_name=None, 
 mk_plot=True
 NSIDE=8

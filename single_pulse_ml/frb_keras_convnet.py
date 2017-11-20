@@ -15,6 +15,13 @@ from keras.layers import Conv1D, Conv2D
 from keras.layers import MaxPooling2D, MaxPooling1D, GlobalAveragePooling1D
 from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
+from keras.models import load_model
+
+def load_model(fn):
+    model = load_model(fn)
+
+    return model
+
 
 def get_predictions(model, data, true_labels=None):
     prob = model.predict(data)
@@ -336,10 +343,10 @@ if __name__=='__main__':
     # train_data_1d = train_data.mean(1)
     # eval_data_1d = eval_data.mean(1)
 
-    # right_branch_2d = construct_conv2d(features_only=False, fit=True,
-    #                         train_data=train_data, eval_data=eval_data, 
-    #                         train_labels=train_labels, eval_labels=eval_labels,
-    #                         epochs=2, nfilt1=8, nfilt2=16, nfreq=NFREQ, ntime=WIDTH)
+    right_branch_2d = construct_conv2d(features_only=False, fit=True,
+                            train_data=train_data, eval_data=eval_data, 
+                            train_labels=train_labels, eval_labels=eval_labels,
+                            epochs=2, nfilt1=8, nfilt2=16, nfreq=NFREQ, ntime=WIDTH)
 
     # left_branch_1d = construct_conv1d(features_only=True, fit=True,
     #                         train_data=train_data_1d, eval_data=eval_data_1d, 

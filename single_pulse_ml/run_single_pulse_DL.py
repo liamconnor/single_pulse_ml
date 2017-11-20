@@ -8,6 +8,8 @@ TIME1D=False
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_snrmax175.hdf5"
+fnout = "./model/keras_model_"
+save_model = True
 
 NDM=300
 NFREQ=32
@@ -69,6 +71,10 @@ if __name__=='__main__':
         train_data_list.append(train_data_freq)
         eval_data_list.append(eval_data_freq)
 
+        if save_model is True:
+            fnout_freqtime = fnout+'freq_time.hdf5'
+            model_2d_freq_time.save(fnout_freqtime)
+
     if DMTIME is True:
     
         model_2d_dm_time, score = frb_keras_convnet.construct_conv2d(
@@ -82,6 +88,10 @@ if __name__=='__main__':
         train_data_list.append(train_data_dm)
         eval_data_list.append(eval_data_dm)
 
+        if save_model is True:
+            fnout_dmtime = fnout+'dm_time.hdf5'
+            model_2d_dm_time.save(fnout_dmtime)
+
     if TIME1D is True:
 
         model_1d_time, score = frb_keras_convnet.construct_conv1d(
@@ -93,6 +103,10 @@ if __name__=='__main__':
         model_list.append(model_1d_time)
         train_data_list.append(train_data_1d)
         eval_data_list.append(eval_data_1d)
+
+        if save_model is True:
+            fnout_1dtime = fnout+'1d_time.hdf5'
+            model_1d_time.save(fnout_1dtime)
 
     if len(model_list)==1:
         score = model_list[0].evaluate(eval_data_list[0], eval_labels, batch_size=32)
