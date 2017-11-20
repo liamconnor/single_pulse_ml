@@ -68,6 +68,7 @@ class Event(object):
         # Make number of scintils between 0 and 10 (ish)
         nscint = np.random.uniform(0, 10)
         nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10)))
+        nscint = 5 #hack
 
         return np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)**2
 
@@ -467,10 +468,28 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     return arr_sim_full, yfull, params_full_arr, snr 
 
 
+# A=[]
+# B=[]
+# flnew=[]
 
 
+# for ii, ff in enumerate(fl):
+#     ndm = ff.split('+')[-2]
+#     nfreq = flf[ii].split('+')[-2]
+#     if ndm==nfreq:
+#         bdm = np.load(ff)
+#         afq = np.load(flf[ii])
+#         if bdm.shape!=(300,500):
+#             continue
+#         afq = dataproc.normalize_data(afq)
+#         bdm = dataproc.normalize_data(bdm)
+#         flnew.append(ff)
 
+#         A.append(afq)
+#         B.append(bdm)
 
+# A = np.concatenate(A).reshape(-1, 32, 250)
+# B = np.concatenate(B).reshape(-1, 300, 500)
 
 
 
