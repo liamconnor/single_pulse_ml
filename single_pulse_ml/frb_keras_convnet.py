@@ -71,7 +71,7 @@ def construct_conv2d(features_only=False, fit=False,
                      train_data=None, train_labels=None,
                      eval_data=None, eval_labels=None, 
                      nfreq=16, ntime=250, epochs=5,
-                     nfilt1=32, nfilt2=64):
+                     nfilt1=32, nfilt2=64, batch_size=32):
 
     if train_data is not None:
         nfreq=train_data.shape[1]
@@ -106,8 +106,8 @@ def construct_conv2d(features_only=False, fit=False,
     # eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
-        model.fit(train_data, train_labels, batch_size=32, epochs=epochs)
-        score = model.evaluate(eval_data, eval_labels, batch_size=32)
+        model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
+        score = model.evaluate(eval_data, eval_labels, batch_size=batch_size)
         print("Conv2d only")
         print(score)
 
