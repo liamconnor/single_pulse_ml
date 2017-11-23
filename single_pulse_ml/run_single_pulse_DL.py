@@ -4,11 +4,15 @@ import frb_keras_convnet
 
 FREQTIME=True
 DMTIME=False
-TIME1D=False
+TIME1D=True
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_snrmax175.hdf5"
-fnout = "./model/keras_model_"
+fn='./data/_data_real_pf_pulses_.hdf5'
+fnout = "./model/keras_model_real_pulses"
+fn = "./data/_data_nt250_nf32_dm0_hybrid_pulse_simulation.hdf5"
+
+#fn='./data/visualization_example/_data_nt250_nf128_dm0_snrmax100.npy'
 save_model = True
 
 NDM=300
@@ -30,9 +34,16 @@ if __name__=='__main__':
     
     tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
 
-    data_freq = data_freq[..., tl:th]
-    data_dm = data_dm[:, 100:200, tl:th]
+    if data_freq.shape[-1] > (tl-th):
+        data_freq = data_freq[..., tl:th]
+        
+    if data_dm.shape[-1] > (tl-th):
+        data_dm = data_dm[:, :, tl:th]
     
+    if data_dm.shape[-2] > 100:
+        data_dm = data_dm[:, 100:200]
+
+
     # tf expects 4D tensors
     data_dm = data_dm[..., None]
     data_freq = data_freq[..., None]

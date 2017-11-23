@@ -9,6 +9,7 @@ try:
 except:
     pass
 
+import keras.backend as backend 
 
 def plot_simulated_events(data, labels, figname,
                           NSIDE, NFREQ, NTIME, cmap='RdBu'):
@@ -75,8 +76,7 @@ def get_title2(y_pred, y_test, target_names, i):
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
 
-def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outname='out'):
-
+def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'):
     assert len(data.shape) == 3, "data should be (batchsize, nside, nside)"
 
     ranking = np.argsort(prob_arr[:, 0])
@@ -86,30 +86,34 @@ def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outnam
         title_str = 'RFI most probable'
         outname = outname + 'rfi.png'
     elif ascending == 'mid':
-        cp = np.argsort(abs(prob_arr[:,0]-0.5))
-        ranking = cp[:h*w]
+#        cp = np.argsort(abs(prob_arr[:,0]-0.5))
+#        ranking = cp[:h*w]
+        inflection = np.argmax(abs(np.diff(prob_arr[:,0][ranking])))
+        ranking = ranking[inflection-h*w/2:inflection+h*w/2]
         title_str = 'Marginal events'
         outname = outname + 'marginal.png'
         print(prob_arr[ranking,0])
     else:
         title_str = 'FRB most probable'
-        outname = outname + 'FRB.png '
+        outname = outname + 'FRB.png'
 
     fig = plt.figure(figsize=(15,15))
-
-    if h is None:
-        h = data.shape[1]
-    if w is None:
-        w = data.shape[2]
 
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
         plt.imshow(data[ranking[ii]], 
-            cmap='RdBu', interpolation='nearest', 
-            aspect='auto')#, vmin=-2, vmax=4)
-        plt.axis('off')
-#        plt.title(11, 25, str(round(prob_arr[ranking[ii], 1], 3)), fontsize=14)
-        plt.title(str(round(prob_arr[ranking[ii], 1], 2)), fontsize=14)
+            cmap='Greys', interpolation='nearest', 
+            aspect='auto', vmin=-10, vmax=10, 
+            extent=[0, 1, 400, 800])
+        #plt.axis('off')
+        plt.xticks([])
+        plt.yticks([])
+        plt.title('p='+str(np.round(prob_arr[ranking[ii], 1], 5)), fontsize=12)
+
+        if ii % w == 0:
+            plt.ylabel("Freq", fontsize=14)
+        if ii >= (h*w-w):
+            plt.xlabel("Time", fontsize=14)
 
     plt.suptitle(title_str, fontsize=40)
 
@@ -117,6 +121,7 @@ def plot_ranked_triggers(data, prob_arr, h=None, w=None, ascending=False, outnam
         fig.savefig(outname)
 
     plt.show()
+
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
@@ -163,7 +168,6 @@ class VisualizeLayers:
     layers of a deep neural network in 
     keras.
     """
-    import keras.backend as backend 
 
     def __init__(self, model):
         self._model = model 
@@ -433,8 +437,6 @@ class VisualizeLayers:
                 data = data[..., None]
             elif dsh[-1]==1:
                 data = data[None]
-
-        activations = self.get_activations(data)
 
         # Make sure there's no activation 
         # which has more filters than NSIDE

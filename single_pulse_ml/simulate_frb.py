@@ -68,10 +68,9 @@ class Event(object):
         # Make number of scintils between 0 and 10 (ish)
         nscint = np.random.uniform(0, 10)
         nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10)))
-        nscint = 5 #hack
+#        nscint = 10 #hack
 
         return np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)**2
-
 
     def gaussian_profile(self, nt, width, t0=0.):
         """ Use a normalized Gaussian window for the pulse, 
@@ -122,13 +121,16 @@ class Event(object):
         for ii, f in enumerate(freq):
             index_width = max(1, (np.round((self._width/ delta_t))).astype(int))
             tpix = int(self.arrival_time(f) / delta_t)
+            if abs(tpix) >= tmid:
+                # ensure that edges of data are not crossed
+                continue
             pp = self.pulse_profile(NTIME, index_width, f, 
                                     tau=self._scat_factor, t0=tpix)
             val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
             val /= val.max()
             val *= self._fluence / self._width
             val = val * (f / self._f_ref) ** self._spec_ind 
-            val = (0.5 + scint_amp[ii]) * val 
+            val = (0.25 + scint_amp[ii]) * val # hack
             data[ii] += val
 
 
