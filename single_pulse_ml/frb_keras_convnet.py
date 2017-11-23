@@ -106,6 +106,8 @@ def construct_conv2d(features_only=False, fit=False,
     # eval_labels = keras.utils.to_categorical(eval_labels)
 
     if fit is True:
+        print("Using batch_size: %d" % batch_size)
+        print("Using %d epochs" % epochs)
         model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
         score = model.evaluate(eval_data, eval_labels, batch_size=batch_size)
         print("Conv2d only")
