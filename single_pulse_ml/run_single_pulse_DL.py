@@ -4,7 +4,8 @@ import frb_keras_convnet
 
 FREQTIME=True
 DMTIME=False
-TIME1D=True
+TIME1D=False
+MULTIBEAM=True
 
 fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_snrmax175.hdf5"
@@ -119,6 +120,26 @@ if __name__=='__main__':
             fnout_1dtime = fnout+'1d_time.hdf5'
             model_1d_time.save(fnout_1dtime)
 
+    if MULTIBEAM is True:
+        # Right now just simulate multibeam, simulate S/N per beam.
+        import simulate_multibeam as sm 
+
+        data, labels = sm.make_dataset()
+        
+        data_ = np.empty_like(data)
+        labels_ = np.empty_like(labels)
+
+        data_[ind_train] = data[::2]
+        data_[eval_labels] = data[1::2]
+        data_[ind_train] = labels[::2]
+        data_[eval_labels] = labels[1::2]
+
+        model, score = frb_keras_convnet.construct_ff1d(features_only=False, fit=True, 
+                             train_data=data_[ind_train], train_labels=labels_[ind_train],
+                             eval_data=data_[ind_eval], eval_labels=labels_[ind_eval], 
+                             nbeam=32, epochs=5,
+                             nlayer1=32, nlayer2=32, batch_size=32)
+
     if len(model_list)==1:
         score = model_list[0].evaluate(eval_data_list[0], eval_labels, batch_size=32)
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
@@ -140,4 +161,3 @@ if __name__=='__main__':
 
         print(mistakes)
         print(score)
-
