@@ -171,9 +171,6 @@ def construct_conv1d(features_only=False, fit=False,
                    optimizer='rmsprop',
                    metrics=['accuracy'])
 
-    # train_labels = keras.utils.to_categorical(train_labels)
-    # eval_labels = keras.utils.to_categorical(eval_labels)
-
     if fit is True:
         model.fit(train_data, train_labels, batch_size=16, epochs=5)
         score = model.evaluate(eval_data, eval_labels, batch_size=16)
@@ -182,20 +179,6 @@ def construct_conv1d(features_only=False, fit=False,
 
     return model, score
 
-# def merge_models(left_branch, right_branch):
-#     # Configure the accuracy metric for evaluation
-#     metrics = ["accuracy", "precision", "false_negatives", "recall"] 
-
-#     model = Sequential()
-#     model.add(Merge([left_branch, right_branch], mode = 'concat'))
-#     #model.add(Dense(256, activation='relu'))
-#     model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
-#     sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
-#     model.compile(loss = 'binary_crossentropy', 
-#                   optimizer=sgd, 
-#                   metrics=['accuracy'])
-
-#     return model
 
 def merge_models(model_list, train_data_list, 
                  train_labels, eval_data_list, eval_labels):
