@@ -224,9 +224,7 @@ def cnn_model_2d(features, labels, mode, nfilt1=32):
   # data have been pooled twice; new shape is h//4, w//4, nfeatures
   pool2_flat = tf.reshape(pool2, [-1, h//4 * w//4 * nfilt2])
   print(pool2_flat.shape)
-  print(nfilt2
-
-    )
+  print(nfilt2)
   # Dense Layer
   # Densely connected layer with 1024 neurons
   # Input Tensor Shape: [batch_size, 7 * 7 * 64]

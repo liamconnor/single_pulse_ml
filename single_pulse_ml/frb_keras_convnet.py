@@ -67,6 +67,31 @@ def split_data(fn, NFREQ=16, NTIME=250, train_size=0.75):
     return train_data, eval_data, train_labels, eval_labels
 
 
+def construct_ff1d(features_only=False, fit=False, 
+                     train_data=None, train_labels=None,
+                     eval_data=None, eval_labels=None, 
+                     nbeam=32, epochs=5,
+                     nlayer1=32, nlayer2=64, batch_size=32):
+    """ Build a one-dimensional feed forward neural network 
+        with a binary classifier. Can be used for 
+        multi-beam detections. 
+    """
+    model = Sequential()
+    model.add(Dense(nlayer1, input_dim=nbeam, activation='relu'))
+    model.add(Dropout(0.4))
+    model.add(Dense(nlayer2, init='normal', activation='relu'))
+    model.add(Dropout(0.4))
+    model.add(Dense(2, activation='sigmoid'))
+
+    model.compile(loss='binary_crossentropy',
+                       optimizer='rmsprop',
+                       metrics=['accuracy'])
+
+    model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
+    score = model.evaluate(eval_data, eval_labels, batch_size=batch_size)
+
+    return model, score
+
 def construct_conv2d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
                      eval_data=None, eval_labels=None, 
@@ -108,7 +133,12 @@ def construct_conv2d(features_only=False, fit=False,
     if fit is True:
         print("Using batch_size: %d" % batch_size)
         print("Using %d epochs" % epochs)
-        model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
+        # cb = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, 
+        #                                  batch_size=32, write_graph=True, write_grads=False, 
+        #                                 write_images=False, embeddings_freq=0, embeddings_layer_names=None, 
+        #                                 embeddings_metadata=None)
+
+        model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)#, callbacks=[cb])
         score = model.evaluate(eval_data, eval_labels, batch_size=batch_size)
         print("Conv2d only")
         print(score)
@@ -336,7 +366,7 @@ if __name__=='__main__':
 
     else:
         print("Input file type not recognized")
-        raise 
+        raise Exception('def')
 
 
     # train_data = train_data[:,:,tl:th]
