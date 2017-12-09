@@ -166,7 +166,6 @@ class EventSimulator():
                  width=(2*0.0016, 1.), spec_ind=(-4.,4), 
                  disp_ind=2., scat_factor=(0, 0.5), freq=(800., 400.)):
         """
-
         Parameters
         ----------
         datasource : datasource.DataSource object
