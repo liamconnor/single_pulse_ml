@@ -1,3 +1,5 @@
+import os
+
 import numpy as np 
 import h5py
 
@@ -64,7 +66,11 @@ class SimParams:
 
     def write_sim_data(self, data_freq_time, labels, fnout, 
                        data_dm_time=None, params=None, snr=None):
+
         ftype = fnout.split('.')[-1]
+
+        if os.path.exists(fnout):
+            fnout = fnout.split(ftype)[0][:-1] + '_2.' + ftype
 
         if ftype in ('hdf5', 'h5'):
             f = h5py.File(fnout)

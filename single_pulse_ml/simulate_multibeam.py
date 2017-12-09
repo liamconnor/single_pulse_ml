@@ -22,14 +22,14 @@ import frb_keras_convnet
 def gauss(x, xo, sig):
     return np.exp(-(x-xo)**2/sig**2)
 
-def generate_multibeam(width=27, n=1000):
+def generate_multibeam(nbeam=32, width=27, n=1000):
 	""" width in arcminutes
 	"""
 	width /= 60.
 	x = np.linspace(-1, 1, 100)
 	ff = gauss(x, 0, width)
 	a = ff[None]*ff[:, None]
-	beam_arr = np.zeros([n, n, 32])
+	beam_arr = np.zeros([n, n, nbeam])
 
 	# Make each beam 
 	kk=0
@@ -41,7 +41,7 @@ def generate_multibeam(width=27, n=1000):
 
 	return beam_arr
 
-def make_dataset(ntriggers=2304):
+def make_dataset(ntrigger=2304, tp_frac=0.5):
 	A = generate_multibeam()
 	# Take a euclidean flux distribution
 	sn = np.random.uniform(1, 1000, 10000)**-(2/3.) 
@@ -67,60 +67,25 @@ def make_dataset(ntriggers=2304):
 	# Check if fraction of multibeam detections is expected
 	print np.float(multis) / len(det_)
 
-	n=min(2*len(det_), 2304)
-	m=32 # number of beams
+	ntrigger = min(2*len(det_), ntrigger)
+	nbeam = 32 # number of beams
 	#data = np.random.normal(0, 1, n*m).reshape(-1, m)
-	data = np.zeros([m*n]).reshape(-1, m)
+	data = np.zeros([nbeam*ntrigger]).reshape(-1, nbeam)
+	N_FP = int((1-tp_frac)*ntrigger)
+	N_TP = int(tp_frac*ntrigger)
 
-	for ii in range(n//2):
+	for ii in range(N_FP):
 	    nbeam = int(np.random.uniform(1, 32))
 	    ind = set(np.random.uniform(1, 32, nbeam).astype(int).astype(list))
-	    data[::2][ii][list(ind)] = np.random.normal(20, 5, len(ind))
+	    data[ii][list(ind)] = np.random.normal(20, 5, len(ind))
 
-	for ii in range(n//2):
+	for ii in range(N_TP):
 	#    beam = int(np.random.uniform(1, 32))
-	    data[1::2][ii][det_[ii]] = sn_[ii]#np.random.normal(20, 5, 1)
+	    data[N_FP+ii][det_[ii]] = sn_[ii]#np.random.normal(20, 5, 1)
 
-	labels = np.zeros([n])
-	labels[::2] = 1 
+	labels = np.zeros([ntrigger])
+	labels[N_FP:] = 1 
 	labels = labels.astype(int)
 	labels = keras.utils.to_categorical(labels)
 
 	return data, labels
-
-# from keras.optimizers import RMSprop
-
-
-# model, score = frb_keras_convnet.construct_ff1d(features_only=False, fit=False, 
-#                      train_data=data[:n//2], train_labels=labels[:n//2],
-#                      eval_data=data[n//2:], eval_labels=labels[n//2:], 
-#                      nbeam=32, epochs=5,
-#                      nlayer1=32, nlayer2=32, batch_size=32)
-
-# print(score)
-
-# nfilt1=32
-# nfilt2=32
-# NTIME=m
-# model = Sequential()
-# #model.add(Conv1D(nfilt1, 3, activation='relu', input_shape=(NTIME, 1)))
-# #model.add(Conv1D(nfilt1, 3, activation='relu'))
-# #model.add(MaxPooling1D(3))
-# #model.add(Conv1D(nfilt2, 3, activation='relu'))
-# #model.add(Conv1D(nfilt2, 3, activation='relu'))
-# #model.add(GlobalAveragePooling1D())
-# model.add(Dense(m, input_dim=m, activation='relu'))
-# #model.add(BatchNormalization())
-# model.add(Dropout(0.5))
-# model.add(Dense(m, init='normal', activation='relu'))
-# #model.add(BatchNormalization())
-# model.add(Dropout(0.5))
-# model.add(Dense(2, activation='sigmoid'))
-
-# model.compile(loss='binary_crossentropy',
-#                    optimizer='rmsprop',
-#                    metrics=['accuracy'])
-
-# model.fit(data[:n//2], labels[:n//2], batch_size=16, epochs=10)
-# score = model.evaluate(data[n//2:], labels[n//2:], batch_size=32)
-# print(score)

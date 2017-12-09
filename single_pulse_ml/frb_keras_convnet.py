@@ -1,3 +1,8 @@
+""" Tools for building and training deep neural
+    networks in keras using the tensorflow backend.
+"""
+
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -24,8 +29,16 @@ def load_model(fn):
 
 
 def get_predictions(model, data, true_labels=None):
+    """ Take a keras.model object, a data array, 
+        and true_labels, and return the probability of 
+        each feature being a TP, the prediction itself, 
+        and the mistakes.
+    """
+    if len(true_labels.shape)==2:
+        true_labels = true_labels[:,1]
+
     prob = model.predict(data)
-    predictions = np.round(prob[:, 0])
+    predictions = np.round(prob[:, 1])
 
     if true_labels is not None:
         mistakes = np.where(predictions!=true_labels)[0]
@@ -34,6 +47,50 @@ def get_predictions(model, data, true_labels=None):
 
     return prob, predictions, mistakes
 
+def get_classification_results(y_true, y_pred):
+
+    true_positives = np.where((y_true==1) & (y_pred==1))[0]
+    false_positives = np.where((y_true==0) & (y_pred==1))[0]
+    true_negatives = np.where((y_true==0) & (y_pred==0))[0]
+    false_negatives = np.where((y_true==1) & (y_pred==0))[0]
+
+    return true_positives, false_positives, true_negatives, false_negatives
+
+def confusion_mat(y_true, y_pred):
+    """ Generate a confusion matrix for a 
+    binary classifier. 
+    
+    returns np.array([[TP, FP],[FN, TN]])
+
+    """
+    TP, FP, TN, FN = get_classification_results(y_true, y_pred)
+
+    NTP = len(TP)
+    NFP = len(FP)
+    NTN = len(TN)
+    NFN = len(FN)
+
+    conf_mat = np.array([[NTP, NFP],[NFN, NTN]])
+
+    return conf_mat
+
+def print_metric(y_true, y_pred):
+    conf_mat = confusion_mat(y_true, y_pred)
+
+    NTP, NFP, NTN, NFN = conf_mat[0,0], conf_mat[0,1], conf_mat[1,1], conf_mat[1,0]
+
+    print("Confusion matrix: %s" % conf_mat)
+    accuracy = float(NTP + NTN)/conf_mat.sum()
+    precision = float(NTP) / (NTP + NFP)
+    recall = float(NTP) / (NTP + NFN)
+    fscore = 2*precision*recall/(precision+recall)
+
+    print("accuracy: %f" % accuracy)
+    print("precision: %f" % precision)
+    print("recall: %f" % recall)
+    print("fscore: %f" % fscore)
+
+    return accuracy, precision, recall, fscore
 
 def split_data(fn, NFREQ=16, NTIME=250, train_size=0.75):
     """ Read in numpy file and split randomly into 
@@ -181,7 +238,8 @@ def construct_conv1d(features_only=False, fit=False,
 
 
 def merge_models(model_list, train_data_list, 
-                 train_labels, eval_data_list, eval_labels):
+                 train_labels, eval_data_list, eval_labels,
+                 batch_size=32, epoch=5):
 
     model = Sequential()
     model.add(Merge(model_list, mode = 'concat'))
@@ -192,8 +250,8 @@ def merge_models(model_list, train_data_list,
           optimizer=sgd, 
           metrics=['accuracy'])
     model.fit(train_data_list, train_labels, 
-                    batch_size = 2000, nb_epoch = 5, verbose = 1)
-    score = model.evaluate(eval_data_list, eval_labels, batch_size=32)
+                    batch_size=batch_size, nb_epoch=epoch, verbose=1)
+    score = model.evaluate(eval_data_list, eval_labels, batch_size=batch_size)
 
     return model, score
 

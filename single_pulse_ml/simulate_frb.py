@@ -134,10 +134,15 @@ class Event(object):
             data[ii] += val
 
 
-    def dm_transform(self, delta_t, data, freq, dm=np.linspace(-7, 7, 300)):
+    def dm_transform(self, delta_t, data, freq, maxdm=10.0, NDM=100):
         """ Transform freq/time data to dm/time data.
         """
+    
+        if len(freq)<3:
+            NFREQ = data.shape[0]
+            freq = np.linspace(freq[0], freq[1], NFREQ) 
 
+        dm = np.linspace(-maxdm, maxdm, NDM)
         ndm = len(dm)
         ntime = data.shape[-1]
 
@@ -154,11 +159,8 @@ class Event(object):
 
 class EventSimulator():
     """Generates simulated fast radio bursts.
-
     Events occurrences are drawn from a Poissonian distribution.
-
     """
-
 
     def __init__(self, dm=(0.,2000.), fluence=(0.03,0.3),
                  width=(2*0.0016, 1.), spec_ind=(-4.,4), 
@@ -413,7 +415,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                 continue
 
     if dm_time_array is True:
-        dms = np.linspace(-7.0, 7.0, 300)
         E = Event(0, tel_obj._FREQ_REF, 0.0, 1.0, tel_obj._DELTA_T, 0., )
 
         for ii, data in enumerate(arr_sim_full):
@@ -422,11 +423,13 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
             data = data.reshape(-1, sim_obj._NTIME)
             data = dataproc.normalize_data(data)
-            data_dm_time = E.dm_transform(tel_obj._DELTA_T, data, tel_obj._freq, dm=dms)
+            data_dm_time = E.dm_transform(tel_obj._DELTA_T, data, tel_obj._freq)
+            data_dm_time = dataproc.normalize_data(data_dm_time)
             arr_dm_time_full.append(data_dm_time)
 
+        NDM = data_dm_time.shape[0]
         arr_dm_time_full = np.concatenate(arr_dm_time_full)
-        arr_dm_time_full = arr_dm_time_full.reshape(-1, len(dms), sim_obj._NTIME)
+        arr_dm_time_full = arr_dm_time_full.reshape(-1, NDM, sim_obj._NTIME)
     else:
         data_dm_time_full = None
 

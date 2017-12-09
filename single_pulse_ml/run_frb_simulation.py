@@ -1,4 +1,6 @@
-# Script to run FRB simulation
+""" Script to build dataset out of simulated 
+	single pulses + false positive triggers
+"""
 
 import sim_parameters
 import telescope
@@ -19,12 +21,12 @@ width = width=(2*0.0016, 0.75) # width lognormal dist in seconds
 spec_ind=(-3., 3.)
 disp_ind=2. 
 scat_factor=(-4., -1.)
-NRFI = 1000
-SNR_MIN=10.
-SNR_MAX=175.
-out_file_name=None, 
-mk_plot=True
-NSIDE=8
+NRFI = 2000
+SNR_MIN = 8.
+SNR_MAX = 75.
+out_file_name = None, 
+mk_plot = True
+NSIDE = 8
 
 fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
 
