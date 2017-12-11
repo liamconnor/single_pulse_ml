@@ -22,11 +22,6 @@ from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
 
-def load_model(fn):
-    model = load_model(fn)
-
-    return model
-
 
 def get_predictions(model, data, true_labels=None):
     """ Take a keras.model object, a data array, 

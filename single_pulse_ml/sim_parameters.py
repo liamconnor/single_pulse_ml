@@ -32,6 +32,14 @@ class SimParams:
         self._mk_plot = mk_plot
         self._NSIDE = NSIDE
 
+    def generate_noise(self):
+        y = np.zeros([self._NRFI])
+        noise = np.random.normal(0, 1, self._NRFI*self._NTIME*self._NFREQ)
+        noise = noise.reshape(-1, self._NFREQ*self._NTIME)
+        self._NSIM = self._NRFI
+
+        return noise, y
+
     def get_false_positives(self, fn):
 
         ftype = fn.split('.')[-1]

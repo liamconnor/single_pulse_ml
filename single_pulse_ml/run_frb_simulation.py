@@ -15,17 +15,17 @@ NAME = "CHIMEPathfinder"
 # SIMULATION PARAMETERS 
 NFREQ = 32 # Number of frequencies. Must agree with FP data
 NTIME = 250 # Number of time stamps per trigger
-dm = (-0.01, .01)
+dm = (-0.25, 0.25)
 fluence = (0.1, 0.3)
-width = width=(2*0.0016, 0.75) # width lognormal dist in seconds
-spec_ind=(-3., 3.)
-disp_ind=2. 
-scat_factor=(-4., -1.)
+width = (2*0.0016, 0.75) # width lognormal dist in seconds
+spec_ind = (-3., 3.)
+disp_ind = 2. 
+scat_factor = (-4., -1.)
 NRFI = 2000
 SNR_MIN = 8.
-SNR_MAX = 75.
+SNR_MAX = 80
 out_file_name = None, 
-mk_plot = True
+mk_plot = False
 NSIDE = 8
 
 fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'

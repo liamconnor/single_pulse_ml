@@ -7,30 +7,26 @@ import time
 
 import frb_keras_convnet 
 
-FREQTIME=False   # train 2D frequency-time CNN
+FREQTIME=True   # train 2D frequency-time CNN
 TIME1D=True      # train 1D pulse-profile CNN
-DMTIME=False     # train 2D DM-time CNN
-MULTIBEAM=True  # train feed-forward NN on simulated multibeam data
+DMTIME=False    # train 2D DM-time CNN
+MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
 
 # Input hdf5 file. 
-fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
-fn = "./data/_data_nt250_nf32_dm0_snrmax175.hdf5"
-fn = "./data/_data_real_pf_pulses_.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_hybrid_pulse_simulation.hdf5"
-fn = "./data/_data_nt250_nf32_dm0_snrmax150.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_snrmax60.hdf5"
-fn = "./data/_data_nt250_nf32_dm0_snrmax75.hdf5"
+fn = "./data/_data_nt250_nf32_dm0_snrmax75_2.hdf5"
 #fn = './data/IAB_labeled.hdf5'
+fn = "./data/_data_nt512_nf256_dm50_snrmax1000.hdf5" #dedispersed
+fn = "./data/_data_nt250_nf32_dm0_snrmax80_2.hdf5"
 
 # Save tf model as .hdf5
 save_model = True
 fnout = "./model/keras_model_real_pulses"
 
 NDM=300         # number of DMs in input array
-NFREQ=32        # number of freq samples to use
-NTIME=250       # number of time samples of input array
 WIDTH=64        # width to use of arrays along time axis 
-train_size=0.50 # fraction of dataset to train on
+train_size=0.75 # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
@@ -45,6 +41,11 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
     data_freq, y, data_dm = frb_keras_convnet.read_hdf5(fn)
+    
+    print("Using %s" % fn)
+
+    NFREQ = data_freq.shape[1]
+    NTIME = data_freq.shape[2]
 
     # low time index, high time index
     tl, th = NTIME//2-WIDTH//2, NTIME//2+WIDTH//2
@@ -88,6 +89,7 @@ if __name__=='__main__':
     # Convert labels (integers) to binary class matrix
     train_labels = frb_keras_convnet.keras.utils.to_categorical(train_labels)
     eval_labels = frb_keras_convnet.keras.utils.to_categorical(eval_labels)
+
 
     if FREQTIME is True:
         print("Learning frequency-time array")
@@ -198,7 +200,7 @@ if __name__=='__main__':
         score = model_list[0].evaluate(eval_data_list[0], eval_labels, batch_size=32)
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model_list[0], eval_data_list[0], 
-                                true_labels=eval_labels, epochs=10)
+                                true_labels=eval_labels)
         print(mistakes)
         print("" % score)
 
@@ -209,37 +211,37 @@ if __name__=='__main__':
 
         model, score = frb_keras_convnet.merge_models(
                                          model_list, train_data_list, 
-                                         train_labels, eval_data_list, eval_labels)
+                                         train_labels, eval_data_list, eval_labels,
+                                         epochs=10)
 
         prob, predictions, mistakes = frb_keras_convnet.get_predictions(
                                 model, eval_data_list, 
                                 true_labels=eval_labels[:, 1])
 
-        time.sleep(2)
-        print('==========Results==========')
-        try:
-            print("\nFreq-time accuracy: %f" % score_freq_time[1])
-        except:
-            pass
+    print('\n==========Results==========')
+    try:
+        print("\nFreq-time accuracy: %f" % score_freq_time[1])
+    except:
+        pass
 
-        try:
-            print("DM-time accuracy: %f" % score_dm_time[1])
-        except:
-            pass        
+    try:
+        print("DM-time accuracy: %f" % score_dm_time[1])
+    except:
+        pass        
 
-        try:
-            print("Pulse-profile accuracy: %f" % score_1d_time[1])
-        except:
-            pass
+    try:
+        print("Pulse-profile accuracy: %f" % score_1d_time[1])
+    except:
+        pass
 
-        try:
-            print("Multibeam accuracy: %f" % score_mb[1])
-        except:
-            pass
+    try:
+        print("Multibeam accuracy: %f" % score_mb[1])
+    except:
+        pass
 
-        print("\nMerged NN accuracy: %f" % score[1])
-        print("\nIndex of mistakes: %s\n" % mistakes)
-        frb_keras_convnet.print_metric(eval_labels[:, 1], predictions)
+    print("\nMerged NN accuracy: %f" % score[1])
+    print("\nIndex of mistakes: %s\n" % mistakes)
+    frb_keras_convnet.print_metric(eval_labels[:, 1], predictions)
 
 
 

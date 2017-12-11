@@ -326,15 +326,18 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
                        round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
 
-    data_rfi, y = sim_obj.get_false_positives(fn_rfi)
+    if fn_rfi is not None:
+        data_rfi, y = sim_obj.get_false_positives(fn_rfi)
+    else:
+        data_rfi, y = sim_obj.generate_noise()
 
     print("\nUsing %d false-positive triggers" % sim_obj._NRFI)
     print("Simulating %d FRBs\n" % sim_obj._NSIM)
 
-    if data_rfi[0].shape != (sim_obj._NFREQ*sim_obj._NTIME,):
-        data_rfi = np.random.normal(0, 1, 
-                   sim_obj._NRFI*sim_obj._NFREQ*sim_obj._NTIME)
-        print("Using simulated noise")
+    # if data_rfi[0].shape != (sim_obj._NFREQ*sim_obj._NTIME,):
+    #     data_rfi = np.random.normal(0, 1, 
+    #                sim_obj._NRFI*sim_obj._NFREQ*sim_obj._NTIME)
+    #     print("Using simulated noise")
 
     arr_sim_full = [] # data array with all events
     yfull = [] # label array FP=0, TP=1
