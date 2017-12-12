@@ -3,6 +3,7 @@ import logging
 
 import numpy as np
 import glob
+from scipy import signal
 
 try:
     import matplotlib.pyplot as plt
@@ -13,7 +14,11 @@ except:
 import reader
 import dataproc
 import tools 
-import plot_tools
+
+try:
+    import plot_tools
+except:
+    plot_tools = None
 
 # To do: 
 # Put things into physical units. Scattering measure, actual widths, fluences, etc. 
@@ -49,10 +54,28 @@ class Event(object):
         t = t - self.disp_delay(self._f_ref, self._dm, self._disp_ind)
         return self._t_ref + t
 
-    def dm_smear(self, DM, freq_c, delta_freq=400.0/1024, 
-                 ti=1e3, tsamp=2.56*512, tau=5e3):  
+
+    def calc_width(self, dm, freq_c, bw=400.0, NFREQ=1024,
+                   ti=1, tsamp=1, tau=0):
+
+        delta_freq = bw/NFREQ
+
+        # taudm in milliseconds
+        tdm = 8.3e-3 * dm * delta_freq / freq_c**3
+        tI = np.sqrt(ti**2 + tsamp**2 + tdm**2 + tau**2)
+
+        return tI
+
+    def dm_smear(self, DM, freq_c, bw=400.0, NFREQ=1024,
+                 ti=1, tsamp=0.0016, tau=0):  
         """ Calculate DM smearing SNR reduction
         """
+        tau *= 1e3 # make ms
+        ti *= 1e3 
+        tsamp *= 1e3
+
+        delta_freq = bw / NFREQ
+
         tI = np.sqrt(ti**2 + tsamp**2 + (8.3 * DM * delta_freq / freq_c**3)**2)
 
         return (np.sqrt(ti**2 + tau**2) / tI)**0.5
@@ -101,10 +124,10 @@ class Event(object):
         """
         gaus_prof = self.gaussian_profile(nt, width, t0=t0)
         scat_prof = self.scat_profile(nt, f, tau) 
-        pulse_prof = np.convolve(gaus_prof, scat_prof, mode='full')[:nt]
-
+#        pulse_prof = np.convolve(gaus_prof, scat_prof, mode='full')[:nt]
+        pulse_prof = signal.fftconvolve(gaus_prof, scat_prof)[:nt]
+    
         return pulse_prof
-
 
     def add_to_data(self, delta_t, freq, data):
         """ Method to add already-dedispersed pulse 
@@ -113,17 +136,28 @@ class Event(object):
         (scintillation, spectral index). 
         """
 
+        NFREQ = data.shape[0]
         NTIME = data.shape[1]
         tmid = NTIME//2
 
         scint_amp = self.scintillation(freq)
 
         for ii, f in enumerate(freq):
-            index_width = max(1, (np.round((self._width/ delta_t))).astype(int))
+            width_ = 1e-3 * self.calc_width(self._dm, self._f_ref*1e-3, 
+                                     bw=400.0, NFREQ=NFREQ,
+                                     ti=self._width, tsamp=delta_t, tau=0)
+
+#            width_ = self.dm_smear(self._dm, self._f_ref, 
+#                                   delta_freq=400.0/1024, 
+#                                   ti=self._width, tsamp=delta_t, tau=0)
+            index_width = max(1, (np.round((width_/ delta_t))).astype(int))
+            #index_width = max(1, (np.round((self._width/ delta_t))).astype(int))
             tpix = int(self.arrival_time(f) / delta_t)
+
             if abs(tpix) >= tmid:
                 # ensure that edges of data are not crossed
                 continue
+
             pp = self.pulse_profile(NTIME, index_width, f, 
                                     tau=self._scat_factor, t0=tpix)
             val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
@@ -226,7 +260,7 @@ class EventSimulator():
 
     def draw_event_parameters(self):
         dm = uniform_range(*self._dm)
-        fluence = 3*uniform_range(*self._fluence)**(-2/3.) / 0.5**(-2/3.)
+        fluence = uniform_range(*self._fluence)**(-2/3.)/0.5**(-2/3.)
         spec_ind = uniform_range(*self._spec_ind)
         disp_ind = uniform_range(*self._disp_ind)
         # turn this into a log uniform dist. Note not *that* many 
@@ -238,9 +272,15 @@ class EventSimulator():
         width = max(min(width, 100*self._width[0]), 0.5*self._width[0])
         return dm, fluence, width, spec_ind, disp_ind, scat_factor
 
-
 def uniform_range(min_, max_):
     return random.uniform(min_, max_)
+
+# a,p=gen_simulated_frb(NFREQ=1024, NTIME=2**13, sim=True, fluence=(0.03,0.3),
+#                 spec_ind=(-4, 4), width=(2*0.0016, 1), dm=(500, 600),
+#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=0.0016,
+#                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+#                 )
+
 
 def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
                 spec_ind=(-4, 4), width=(2*0.0016, 1), dm=(-0.01, 0.01),
@@ -293,7 +333,6 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
         data = background_noise
 
     # What about reading in noisy background?
-
     if sim is False:
         return data, []
 
@@ -316,6 +355,15 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
         plot(data.reshape(-1, ntime).mean(0))
 
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
+
+
+a, p = s.gen_simulated_frb(NFREQ=2**13, NTIME=2**13, sim=True, fluence=0.02,
+                           spec_ind=(-4, 4), width=0.0016, dm=(100),
+                           scat_factor=(-4, -0.1), background_noise=None, 
+                           delta_t=0.0016,
+                           plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+                           )
+
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy', ftype='hdf5'):
@@ -473,30 +521,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                 sim_obj._NTIME, cmap='Greys')
 
     return arr_sim_full, yfull, params_full_arr, snr 
-
-
-# A=[]
-# B=[]
-# flnew=[]
-
-
-# for ii, ff in enumerate(fl):
-#     ndm = ff.split('+')[-2]
-#     nfreq = flf[ii].split('+')[-2]
-#     if ndm==nfreq:
-#         bdm = np.load(ff)
-#         afq = np.load(flf[ii])
-#         if bdm.shape!=(300,500):
-#             continue
-#         afq = dataproc.normalize_data(afq)
-#         bdm = dataproc.normalize_data(bdm)
-#         flnew.append(ff)
-
-#         A.append(afq)
-#         B.append(bdm)
-
-# A = np.concatenate(A).reshape(-1, 32, 250)
-# B = np.concatenate(B).reshape(-1, 300, 500)
 
 
 

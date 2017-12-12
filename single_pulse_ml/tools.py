@@ -54,17 +54,18 @@ def save_background_data(fdir, outfile=None):
 
     return arr_full
 
-def dedisperse_data(f, _dm, freq=np.linspace(800, 400, 16), dt=0.0016):
+def dedisperse_data(f, _dm, freq_bounds=(800,400), dt=0.0016, freq_ref=600):
     """ Dedisperse data to some dispersion measure _dm.
     Frequency is in MHz, dt delta time in seconds.
     f is data to be dedispersed, shaped (nfreq, ntime)
     """
 
     # Calculate the number of bins to shift for each freq
-    ind_delay = ((4.14e3 * _dm * freq**(-2.)) / dt).astype(int)
-
+    NFREQ=f.shape[0]
+    freq = np.linspace(freq_bounds[0], freq_bounds[1], NFREQ)
+    ind_delay = ((4.148808e3 * _dm * (freq**(-2.) - freq_ref**(-2.))) / dt).astype(int)
     for ii, nu in enumerate(freq):
-        f[ii] = np.roll(f[ii], ind_delay[ii])
+        f[ii] = np.roll(f[ii], -ind_delay[ii])
 
     return f
 
