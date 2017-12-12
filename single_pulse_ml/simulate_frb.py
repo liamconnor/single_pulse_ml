@@ -357,20 +357,13 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
 
-a, p = s.gen_simulated_frb(NFREQ=2**13, NTIME=2**13, sim=True, fluence=0.02,
-                           spec_ind=(-4, 4), width=0.0016, dm=(100),
-                           scat_factor=(-4, -0.1), background_noise=None, 
-                           delta_t=0.0016,
-                           plot_burst=False, freq=(800, 400), FREQ_REF=600., 
-                           )
-
-
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
-                        fn_rfi='./data/all_RFI_8001.npy', ftype='hdf5'):
+                        fn_rfi='./data/all_RFI_8001.npy', 
+                        ftype='hdf5', dm_time_array=True):
 
-    dm_time_array = True
     outdir = './data/'
-    outfn = outdir + "_data_nt%d_nf%d_dm%d_snrmax%d.%s" \
+    outdir = '/drives/G/0/simulated/'
+    outfn = outdir + "data_nt%d_nf%d_dm%d_snrmax%d.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
                        round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
 
@@ -400,7 +393,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
     # Hack
     f_noise = None #data_rfi[NRFI:].copy().reshape(-1, 16, 250)
-
+    sim_obj._NSIM=1 #hack
     # Loop through total number of events
     while jj < (sim_obj._NRFI + sim_obj._NSIM):
         jj = len(arr_sim_full)
@@ -443,7 +436,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                                                 fluence=sim_obj._fluence,
                                                 background_noise=noise, 
                                                 plot_burst=False,
-                                                sim=True,                                                
+                                                sim=True,                                        
                                                 )
 
             # Normalize data to have unit variance and zero median
