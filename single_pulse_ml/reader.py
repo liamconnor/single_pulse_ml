@@ -14,6 +14,26 @@ try:
 except:
 	pass 
 
+def write_to_fil(data, header, fn):
+	fn_rfi_clean = fn.split('.fil')[0] + '_rfi_clean.fil'
+	filterbank.create_filterbank_file(
+		fn_rfi_clean, header, spectra=data, mode='readwrite')
+	print "Writing to %s" % fn_rfi_clean
+
+	return fn_rfi_clean
+
+def read_fil_data(fn, start=0, stop=1e7):
+	print "Reading filterbank file %s \n" % fn
+	fil_obj = filterbank.FilterbankFile(fn)
+	header = fil_obj.header
+	delta_t = fil_obj.header['tsamp'] # delta_t in milliseconds
+	freq = get_freqs(fil_obj)
+	data = fil_obj.get_spectra(start, stop)
+	# turn array into time-major, for preprocess
+#	data = data.transpose() 
+
+	return data, freq, delta_t, header
+
 def read_pathfinder_npy(fn):
 	data = np.load(fn)
 	nfreq, ntimes = data.shape[0], data.shape[1]
