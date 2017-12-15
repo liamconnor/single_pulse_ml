@@ -275,11 +275,6 @@ class EventSimulator():
 def uniform_range(min_, max_):
     return random.uniform(min_, max_)
 
-# a,p=gen_simulated_frb(NFREQ=1024, NTIME=2**13, sim=True, fluence=(0.03,0.3),
-#                 spec_ind=(-4, 4), width=(2*0.0016, 1), dm=(500, 600),
-#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=0.0016,
-#                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
-#                 )
 
 
 def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
@@ -357,13 +352,57 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
 
-a, p = s.gen_simulated_frb(NFREQ=2**13, NTIME=2**13, sim=True, fluence=0.02,
-                           spec_ind=(-4, 4), width=0.0016, dm=(100),
-                           scat_factor=(-4, -0.1), background_noise=None, 
-                           delta_t=0.0016,
-                           plot_burst=False, freq=(800, 400), FREQ_REF=600., 
-                           )
+# a, p = s.gen_simulated_frb(NFREQ=2**13, NTIME=2**13, sim=True, fluence=0.02,
+#                            spec_ind=(-4, 4), width=0.0016, dm=(100),
+#                            scat_factor=(-4, -0.1), background_noise=None, 
+#                            delta_t=0.0016,
+#                            plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+#                            )
 
+def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536):
+    """ Inject an FRB in each chunk of data 
+        at random times. Default params are for Apertif data.
+    """
+    chunksize = 5e5
+    ii=0
+
+    params_full_arr = []
+
+    for ii in xrange(N_FRBs):
+        start, stop = chunksize*ii, chunksize*(ii+1)
+        data, freq, delta_t, header = reader.read_fil_data(fn_fil, start=start, stop=stop)
+
+        if len(data[0])==0:
+            break             
+
+        data, params = gen_simulated_frb(NFREQ=NFREQ, NTIME=, sim=True, 
+                            fluence=(2), spec_ind=(-4, 4), width=(delta_t, 2), dm=(100, 1000),
+                            scat_factor=(-3, -0.5), background_noise=None, delta_t=delta_t,
+                            plot_burst=False, freq=(1550, 1250), FREQ_REF=1400.)
+
+        params_full_arr.append(params)
+
+        if ii==0:
+            fn_rfi_clean = write_to_fil(data.transpose(), header, fn)
+        elif ii>0:
+            fil_obj = filterbank.FilterbankFile(fn_rfi_clean, mode='readwrite')
+            fil_obj.append_spectra(data.transpose()) 
+
+        del data 
+
+    return params_full_arr
+
+# a, p = gen_simulated_frb(NFREQ=1536, NTIME=2**15, sim=True, fluence=(2),
+#                 spec_ind=(-4, 4), width=(dt), dm=(40.0),
+#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
+#                 plot_burst=False, freq=(1550, 1250), FREQ_REF=1400., 
+#                 )
+
+# a, p = gen_simulated_frb(NFREQ=1536, NTIME=2**11, sim=True, fluence=(2),
+#                 spec_ind=(-4, 4), width=(dt, 1), dm=(50, 60),
+#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
+#                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+#                 )
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy', ftype='hdf5'):
