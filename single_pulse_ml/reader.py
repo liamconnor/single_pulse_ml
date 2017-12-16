@@ -14,13 +14,23 @@ try:
 except:
 	pass 
 
-def write_to_fil(data, header, fn):
-	fn_rfi_clean = fn.split('.fil')[0] + '_rfi_clean.fil'
-	filterbank.create_filterbank_file(
-		fn_rfi_clean, header, spectra=data, mode='readwrite')
-	print "Writing to %s" % fn_rfi_clean
+try:
+        import filterbank
+except:
+        pass
 
-	return fn_rfi_clean
+def get_freqs(fil_obj):
+        fch1 = fil_obj.header['fch1']
+        foff = fil_obj.header['foff']
+        nchans = fil_obj.header['nchans']
+
+        freq = np.linspace(fch1, fch1+nchans*foff, nchans)
+        return freq
+
+def write_to_fil(data, header, fn):
+	filterbank.create_filterbank_file(
+		fn, header, spectra=data, mode='readwrite')
+	print "Writing to %s" % fn
 
 def read_fil_data(fn, start=0, stop=1e7):
 	print "Reading filterbank file %s \n" % fn

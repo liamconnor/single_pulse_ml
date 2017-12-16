@@ -352,10 +352,11 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
 
-def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536):
+def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
     """ Inject an FRB in each chunk of data 
         at random times. Default params are for Apertif data.
     """
+
     chunksize = 5e5
     ii=0
 
@@ -363,23 +364,34 @@ def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536):
 
     for ii in xrange(N_FRBs):
         start, stop = chunksize*ii, chunksize*(ii+1)
+        offset = int(np.random.uniform(10000, 400000)) # drop FRB in random location in data chunk
+
         data, freq, delta_t, header = reader.read_fil_data(fn_fil, start=start, stop=stop)
 
         if len(data[0])==0:
             break             
 
-        data, params = gen_simulated_frb(NFREQ=NFREQ, NTIME=, sim=True, 
+        data_event = (data[:NTIME].transpose()).astype(np.float)
+
+        data_event, params = gen_simulated_frb(NFREQ=NFREQ, NTIME=NTIME, sim=True, 
                             fluence=(2), spec_ind=(-4, 4), width=(delta_t, 2), dm=(100, 1000),
-                            scat_factor=(-3, -0.5), background_noise=None, delta_t=delta_t,
+                            scat_factor=(-3, -0.5), background_noise=data_event, delta_t=delta_t,
                             plot_burst=False, freq=(1550, 1250), FREQ_REF=1400.)
+
+        params.append(offset)
+        print("Injecting with:")
+        print(ii, params)
+        
+        data[offset:offset+NTIME] = data_event.transpose()
+        print(data.dtype)
 
         params_full_arr.append(params)
 
         if ii==0:
-            fn_rfi_clean = write_to_fil(data.transpose(), header, fn)
+            fn_rfi_clean = reader.write_to_fil(data, header, fn_fil_out)
         elif ii>0:
-            fil_obj = filterbank.FilterbankFile(fn_rfi_clean, mode='readwrite')
-            fil_obj.append_spectra(data.transpose()) 
+            fil_obj = reader.filterbank.FilterbankFile(fn_fil_out, mode='readwrite')
+            fil_obj.append_spectra(data) 
 
         del data 
 
@@ -396,6 +408,11 @@ def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536):
 #                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
 #                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
 #                 )
+
+fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
+fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
+p = inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=10, NFREQ=1536)
+np.savetxt(fn_fil_out+'.params', p)
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy', 
