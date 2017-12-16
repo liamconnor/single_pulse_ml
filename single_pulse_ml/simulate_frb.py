@@ -352,7 +352,7 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
 
-def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
+def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
     """ Inject an FRB in each chunk of data 
         at random times. Default params are for Apertif data.
     """
@@ -364,22 +364,29 @@ def inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15)
 
     for ii in xrange(N_FRBs):
         start, stop = chunksize*ii, chunksize*(ii+1)
-        offset = int(np.random.uniform(10000, 400000)) # drop FRB in random location in data chunk
+        # drop FRB in random location in data chunk
+        offset = int(np.random.uniform(10000, 400000)) 
 
-        data, freq, delta_t, header = reader.read_fil_data(fn_fil, start=start, stop=stop)
+        data, freq, delta_t, header = reader.read_fil_data(fn_fil, 
+                                                start=start, stop=stop)
 
         if len(data[0])==0:
             break             
 
         data_event = (data[:NTIME].transpose()).astype(np.float)
 
-        data_event, params = gen_simulated_frb(NFREQ=NFREQ, NTIME=NTIME, sim=True, 
-                            fluence=(2), spec_ind=(-4, 4), width=(delta_t, 2), dm=(100, 1000),
-                            scat_factor=(-3, -0.5), background_noise=data_event, delta_t=delta_t,
-                            plot_burst=False, freq=(1550, 1250), FREQ_REF=1400.)
+        data_event, params = gen_simulated_frb(NFREQ=NFREQ, 
+                            NTIME=NTIME, sim=True, fluence=(2), 
+                            spec_ind=(-4, 4), width=(delta_t, 2), 
+                            dm=(100, 1000), scat_factor=(-3, -0.5), 
+                            background_noise=data_event, 
+                            delta_t=delta_t, plot_burst=False, 
+                            freq=(1550, 1250), 
+                            FREQ_REF=1400.)
 
         params.append(offset)
-        print("Injecting with:")
+        print("Injecting with DM:%f width: %f offset: %d" % 
+                                (params[0], params[2], offset))
         print(ii, params)
         
         data[offset:offset+NTIME] = data_event.transpose()
