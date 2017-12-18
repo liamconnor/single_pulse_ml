@@ -7,10 +7,10 @@ import time
 
 import frb_keras_convnet 
 
-FREQTIME=True   # train 2D frequency-time CNN
-TIME1D=True      # train 1D pulse-profile CNN
+FREQTIME=False   # train 2D frequency-time CNN
+TIME1D=False      # train 1D pulse-profile CNN
 DMTIME=False    # train 2D DM-time CNN
-MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
+MULTIBEAM=True  # train feed-forward NN on simulated multibeam data
 
 # Input hdf5 file. 
 fn = "./data/_data_nt250_nf32_dm0_hybrid_pulse_simulation.hdf5"
@@ -154,7 +154,7 @@ if __name__=='__main__':
 
         nbeam = 32
         # Simulate a multibeam dataset
-        data_mb, labels_mb = sm.make_dataset(ntrigger=NTRIGGER)
+        data_mb, labels_mb = sm.make_multibeam_data(ntrigger=NTRIGGER)
         data_mb_fp = data_mb[labels_mb[:,1]==0]
         data_mb_tp = data_mb[labels_mb[:,1]==1]
 
@@ -182,11 +182,13 @@ if __name__=='__main__':
                 ll+=1
 
         model_mb, score_mb = frb_keras_convnet.construct_ff1d(
-                             features_only=False, fit=True, 
-                             train_data=train_data_mb, train_labels=train_labels,
-                             eval_data=eval_data_mb, eval_labels=eval_labels,
-                             nbeam=32, epochs=5,
-                             nlayer1=32, nlayer2=32, batch_size=32)
+                                    features_only=False, fit=True, 
+                                    train_data=train_data_mb, 
+                                    train_labels=train_labels,
+                                    eval_data=eval_data_mb, 
+                                    eval_labels=eval_labels,
+                                    nbeam=nbeam, epochs=5,
+                                    nlayer1=32, nlayer2=32, batch_size=32)
 
         model_list.append(model_mb)
         train_data_list.append(train_data_mb)

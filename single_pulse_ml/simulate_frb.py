@@ -1,5 +1,4 @@
 import random
-import logging
 
 import numpy as np
 import glob
@@ -274,7 +273,6 @@ class EventSimulator():
 
 def uniform_range(min_, max_):
     return random.uniform(min_, max_)
-
 
 
 def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
