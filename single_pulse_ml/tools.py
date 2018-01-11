@@ -71,7 +71,7 @@ def dedisperse_data(f, _dm, freq_bounds=(800,400), dt=0.0016, freq_ref=600):
 
 def calc_snr(arr, ntime=250):
     """ Calculate the S/N of pulse profile after 
-    trying 4 rebinnings.
+    trying 9 rebinnings.
 
     Parameters
     ----------
@@ -87,9 +87,30 @@ def calc_snr(arr, ntime=250):
     """
     assert len(arr.shape)==1
 
-    snr = 0
-    for ii in range(1, 5):
-        arr = arr[:len(arr)//ii*ii].reshape(-1, ii).mean(-1)
-        snr = max(snr, arr.max() / np.std(arr[:ntime//ii//4]))
+    snr_max = 0
+    widths = [1, 2, 4, 6, 8, 10, 20, 50, 100]
 
-    return snr
+#    for ii in range(1, 10):
+    for ii in widths:
+
+        # skip if boxcar width is greater than 1/4th ntime
+        if ii > ntime//8:
+            continue
+
+        arr_ = arr.copy()
+        arr_ = arr_[:len(arr)//ii*ii].reshape(-1, ii).mean(-1)
+        sig = np.std(arr_[:len(arr_)//3])
+        snr_ =  arr_.max() / sig
+        if snr_ > snr_max:
+            snr_max = snr_
+            width_max = ii
+
+    return snr_max
+
+
+
+
+
+
+
+

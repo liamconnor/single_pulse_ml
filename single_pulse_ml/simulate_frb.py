@@ -24,7 +24,7 @@ except:
 # Need inputs of real telescopes. Currently it's vaguely like the Pathfinder.
 # Need to not just simulate noise for the FRB triggers. 
 # More single pixel widths. Unresolved bursts.
-# Inverse fluence relationship right now! 
+# Inverse fluence relationship right now! UPDATE DO IT 
 
 class Event(object):
     """ Class to generate a realistic fast radio burst and 
@@ -385,10 +385,8 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
         params.append(offset)
         print("Injecting with DM:%f width: %f offset: %d" % 
                                 (params[0], params[2], offset))
-        print(ii, params)
         
         data[offset:offset+NTIME] = data_event.transpose()
-        print(data.dtype)
 
         params_full_arr.append(params)
 
@@ -406,25 +404,24 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
 #                 spec_ind=(-4, 4), width=(dt), dm=(40.0),
 #                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
 #                 plot_burst=False, freq=(1550, 1250), FREQ_REF=1400., 
-#                 )
+# #                 )
 
-# a, p = gen_simulated_frb(NFREQ=1536, NTIME=2**11, sim=True, fluence=(2),
-#                 spec_ind=(-4, 4), width=(dt, 1), dm=(50, 60),
+# a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.001),
+#                 spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
 #                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
 #                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
 #                 )
 
-fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
-fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
-p = inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=10, NFREQ=1536)
-np.savetxt(fn_fil_out+'.params', p)
+# fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
+# fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
+# p = inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=10, NFREQ=1536)
+# np.savetxt(fn_fil_out+'.params', p)
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy', 
                         ftype='hdf5', dm_time_array=True):
 
     outdir = './data/'
-    outdir = '/drives/G/0/simulated/'
     outfn = outdir + "data_nt%d_nf%d_dm%d_snrmax%d.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
                        round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
@@ -434,13 +431,9 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     else:
         data_rfi, y = sim_obj.generate_noise()
 
+    sim_obj._NRFI = min(sim_obj._NRFI, data_rfi.shape[0])
     print("\nUsing %d false-positive triggers" % sim_obj._NRFI)
     print("Simulating %d FRBs\n" % sim_obj._NSIM)
-
-    # if data_rfi[0].shape != (sim_obj._NFREQ*sim_obj._NTIME,):
-    #     data_rfi = np.random.normal(0, 1, 
-    #                sim_obj._NRFI*sim_obj._NFREQ*sim_obj._NTIME)
-    #     print("Using simulated noise")
 
     arr_sim_full = [] # data array with all events
     yfull = [] # label array FP=0, TP=1
@@ -455,13 +448,15 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
     # Hack
     f_noise = None #data_rfi[NRFI:].copy().reshape(-1, 16, 250)
-    sim_obj._NSIM=1 #hack
+    #f_noise = np.load('./data/background_noise_random_dm.npy')
+    f_noise = np.load('./data/background_noise_random_dm_shuffle.npy')
     # Loop through total number of events
     while jj < (sim_obj._NRFI + sim_obj._NSIM):
         jj = len(arr_sim_full)
         ii += 1
         if ii % 500 == 0:
             print("simulated:%d kept:%d" % (ii, jj))
+
 
         # If ii is greater than the number of RFI events in f, 
         # simulate an FRB
@@ -480,7 +475,9 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
         elif (ii >=sim_obj._NRFI and jj < (sim_obj._NRFI + sim_obj._NSIM)):
             if f_noise is not None:
-                noise = (f_noise[jj-NRFI]).copy()
+                noise = (f_noise[jj-sim_obj._NRFI]).copy()
+                noise[noise!=noise] = 0.0
+                noise /= np.std(noise)
             else:
                 noise = None
 

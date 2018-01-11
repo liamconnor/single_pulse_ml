@@ -5,12 +5,12 @@
 import numpy as np 
 import time
 
-import frb_keras_convnet 
+import frbkeras 
 
-FREQTIME=False   # train 2D frequency-time CNN
+FREQTIME=True   # train 2D frequency-time CNN
 TIME1D=False      # train 1D pulse-profile CNN
 DMTIME=False    # train 2D DM-time CNN
-MULTIBEAM=True  # train feed-forward NN on simulated multibeam data
+MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
 
 # Input hdf5 file. 
 fn = "./data/_data_nt250_nf32_dm0_hybrid_pulse_simulation.hdf5"
@@ -19,6 +19,7 @@ fn = "./data/_data_nt250_nf32_dm0_snrmax75_2.hdf5"
 #fn = './data/IAB_labeled.hdf5'
 fn = "./data/_data_nt512_nf256_dm50_snrmax1000.hdf5" #dedispersed
 fn = "./data/_data_nt250_nf32_dm0_snrmax80_2.hdf5"
+#fn = "./data/data_nt250_nf32_dm0_snrmax100_2018_01_10_13:25:13.hdf5"
 
 # Save tf model as .hdf5
 save_model = True
@@ -40,8 +41,10 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm = frb_keras_convnet.read_hdf5(fn)
-    
+    data_freq, y, data_dm = frbkeras.read_hdf5(fn)
+#    data_freq += np.random.normal(0, 1, data_freq.flatten().shape[0]).reshape(data_freq.shape)
+#    data_freq[:len(y)//2] = np.random.normal(0, np.std(data_freq), data_freq.flatten().shape[0]).reshape(data_freq.shape)[:len(y)//2]
+
     print("Using %s" % fn)
 
     NFREQ = data_freq.shape[1]
@@ -53,11 +56,12 @@ if __name__=='__main__':
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
         
-    if data_dm.shape[-1] > (th-tl):
-        data_dm = data_dm[:, :, tl:th]
+    if DMTIME is True:
+        if data_dm.shape[-1] > (th-tl):
+            data_dm = data_dm[:, :, tl:th]
     
-    if data_dm.shape[-2] > 100:
-        data_dm = data_dm[:, NDM//2-50:NDM//2+50]
+        if data_dm.shape[-2] > 100:
+            data_dm = data_dm[:, NDM//2-50:NDM//2+50]
 
     # tf/keras expects 4D tensors
     data_dm = data_dm[..., None]
@@ -79,22 +83,21 @@ if __name__=='__main__':
     ind_train = ind[:NTRAIN]
     ind_eval = ind[NTRAIN:]
 
-    # split up data into training and evaluation sets
-    train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
-    train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
-    train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
-
     train_labels, eval_labels = y[ind_train], y[ind_eval]
     
     # Convert labels (integers) to binary class matrix
-    train_labels = frb_keras_convnet.keras.utils.to_categorical(train_labels)
-    eval_labels = frb_keras_convnet.keras.utils.to_categorical(eval_labels)
+    train_labels = frbkeras.keras.utils.to_categorical(train_labels)
+    eval_labels = frbkeras.keras.utils.to_categorical(eval_labels)
 
 
     if FREQTIME is True:
         print("Learning frequency-time array")
+
+        # split up data into training and evaluation sets
+        train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
+
         # Build and train 2D CNN
-        model_2d_freq_time, score_freq_time = frb_keras_convnet.construct_conv2d(
+        model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
                         features_only=False, fit=True,
                         train_data=train_data_freq, eval_data=eval_data_freq, 
                         train_labels=train_labels, eval_labels=eval_labels,
@@ -108,12 +111,18 @@ if __name__=='__main__':
         if save_model is True:
             fnout_freqtime = fnout+'freq_time.hdf5'
             model_2d_freq_time.save(fnout_freqtime)
+            print("Saving freq-time model to: %s" % fnout_freqtime)
 
     if DMTIME is True:
         print("Learning DM-time array")
+        # split up data into training and evaluation sets
+        train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
+
+        # split up data into training and evaluation sets
+        train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
 
         # Build and train 2D CNN
-        model_2d_dm_time, score_dm_time = frb_keras_convnet.construct_conv2d(
+        model_2d_dm_time, score_dm_time = frbkeras.construct_conv2d(
                         features_only=False, fit=True,
                         train_data=train_data_dm, eval_data=eval_data_dm, 
                         train_labels=train_labels, eval_labels=eval_labels,
@@ -127,12 +136,16 @@ if __name__=='__main__':
         if save_model is True:
             fnout_dmtime = fnout+'dm_time.hdf5'
             model_2d_dm_time.save(fnout_dmtime)
+            print("Saving dm-time model to: %s" % fnout_dmtime)
 
     if TIME1D is True:
         print("Learning pulse profile")
 
+        # split up data into training and evaluation sets
+        train_data_1d, eval_data_1d = data_1d[ind_train], data_1d[ind_eval]
+
         # Build and train 1D CNN
-        model_1d_time, score_1d_time = frb_keras_convnet.construct_conv1d(
+        model_1d_time, score_1d_time = frbkeras.construct_conv1d(
                         features_only=False, fit=True,
                         train_data=train_data_1d, eval_data=eval_data_1d, 
                         train_labels=train_labels, eval_labels=eval_labels,
@@ -145,6 +158,7 @@ if __name__=='__main__':
         if save_model is True:
             fnout_1dtime = fnout+'1d_time.hdf5'
             model_1d_time.save(fnout_1dtime)
+            print("Saving 1d-time model to: %s" % fnout_1dtime)
 
     if MULTIBEAM is True:
         print("Learning multibeam data")
@@ -181,7 +195,7 @@ if __name__=='__main__':
                 eval_data_mb[ii] = data_mb_tp[ll]
                 ll+=1
 
-        model_mb, score_mb = frb_keras_convnet.construct_ff1d(
+        model_mb, score_mb = frbkeras.construct_ff1d(
                                     features_only=False, fit=True, 
                                     train_data=train_data_mb, 
                                     train_labels=train_labels,
@@ -200,7 +214,7 @@ if __name__=='__main__':
 
     if len(model_list)==1:
         score = model_list[0].evaluate(eval_data_list[0], eval_labels, batch_size=32)
-        prob, predictions, mistakes = frb_keras_convnet.get_predictions(
+        prob, predictions, mistakes = frbkeras.get_predictions(
                                 model_list[0], eval_data_list[0], 
                                 true_labels=eval_labels)
         print(mistakes)
@@ -211,12 +225,12 @@ if __name__=='__main__':
         print("    Merging & training %d models" % len(model_list))
         print("=================================\n")
 
-        model, score = frb_keras_convnet.merge_models(
+        model, score = frbkeras.merge_models(
                                          model_list, train_data_list, 
                                          train_labels, eval_data_list, eval_labels,
                                          epochs=10)
 
-        prob, predictions, mistakes = frb_keras_convnet.get_predictions(
+        prob, predictions, mistakes = frbkeras.get_predictions(
                                 model, eval_data_list, 
                                 true_labels=eval_labels[:, 1])
 
@@ -225,17 +239,14 @@ if __name__=='__main__':
         print("\nFreq-time accuracy: %f" % score_freq_time[1])
     except:
         pass
-
     try:
         print("DM-time accuracy: %f" % score_dm_time[1])
     except:
         pass        
-
     try:
         print("Pulse-profile accuracy: %f" % score_1d_time[1])
     except:
         pass
-
     try:
         print("Multibeam accuracy: %f" % score_mb[1])
     except:
@@ -243,7 +254,7 @@ if __name__=='__main__':
 
     print("\nMerged NN accuracy: %f" % score[1])
     print("\nIndex of mistakes: %s\n" % mistakes)
-    frb_keras_convnet.print_metric(eval_labels[:, 1], predictions)
+    frbkeras.print_metric(eval_labels[:, 1], predictions)
 
 
 

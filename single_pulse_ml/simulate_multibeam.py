@@ -17,7 +17,7 @@ from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
 
-import frb_keras_convnet
+import frbkeras
 
 def gauss(x, xo, sig):
     return np.exp(-(x-xo)**2/sig**2)
@@ -67,23 +67,27 @@ def test_merge_model(n=32, m=64, ntrigger=10000):
 
     data = data[..., None]
 
-    model_2d_freq_time, score_freq_time = frb_keras_convnet.construct_conv2d(
+    model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
                         features_only=False, fit=True,
                         train_data=data[::2], eval_data=data[1::2], 
                         train_labels=labels[::2], eval_labels=labels[1::2],
                         epochs=5, nfilt1=32, nfilt2=64, 
-                        nfreq=NFREQ, ntime=WIDTH)
+                        nfreq=n, ntime=m)
+    print(score_freq_time)
 
-    eval_data_mb, eval_labels, score_mb, predictions, mistakes, model_mb = run_model(ntrigger)
+    train_data_mb, train_labels, eval_data_mb, eval_labels, model_mb = run_model(ntrigger)
 
     model_list = [model_mb, model_2d_freq_time]
-    train_data_list = [datdata[1::2]]
+    train_data_list = [train_data_mb, data[::2]]
+    eval_data_list = [eval_data_mb, data[1::2]]
 
-    frb_keras_convnet.merge_models(model_list, train_data_list, 
+    model, score = frbkeras.merge_models(model_list, train_data_list, 
                                          train_labels, eval_data_list, eval_labels,
-                                         epochs=10)
+                                         epoch=5)
 
-    return data, labels, data_mb, l
+    print(score)
+
+    return data, labels, train_data_mb, train_labels, model
 
 def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
     A = generate_multibeam()
@@ -142,7 +146,7 @@ def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
     return data, labels
 
 def run_model(n):
-    import frb_keras_convnet
+    import frbkeras
 
     data_mb, labels = make_multibeam_data(ntrigger=n, tp_frac=0.5)
     train_data_mb = data_mb[::2]
@@ -150,19 +154,21 @@ def run_model(n):
     eval_data_mb = data_mb[1::2]
     eval_labels = labels[1::2]
 
-    model_mb, score_mb = frb_keras_convnet.construct_ff1d(
+    model_mb, score_mb = frbkeras.construct_ff1d(
                                 features_only=False, fit=True, 
                                 train_data=train_data_mb, 
                                 train_labels=train_labels,
                                 eval_data=eval_data_mb, 
                                 eval_labels=eval_labels,
-                                nbeam=nbeam, epochs=5,
+                                nbeam=32, epochs=5,
                                 nlayer1=32, nlayer2=32, 
                                 batch_size=32)
 
-    prob, predictions, mistakes = frb_keras_convnet.get_predictions(
+    if len(score_mb)>1:
+        prob, predictions, mistakes = frbkeras.get_predictions(
                                 model_mb, eval_data_mb, 
                                 true_labels=eval_labels)
+    print(score_mb)
 
-    return eval_data_mb, eval_labels, score_mb, predictions, mistakes, model_mb
+    return train_data_mb, train_labels, eval_data_mb, eval_labels, model_mb
 

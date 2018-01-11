@@ -15,9 +15,9 @@ except:
 	pass 
 
 try:
-        import filterbank
+    import filterbank
 except:
-        pass
+    pass
 
 def get_freqs(fil_obj):
         fch1 = fil_obj.header['fch1']

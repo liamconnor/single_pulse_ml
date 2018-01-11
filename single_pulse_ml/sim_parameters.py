@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np 
 import h5py
@@ -78,9 +79,11 @@ class SimParams:
         ftype = fnout.split('.')[-1]
 
         if os.path.exists(fnout):
-            fnout = fnout.split(ftype)[0][:-1] + '_2.' + ftype
+            t0_str = time.strftime("_%Y_%m_%d_%H:%M:%S", time.gmtime())
+            fnout = fnout.split(ftype)[0][:-1] + t0_str + '.' + ftype
 
         if ftype in ('hdf5', 'h5'):
+
             f = h5py.File(fnout)
             f.create_dataset('data_freq_time', data=data_freq_time)
             f.create_dataset('labels', data=labels)
@@ -91,7 +94,6 @@ class SimParams:
                 f.create_dataset('params', data=params)
             if snr is not None:
                 f.create_dataset('snr', data=snr)
-
 
             f.close()
 
