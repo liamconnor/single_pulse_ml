@@ -250,7 +250,7 @@ def construct_conv2d(features_only=False, fit=False,
 
     if features_only is True:
         model.add(BatchNormalization()) # hack
-        return model, [] #hack
+        return model, [] 
 
     model.add(Dense(256, activation='relu')) # should be 1024 hack
 
@@ -331,7 +331,7 @@ def construct_conv1d(features_only=False, fit=False,
     model.add(GlobalAveragePooling1D())
 
     if features_only is True:
-        return model
+        return model, []
 
     model.add(Dropout(0.5))
     model.add(Dense(2, activation='sigmoid'))
@@ -344,7 +344,6 @@ def construct_conv1d(features_only=False, fit=False,
         model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
         score = model.evaluate(eval_data, eval_labels, batch_size=16)
         print("Conv1d only")
-        print(score)
 
     return model, score
 
@@ -371,18 +370,4 @@ def merge_models(model_list, train_data_list,
     score = model.evaluate(eval_data_list, eval_labels, batch_size=batch_size)
 
     return model, score
-
-
-def read_hdf5(fn):
-    f = h5py.File(fn, 'r')
-    data_freq = f['data_freq_time'][:]
-    y = f['labels'][:]
-
-    try:
-        data_dm = f['data_dm_time'][:]
-    except:
-        print("dm-time dataset not there")
-        data_dm = None
-
-    return data_freq, y, data_dm
 

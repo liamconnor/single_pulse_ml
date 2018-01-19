@@ -42,9 +42,7 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm = frbkeras.read_hdf5(fn)
-#    data_freq += np.random.normal(0, 1, data_freq.flatten().shape[0]).reshape(data_freq.shape)
-#    data_freq[:len(y)//2] = np.random.normal(0, np.std(data_freq), data_freq.flatten().shape[0]).reshape(data_freq.shape)[:len(y)//2]
+    data_freq, y, data_dm = reader.read_hdf5(fn)
 
     print("Using %s" % fn)
 
