@@ -19,6 +19,24 @@ try:
 except:
     pass
 
+def read_hdf5(fn):
+	""" Read in data from .hdf5 file 
+	containing dynamic spectra, dm-time array, 
+	and data labels  
+	"""
+    f = h5py.File(fn, 'r')
+    data_freq = f['data_freq_time'][:]
+    y = f['labels'][:]
+
+    try:
+        data_dm = f['data_dm_time'][:]
+    except:
+        print("dm-time dataset not there")
+        data_dm = None
+
+    return data_freq, y, data_dm
+
+
 def get_freqs(fil_obj):
         fch1 = fil_obj.header['fch1']
         foff = fil_obj.header['foff']
@@ -30,10 +48,10 @@ def get_freqs(fil_obj):
 def write_to_fil(data, header, fn):
 	filterbank.create_filterbank_file(
 		fn, header, spectra=data, mode='readwrite')
-	print "Writing to %s" % fn
+	print("Writing to %s" % fn)
 
 def read_fil_data(fn, start=0, stop=1e7):
-	print "Reading filterbank file %s \n" % fn
+	print("Reading filterbank file %s \n" % fn)
 	fil_obj = filterbank.FilterbankFile(fn)
 	header = fil_obj.header
 	delta_t = fil_obj.header['tsamp'] # delta_t in milliseconds
