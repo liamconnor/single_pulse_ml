@@ -25,9 +25,9 @@ from keras.models import load_model
 
 def get_predictions(model, data, true_labels=None):
     """ Take a keras.model object, a data array, 
-        and true_labels, and return the probability of 
-        each feature being a TP, the prediction itself, 
-        and the mistakes.
+    and true_labels, and return the probability of 
+    each feature being a TP, the prediction itself, 
+    and the mistakes.
     """
     if len(true_labels.shape)==2:
         true_labels = true_labels[:,1]
@@ -43,6 +43,10 @@ def get_predictions(model, data, true_labels=None):
     return prob, predictions, mistakes
 
 def get_classification_results(y_true, y_pred):
+    """ Take true labels (y_true) and model-predicted 
+    label (y_pred) for a binary classifier, and return 
+    true_positives, false_positives, true_negatives, false_negatives
+    """
 
     true_positives = np.where((y_true==1) & (y_pred==1))[0]
     false_positives = np.where((y_true==0) & (y_pred==1))[0]
@@ -53,10 +57,10 @@ def get_classification_results(y_true, y_pred):
 
 def confusion_mat(y_true, y_pred):
     """ Generate a confusion matrix for a 
-    binary classifier. 
+    binary classifier based on true labels (
+    y_true) and model-predicted label (y_pred)
     
     returns np.array([[TP, FP],[FN, TN]])
-
     """
     TP, FP, TN, FN = get_classification_results(y_true, y_pred)
 
@@ -70,6 +74,11 @@ def confusion_mat(y_true, y_pred):
     return conf_mat
 
 def print_metric(y_true, y_pred):
+    """ Take true labels (y_true) and model-predicted 
+    label (y_pred) for a binary classifier
+    and print a confusion matrix, metrics, 
+    return accuracy, precision, recall, fscore
+    """
     conf_mat = confusion_mat(y_true, y_pred)
 
     NTP, NFP, NTN, NFN = conf_mat[0,0], conf_mat[0,1], conf_mat[1,1], conf_mat[1,0]
@@ -125,8 +134,40 @@ def construct_ff1d(features_only=False, fit=False,
                      nbeam=32, epochs=5,
                      nlayer1=32, nlayer2=64, batch_size=32):
     """ Build a one-dimensional feed forward neural network 
-        with a binary classifier. Can be used for 
-        multi-beam detections. 
+    with a binary classifier. Can be used for, e.g.,
+    multi-beam detections. 
+
+    Parameters:
+    ----------
+    features_only : bool 
+        Don't construct full model, only features layers 
+    fit : bool 
+        Fit model 
+    train_data : ndarray
+        (ntrain, ntime, 1) float64 array with training data
+    train_labels :  ndarray
+        (ntrigger, 2) binary labels of training data [0, 1] = FRB, [1, 0]=RFI 
+    eval_data : ndarray
+        (neval, ntime, 1) float64 array with evaluation data
+    eval_labels : 
+        (neval, 2) binary labels of eval data 
+    nbeam : int 
+        Number of input beams (more generally, number of data inputs) 
+    epochs : int 
+        Number of training epochs 
+    nlayer1 : int
+        Number of neurons in first hidden layer 
+    nlayer2 : int 
+        Number of neurons in second hidden layer 
+    batch_size : int 
+        Number of batches for training   
+
+    Returns
+    -------
+    model : XX
+
+    score : XX
+
     """
     model = Sequential()
     model.add(Dense(nlayer1, input_dim=nbeam, activation='relu'))
@@ -154,6 +195,41 @@ def construct_conv2d(features_only=False, fit=False,
                      eval_data=None, eval_labels=None, 
                      nfreq=16, ntime=250, epochs=5,
                      nfilt1=32, nfilt2=64, batch_size=32):
+    """ Build a two-dimensional convolutional neural network
+    with a binary classifier. Can be used for, e.g.,
+    freq-time dynamic spectra of pulsars, dm-time intensity array.
+
+    Parameters:
+    ----------
+    features_only : bool 
+        Don't construct full model, only features layers 
+    fit : bool 
+        Fit model 
+    train_data : ndarray
+        (ntrain, ntime, 1) float64 array with training data
+    train_labels :  ndarray
+        (ntrigger, 2) binary labels of training data [0, 1] = FRB, [1, 0]=RFI 
+    eval_data : ndarray
+        (neval, ntime, 1) float64 array with evaluation data
+    eval_labels : 
+        (neval, 2) binary labels of eval data 
+    epochs : int 
+        Number of training epochs 
+    nfilt1 : int
+        Number of neurons in first hidden layer 
+    nfilt2 : int 
+        Number of neurons in second hidden layer 
+    batch_size : int 
+        Number of batches for training   
+
+    Returns
+    -------
+    model : XX
+
+    score : np.float 
+        accuracy, i.e. fraction of predictions that are correct 
+
+    """
 
     if train_data is not None:
         nfreq=train_data.shape[1]
@@ -206,7 +282,42 @@ def construct_conv2d(features_only=False, fit=False,
 def construct_conv1d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,
                      eval_data=None, eval_labels=None,
-                     NTIME=250, nfilt1=64, nfilt2=128):
+                     nfilt1=64, nfilt2=128,
+                     batch_size=16, epochs=5):
+    """ Build a one-dimensional convolutional neural network
+    with a binary classifier. Can be used for, e.g.,
+    pulse profiles. 
+
+    Parameters:
+    ----------
+    features_only : bool 
+        Don't construct full model, only features layers 
+    fit : bool 
+        Fit model 
+    train_data : ndarray
+        (ntrain, ntime, 1) float64 array with training data
+    train_labels :  ndarray
+        (ntrigger, 2) binary labels of training data [0, 1] = FRB, [1, 0]=RFI 
+    eval_data : ndarray
+        (neval, ntime, 1) float64 array with evaluation data
+    eval_labels : 
+        (neval, 2) binary labels of eval data 
+    epochs : int 
+        Number of training epochs 
+    nfilt1 : int
+        Number of neurons in first hidden layer 
+    nfilt2 : int 
+        Number of neurons in second hidden layer 
+    batch_size : int 
+        Number of batches for training   
+
+    Returns
+    -------
+    model : XX
+
+    score : XX
+
+    """
 
     if train_data is not None:
         NTIME=train_data.shape[1]
@@ -230,7 +341,7 @@ def construct_conv1d(features_only=False, fit=False,
                    metrics=['accuracy'])
 
     if fit is True:
-        model.fit(train_data, train_labels, batch_size=16, epochs=5)
+        model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs)
         score = model.evaluate(eval_data, eval_labels, batch_size=16)
         print("Conv1d only")
         print(score)
@@ -240,7 +351,11 @@ def construct_conv1d(features_only=False, fit=False,
 
 def merge_models(model_list, train_data_list, 
                  train_labels, eval_data_list, eval_labels,
-                 batch_size=32, epoch=5):
+                 batch_size=32, epochs=5):
+    """ Take list of models, list of training data, 
+    merge models and train as a single network. 
+    """
+    
 
     model = Sequential()
     model.add(Merge(model_list, mode = 'concat'))
@@ -252,54 +367,11 @@ def merge_models(model_list, train_data_list,
           metrics=['accuracy'])
     seed(2017)
     model.fit(train_data_list, train_labels, 
-                    batch_size=batch_size, nb_epoch=epoch, verbose=1)
+                    batch_size=batch_size, nb_epoch=epochs, verbose=1)
     score = model.evaluate(eval_data_list, eval_labels, batch_size=batch_size)
 
     return model, score
 
-def merge_models_three(left_branch, right_branch):
-    # Configure the accuracy metric for evaluation
-    metrics = ["accuracy", "precision", "false_negatives", "recall"] 
-
-    model = Sequential()
-    model.add(Merge([left_branch, right_branch, left_branch], mode = 'concat'))
-    #model.add(Dense(256, activation='relu'))
-    model.add(Dense(1, init = 'normal', activation = 'sigmoid'))
-    sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
-    model.compile(loss = 'binary_crossentropy', 
-                  optimizer=sgd, 
-                  metrics=['accuracy'])
-
-    return model
-
-def run_2dconv_freq_time(train_data, train_labels, eval_data=None, 
-                         eval_labels=None, 
-                         NFREQ=16, NTIME=250, WIDTH=64,
-                         epochs=5, nfilt1=32, nfilt2=64, 
-                         features_only=False):
-    """ Data array should be (NTRIGGER, NFREQ, NTIME)
-    """
-    assert(len(train_data.shape)==3)
-
-    train_data = train_data.reshape(-1, NFREQ, NTIME, 1)
-
-    if eval_data is not None:
-        assert(len(eval_data.shape)==3)
-        eval_data = eval_data.reshape(-1, NFREQ, NTIME, 1)
-
-    model_2d_freq_time = construct_conv2d(features_only=features_only, fit=True,
-                        train_data=train_data, eval_data=eval_data, 
-                        train_labels=train_labels, eval_labels=eval_labels,
-                        epochs=epochs, nfilt1=nfilt1, nfilt2=nfilt2, 
-                        nfreq=NFREQ, ntime=WIDTH)
-
-    return model_2d_freq_time
-
-def run_2dconv_dm_time():
-    pass
-
-def run_1dconv_time():
-    pass
 
 def read_hdf5(fn):
     f = h5py.File(fn, 'r')
