@@ -10,5 +10,7 @@
 ./single_pulse_ml/*hdf5
 ./single_pulse_ml/plots/*png
 ./single_pulse_ml/model
+./single_pulse_ml/run_frb_simulation.py
+./single_pulse_ml/run_single_pulse_DL.py
 
 /*.egg-info
