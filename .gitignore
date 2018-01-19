@@ -1,6 +1,7 @@
 *.pyc
 *.npy
 *.hdf5
+*.py~
 
 ./dist/
 

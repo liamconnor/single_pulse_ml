@@ -32,7 +32,7 @@ NSIDE = 8
 dm_time_array = False
 outname_tag = 'test'
 
-fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
+fn_rfi = '../single_pulse_ml/data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
 fn_rfi = None
 
 sim_obj = sim_parameters.SimParams(dm=dm, fluence=fluence,
