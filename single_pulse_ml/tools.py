@@ -7,7 +7,7 @@ import glob
 
 import dataproc
 
-def save_background_data(fdir, outfile=None):
+def save_background_data(fdir, outfile=None, nfreq = 32):
     """ Read in randomly selected Pathfinder data in directory fdir,
     dedisperse to a DM between 25 and 2000 pc cm**-3,
     and create a large array of (nfreq, ntime_pulse) arrays 
@@ -18,18 +18,19 @@ def save_background_data(fdir, outfile=None):
     fl.sort()
     arr_full = []
 
-    nfreq = 16
-    freq_rebin = 2.0
+    freq_rebin = 1
     ntime_pulse = 250
 
     for ff in fl[:75]:
+        print(ff)
         arr = np.load(ff)[:, 0]
         arr[arr!=arr] = 0.
         nfreq_arr, ntime = arr.shape
+        print(arr.shape)
 
         # Disperse data to random dm
         _dm = np.random.uniform(25, 2000.0)
-        arr = dedisperse_data(arr, _dm, freq=np.linspace(800, 400, nfreq_arr))
+        arr = dedisperse_data(arr, _dm)
 
         # rebin to nfreq, divide data into blocks of len ntime_pulse
         arr = np.nansum(arr.reshape(-1, freq_rebin, ntime), axis=1)/freq_rebin
@@ -47,7 +48,8 @@ def save_background_data(fdir, outfile=None):
         arr_full[ii] = dataproc.normalize_data(arr)
 
     # Reshape to have same shape as RFI triggers
-    arr_full = arr_full.reshape(-1, nfreq*ntime_pulse)
+    #arr_full = arr_full.reshape(-1, nfreq*ntime_pulse)
+    np.random.shuffle(arr_full)
 
     if outfile is not None:
         np.save(outfile, arr_full)

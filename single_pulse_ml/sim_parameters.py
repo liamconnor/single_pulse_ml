@@ -74,7 +74,8 @@ class SimParams:
         return data_rfi, y
 
     def write_sim_data(self, data_freq_time, labels, fnout, 
-                       data_dm_time=None, params=None, snr=None):
+                       data_dm_time=None, params=None, snr=None,
+                       ):
 
         ftype = fnout.split('.')[-1]
 

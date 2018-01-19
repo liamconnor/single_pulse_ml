@@ -88,8 +88,7 @@ class Event(object):
         # Make location of peaks / troughs random
         scint_phi = np.random.rand()
         # Make number of scintils between 0 and 10 (ish)
-        nscint = np.random.uniform(0, 10)
-        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10)))
+        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10))) #liamhack change back
 #        nscint = 10 #hack
 
         return np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)**2
@@ -143,8 +142,8 @@ class Event(object):
 
         for ii, f in enumerate(freq):
             width_ = 1e-3 * self.calc_width(self._dm, self._f_ref*1e-3, 
-                                     bw=400.0, NFREQ=NFREQ,
-                                     ti=self._width, tsamp=delta_t, tau=0)
+                                            bw=400.0, NFREQ=NFREQ,
+                                            ti=self._width, tsamp=delta_t, tau=0)
 
 #            width_ = self.dm_smear(self._dm, self._f_ref, 
 #                                   delta_freq=400.0/1024, 
@@ -165,6 +164,9 @@ class Event(object):
             val = val * (f / self._f_ref) ** self._spec_ind 
             val = (0.25 + scint_amp[ii]) * val # hack
             data[ii] += val
+            # hack remove
+#            off = np.random.uniform(-10, 10)
+#            data[ii] = np.roll(data[ii], off)
 
 
     def dm_transform(self, delta_t, data, freq, maxdm=10.0, NDM=100):
@@ -419,12 +421,14 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy', 
-                        ftype='hdf5', dm_time_array=True):
+                        ftype='hdf5', dm_time_array=True, 
+                        outname_tag=''):
 
     outdir = './data/'
-    outfn = outdir + "data_nt%d_nf%d_dm%d_snrmax%d.%s" \
+    outfn = outdir + "data_nt%d_nf%d_dm%d_snr%d-%d_%s.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
-                       round(max(sim_obj._dm)), sim_obj._SNR_MAX, ftype)
+                       round(max(sim_obj._dm)), sim_obj._SNR_MIN, 
+                       sim_obj._SNR_MAX, outname_tag, ftype)
 
     if fn_rfi is not None:
         data_rfi, y = sim_obj.get_false_positives(fn_rfi)
@@ -449,7 +453,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     # Hack
     f_noise = None #data_rfi[NRFI:].copy().reshape(-1, 16, 250)
     #f_noise = np.load('./data/background_noise_random_dm.npy')
-    f_noise = np.load('./data/background_noise_random_dm_shuffle.npy')
+#    f_noise = np.load('./data/background_noise_random_dm_shuffle.npy')
+#    f_noise = np.load('./data/background_noise_rficlean.npy')
     # Loop through total number of events
     while jj < (sim_obj._NRFI + sim_obj._NSIM):
         jj = len(arr_sim_full)
@@ -475,9 +480,11 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
         elif (ii >=sim_obj._NRFI and jj < (sim_obj._NRFI + sim_obj._NSIM)):
             if f_noise is not None:
-                noise = (f_noise[jj-sim_obj._NRFI]).copy()
+                noise_ind = (jj-sim_obj._NRFI) % len(f_noise) # allow for roll-over
+                noise = (f_noise[noise_ind]).copy()
                 noise[noise!=noise] = 0.0
                 noise /= np.std(noise)
+#                noise[:, 21] = 0 # hack mask out single bad channel
             else:
                 noise = None
 
@@ -553,6 +560,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                                data_dm_time=arr_dm_time_full,
                                params=params_full_arr, 
                                snr=snr)
+        print("Saving training/label data to:\n%s" % outfn)
     else:
         full_label_arr = np.concatenate((arr_sim_full, yfull[:, None]), axis=-1)
         print("Saving training/label data to:\n%s" % outfn)

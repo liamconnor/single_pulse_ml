@@ -18,16 +18,17 @@ fn = "./data/_data_nt250_nf32_dm0_snrmax60.hdf5"
 fn = "./data/_data_nt250_nf32_dm0_snrmax75_2.hdf5"
 #fn = './data/IAB_labeled.hdf5'
 fn = "./data/_data_nt512_nf256_dm50_snrmax1000.hdf5" #dedispersed
-fn = "./data/_data_nt250_nf32_dm0_snrmax80_2.hdf5"
+fn = "./data/data_nt250_nf32_dm0_snr0-5_.hdf5"
+fn = "./data/data_nt250_nf32_dm0_snr5-50_.hdf5"
 #fn = "./data/data_nt250_nf32_dm0_snrmax100_2018_01_10_13:25:13.hdf5"
 
 # Save tf model as .hdf5
 save_model = True
-fnout = "./model/keras_model_real_pulses"
+fnout = "./model/keras_model_test"
 
 NDM=300         # number of DMs in input array
 WIDTH=64        # width to use of arrays along time axis 
-train_size=0.75 # fraction of dataset to train on
+train_size=0.25 # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
