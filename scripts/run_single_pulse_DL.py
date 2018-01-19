@@ -1,3 +1,4 @@
+#! /usr/bin/python
 """ Script to train and test or multiple deep 
     neural networks. 
 """
