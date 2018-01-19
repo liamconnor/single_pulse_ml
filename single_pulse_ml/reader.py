@@ -36,15 +36,6 @@ def read_hdf5(fn):
 
     return data_freq, y, data_dm
 
-
-def get_freqs(fil_obj):
-        fch1 = fil_obj.header['fch1']
-        foff = fil_obj.header['foff']
-        nchans = fil_obj.header['nchans']
-
-        freq = np.linspace(fch1, fch1+nchans*foff, nchans)
-        return freq
-
 def write_to_fil(data, header, fn):
 	filterbank.create_filterbank_file(
 		fn, header, spectra=data, mode='readwrite')
