@@ -10,3 +10,10 @@ class TestReader(TestCase):
 		fn = './single_pulse_ml/data/data_freqtime_train'
 		data, y = reader.read_training_data(fn)
 		self.assertTrue()
+
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
