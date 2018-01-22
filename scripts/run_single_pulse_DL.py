@@ -6,6 +6,7 @@
 import numpy as np 
 import time
 
+from single_pulse_ml import reader
 from single_pulse_ml import frbkeras 
 
 FREQTIME=True   # train 2D frequency-time CNN
@@ -14,14 +15,7 @@ DMTIME=False    # train 2D DM-time CNN
 MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
 
 # Input hdf5 file. 
-#fn = "./data/_data_nt250_nf32_dm0_hybrid_pulse_simulation.hdf5"
-#fn = "./data/_data_nt250_nf32_dm0_snrmax60.hdf5"
-#fn = "./data/_data_nt250_nf32_dm0_snrmax75_2.hdf5"
-#fn = './data/IAB_labeled.hdf5'
-#fn = "./data/_data_nt512_nf256_dm50_snrmax1000.hdf5" #dedispersed
-#fn = "./data/data_nt250_nf32_dm0_snr0-5_.hdf5"
-#fn = "./data/data_nt250_nf32_dm0_snr5-50_.hdf5"
-fn = "../single_pulse_ml/data/data_nt250_nf32_dm0_snrmax100_2018_01_10_13:25:13.hdf5"
+fn = "/home/arts/connor/arts-analysis/training_data_real_pulses.hdf5"
 
 # Save tf model as .hdf5
 save_model = True
@@ -29,7 +23,7 @@ fnout = "../single_pulse_ml/model/keras_model_test"
 
 NDM=300         # number of DMs in input array
 WIDTH=64        # width to use of arrays along time axis 
-train_size=0.25 # fraction of dataset to train on
+train_size=0.5 # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
@@ -43,9 +37,7 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm = frbkeras.read_hdf5(fn)
-#    data_freq += np.random.normal(0, 1, data_freq.flatten().shape[0]).reshape(data_freq.shape)
-#    data_freq[:len(y)//2] = np.random.normal(0, np.std(data_freq), data_freq.flatten().shape[0]).reshape(data_freq.shape)[:len(y)//2]
+    data_freq, y, data_dm = reader.read_hdf5(fn)
 
     print("Using %s" % fn)
 

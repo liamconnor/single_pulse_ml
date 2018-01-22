@@ -15,21 +15,21 @@ NAME = "CHIMEPathfinder"
 
 # SIMULATION PARAMETERS 
 NFREQ = 32  # Must agree with false-positive data
-NTIME = 250 
+NTIME = 1024 
 dm = (-0.1, 0.1)
 fluence = (2*0.005, 2*0.5)
-width = (2*0.0016, 0.05) # width lognormal dist in seconds
+width = (2*0.0016, 0.6) # width lognormal dist in seconds
 spec_ind = (-4., 4.)
 disp_ind = 2. 
 scat_factor = (-4., -1.)
-NRFI = 4650
-SNR_MIN = 5.0
-SNR_MAX = 50.0
+NRFI = 200
+SNR_MIN = 8.
+SNR_MAX = 100.
 out_file_name = None, 
-mk_plot = True
+mk_plot = False
 NSIDE = 8
 dm_time_array = False
-outname_tag = 'test'
+outname_tag = 'apertif'
 
 fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
 fn_rfi = None

@@ -53,7 +53,6 @@ class Event(object):
         t = t - self.disp_delay(self._f_ref, self._dm, self._disp_ind)
         return self._t_ref + t
 
-
     def calc_width(self, dm, freq_c, bw=400.0, NFREQ=1024,
                    ti=1, tsamp=1, tau=0):
 
@@ -255,10 +254,6 @@ class EventSimulator():
 
         self._freq = np.linspace(self.freq_low, self.freq_up, 256) # tel parameter 
 
-        self._simulated_events = []
-
-        self._last_time_processed = 0.
-
     def draw_event_parameters(self):
         dm = uniform_range(*self._dm)
         fluence = uniform_range(*self._fluence)**(-2/3.)/0.5**(-2/3.)
@@ -376,13 +371,13 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
         data_event = (data[:NTIME].transpose()).astype(np.float)
 
         data_event, params = gen_simulated_frb(NFREQ=NFREQ, 
-                            NTIME=NTIME, sim=True, fluence=(2), 
-                            spec_ind=(-4, 4), width=(delta_t, 2), 
-                            dm=(100, 1000), scat_factor=(-3, -0.5), 
-                            background_noise=data_event, 
-                            delta_t=delta_t, plot_burst=False, 
-                            freq=(1550, 1250), 
-                            FREQ_REF=1400.)
+                                               NTIME=NTIME, sim=True, fluence=(2), 
+                                               spec_ind=(-4, 4), width=(delta_t, 2), 
+                                               dm=(100, 1000), scat_factor=(-3, -0.5), 
+                                               background_noise=data_event, 
+                                               delta_t=delta_t, plot_burst=False, 
+                                               freq=(1550, 1250), 
+                                               FREQ_REF=1400.)
 
         params.append(offset)
         print("Injecting with DM:%f width: %f offset: %d" % 
@@ -462,7 +457,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         if ii % 500 == 0:
             print("simulated:%d kept:%d" % (ii, jj))
 
-
         # If ii is greater than the number of RFI events in f, 
         # simulate an FRB
         #sim = bool(ii >= NRFI)
@@ -511,8 +505,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
 
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
-            snr_ = tools.calc_snr(arr_sim.mean(0))
-
+            snr_ = tools.calc_snr(arr_sim.mean(0), fast=False)
+            
             # Only use events within a range of signal-to-noise
             if snr_ > sim_obj._SNR_MIN and snr_ < sim_obj._SNR_MAX:
                 arr_sim_full.append(arr_sim.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME))
@@ -571,7 +565,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     if plt==None:
         mk_plot = False 
 
-    if sim_obj._mk_plot == True:
+    if sim_obj._mk_plot==True:
         figname = './plots/training_set'
         kk=0
 

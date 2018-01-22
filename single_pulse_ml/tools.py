@@ -4,6 +4,7 @@
 
 import numpy as np
 import glob
+import scipy.signal
 
 import dataproc
 
@@ -71,7 +72,7 @@ def dedisperse_data(f, _dm, freq_bounds=(800,400), dt=0.0016, freq_ref=600):
 
     return f
 
-def calc_snr(arr, ntime=250):
+def calc_snr(arr, fast=False):
     """ Calculate the S/N of pulse profile after 
     trying 9 rebinnings.
 
@@ -88,9 +89,10 @@ def calc_snr(arr, ntime=250):
         S/N of pulse
     """
     assert len(arr.shape)==1
-
+    
+    ntime = len(arr)
     snr_max = 0
-    widths = [1, 2, 4, 6, 8, 10, 20, 50, 100]
+    widths = [1, 2, 4, 8, 16, 32, 64, 128]
 
 #    for ii in range(1, 10):
     for ii in widths:
@@ -98,11 +100,21 @@ def calc_snr(arr, ntime=250):
         # skip if boxcar width is greater than 1/4th ntime
         if ii > ntime//8:
             continue
+            
+        arr_copy = arr.copy()
+        arr_ = arr_copy[:len(arr)//ii*ii].reshape(-1, ii).mean(-1)
 
-        arr_ = arr.copy()
-        arr_ = arr_[:len(arr)//ii*ii].reshape(-1, ii).mean(-1)
-        sig = np.std(arr_[:len(arr_)//3])
-        snr_ =  arr_.max() / sig
+        if fast is False:
+            std_chunk = scipy.signal.detrend(arr_, type='linear')
+            std_chunk.sort()
+            ntime_r = len(std_chunk)
+            stds = 1.148*np.sqrt((std_chunk[ntime_r/40:-ntime_r/40]**2.0).sum() /
+                                    (0.95*ntime_r))
+            snr_ = std_chunk[-1] / stds 
+        else:
+            sig = np.std(arr_[:len(arr_)//3])
+            snr_ =  arr_.max() / sig
+        
         if snr_ > snr_max:
             snr_max = snr_
             width_max = ii

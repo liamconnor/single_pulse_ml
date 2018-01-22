@@ -6,6 +6,7 @@ import os
 
 import time
 import numpy as np
+import h5py
 import glob
 import pickle
 
@@ -20,10 +21,11 @@ except:
     pass
 
 def read_hdf5(fn):
-	""" Read in data from .hdf5 file 
-	containing dynamic spectra, dm-time array, 
-	and data labels  
-	"""
+    """ Read in data from .hdf5 file 
+    containing dynamic spectra, dm-time array, 
+    and data labels  
+    """
+
     f = h5py.File(fn, 'r')
     data_freq = f['data_freq_time'][:]
     y = f['labels'][:]
