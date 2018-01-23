@@ -13,6 +13,8 @@ TIME1D=False      # train 1D pulse-profile CNN
 DMTIME=False    # train 2D DM-time CNN
 MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
 
+CLASSIFY_ONLY=True
+
 # Input hdf5 file. 
 fn = "/home/arts/connor/arts-analysis/training_data_real_pulses.hdf5"
 fn = "./data/data_nt64_nf32_ARTSpulses+RFI+sims.hdf5"
@@ -85,6 +87,7 @@ if __name__=='__main__':
 
 
     if FREQTIME is True:
+        
         print("Learning frequency-time array")
 
         # split up data into training and evaluation sets
