@@ -85,7 +85,7 @@ def print_metric(y_true, y_pred):
 
     print("Confusion matrix:")
 
-    print('\n'.join([''.join(['{:5}'.format(item) for item in row]) 
+    print('\n'.join([''.join(['{:8}'.format(item) for item in row]) 
       for row in conf_mat]))
 
     accuracy = float(NTP + NTN)/conf_mat.sum()

@@ -55,6 +55,9 @@ class Event(object):
 
     def calc_width(self, dm, freq_c, bw=400.0, NFREQ=1024,
                    ti=1, tsamp=1, tau=0):
+        """ Calculated effective width of pulse 
+        including DM smearing, sample time, etc.
+        """
 
         delta_freq = bw/NFREQ
 
@@ -138,7 +141,8 @@ class Event(object):
         tmid = NTIME//2
 
         scint_amp = self.scintillation(freq)
-
+        rollind = 0#*int(np.random.normal(0, 5)) #hack
+        
         for ii, f in enumerate(freq):
             width_ = 1e-3 * self.calc_width(self._dm, self._f_ref*1e-3, 
                                             bw=400.0, NFREQ=NFREQ,
@@ -159,16 +163,15 @@ class Event(object):
                                     tau=self._scat_factor, t0=tpix)
             val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
             val /= val.max()
+            val *= 0.
+            val[len(val)//2] = 1.0
             val *= self._fluence / self._width
             val = val * (f / self._f_ref) ** self._spec_ind 
-            val = (0.25 + scint_amp[ii]) * val # hack
+            val = (0.25 + scint_amp[ii]) * val 
+            val = np.roll(val, rollind)
             data[ii] += val
-            # hack remove
-#            off = np.random.uniform(-10, 10)
-#            data[ii] = np.roll(data[ii], off)
 
-
-    def dm_transform(self, delta_t, data, freq, maxdm=10.0, NDM=100):
+    def dm_transform(self, delta_t, data, freq, maxdm=5.0, NDM=50):
         """ Transform freq/time data to dm/time data.
         """
     
@@ -347,6 +350,62 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     return data, [dm, fluence, width, spec_ind, disp_ind, scat_factor]
 
 
+def inject_in_filterbank_background(fn_fil):
+    """ Inject an FRB in each chunk of data 
+        at random times. Default params are for Apertif data.
+    """
+
+    chunksize = 5e5
+    ii=0
+
+    data_full =[]
+    nchunks = 250
+    nfrb_chunk = 8
+    chunksize = 2**16
+
+    for ii in range(nchunks):
+        downsamp = 2**((np.random.rand(nfrb_chunk)*6).astype(int))
+
+        try:
+            # drop FRB in random location in data chunk
+            rawdatafile = filterbank.filterbank(fn_fil)
+            dt = rawdatafile.header['tsamp']
+            freq_up = rawdatafile.header['fch1']
+            nfreq = rawdatafile.header['nchans']
+            freq_low = freq_up + nfreq*rawdatafile.header['foff']
+            data = rawdatafile.get_spectra(ii*chunksize, chunksize)
+        except:
+            continue
+    
+
+        #dms = np.random.uniform(50, 750, nfrb_chunk)
+        dm0 = np.random.uniform(90, 750)
+        end_width = abs(4e3 * dm0 * (freq_up**-2 - freq_low**-2))
+        data.dedisperse(dm0)
+        NFREQ, NT = data.data.shape
+
+        print("Chunk %d with DM=%.1f" % (ii, dm0))
+        for jj in xrange(nfrb_chunk):
+            if 8192*(jj+1) > (NT - end_width):
+                print("Skipping at ", 8192*(jj+1))
+                continue
+            data_event = data.data[:, jj*8192:(jj+1)*8192]
+            data_event = data_event.reshape(NFREQ, -1, downsamp[jj]).mean(-1)
+            print(data_event.shape)
+            data_event = data_event.reshape(32, 48, -1).mean(1)
+
+            NTIME = data_event.shape[-1]
+            data_event = data_event[..., NTIME//2-125:NTIME//2+125]
+            data_event -= np.mean(data_event, axis=-1, keepdims=True)
+            data_full.append(data_event)
+
+    data_full = np.concatenate(data_full)
+    data_full = data_full.reshape(-1, 32, 250)
+
+    print(data_full.shape)
+    np.save('data_250.npy', data_full)
+
+
 def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
     """ Inject an FRB in each chunk of data 
         at random times. Default params are for Apertif data.
@@ -415,7 +474,8 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
 # np.savetxt(fn_fil_out+'.params', p)
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
-                        fn_rfi='./data/all_RFI_8001.npy', 
+                        fn_rfi='./data/all_RFI_8001.npy',
+                        fn_noise=None, 
                         ftype='hdf5', dm_time_array=True, 
                         outname_tag=''):
 
@@ -429,6 +489,9 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         data_rfi, y = sim_obj.get_false_positives(fn_rfi)
     else:
         data_rfi, y = sim_obj.generate_noise()
+
+    if fn_noise is not None:
+        noise_arr = np.load(fn_noise)   # Hack
 
     sim_obj._NRFI = min(sim_obj._NRFI, data_rfi.shape[0])
     print("\nUsing %d false-positive triggers" % sim_obj._NRFI)
@@ -445,11 +508,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
     ii = -1
     jj = 0
 
-    # Hack
-    f_noise = None #data_rfi[NRFI:].copy().reshape(-1, 16, 250)
-    #f_noise = np.load('./data/background_noise_random_dm.npy')
-#    f_noise = np.load('./data/background_noise_random_dm_shuffle.npy')
-#    f_noise = np.load('./data/background_noise_rficlean.npy')
     # Loop through total number of events
     while jj < (sim_obj._NRFI + sim_obj._NSIM):
         jj = len(arr_sim_full)
@@ -473,10 +531,13 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
             continue
 
         elif (ii >=sim_obj._NRFI and jj < (sim_obj._NRFI + sim_obj._NSIM)):
-            if f_noise is not None:
-                noise_ind = (jj-sim_obj._NRFI) % len(f_noise) # allow for roll-over
-                noise = (f_noise[noise_ind]).copy()
+            
+            if fn_noise is not None:
+                noise_ind = (jj-sim_obj._NRFI) % len(noise_arr) # allow for roll-over
+                noise = (noise_arr[noise_ind]).copy()
                 noise[noise!=noise] = 0.0
+                noise -= np.median(noise, axis=-1)[..., None]
+                noise -= np.median(noise)
                 noise /= np.std(noise)
 #                noise[:, 21] = 0 # hack mask out single bad channel
             else:
@@ -506,7 +567,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
             snr_ = tools.calc_snr(arr_sim.mean(0), fast=False)
-            
+
             # Only use events within a range of signal-to-noise
             if snr_ > sim_obj._SNR_MIN and snr_ < sim_obj._SNR_MAX:
                 arr_sim_full.append(arr_sim.reshape(-1, sim_obj._NFREQ*sim_obj._NTIME))
