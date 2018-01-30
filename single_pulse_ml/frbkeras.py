@@ -83,10 +83,14 @@ def print_metric(y_true, y_pred):
 
     NTP, NFP, NTN, NFN = conf_mat[0,0], conf_mat[0,1], conf_mat[1,1], conf_mat[1,0]
 
-    print("Confusion matrix: %s" % conf_mat)
+    print("Confusion matrix:")
+
+    print('\n'.join([''.join(['{:4}'.format(item) for item in row]) 
+      for row in conf_mat]))
+
     accuracy = float(NTP + NTN)/conf_mat.sum()
-    precision = float(NTP) / (NTP + NFP)
-    recall = float(NTP) / (NTP + NFN)
+    precision = float(NTP) / (NTP + NFP + 1e-19)
+    recall = float(NTP) / (NTP + NFN + 1e-19)
     fscore = 2*precision*recall/(precision+recall)
 
     print("accuracy: %f" % accuracy)
