@@ -9,10 +9,10 @@ import reader
 import frbkeras 
 
 FREQTIME=True   # train 2D frequency-time CNN
-TIME1D=True      # train 1D pulse-profile CNN
+TIME1D=False      # train 1D pulse-profile CNN
 DMTIME=True   # train 2D DM-time CNN
 MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
-merge = True
+MERGE = True
 
 CLASSIFY_ONLY=False
 model_nm = "./model/keras_model_delta_fct"
@@ -23,10 +23,11 @@ fn = "./data/_data_real_pf_pulses_.hdf5"
 #fn = "./data/data_nt64_nf32_ARTSpulses+RFI+sims.hdf5"
 fn = "./data/data_nt250_nf32_dm0_snr6-75_delta_fct.hdf5"
 fn = "./data/data_nt250_nf32_dm0_snr6-75_rolled_5.hdf5"
+fn = "./data/data_nt250_nf32_dm0_snr6-75_noroll.hdf5"
 
 # Save tf model as .hdf5
 save_model = True
-fnout = "./model/keras_model_delta_fct"
+fnout = "./model/keras_model_noroll"
 
 NDM=300         # number of DMs in input array
 WIDTH=64        # width to use of arrays along time axis 
@@ -132,7 +133,7 @@ if __name__=='__main__':
 
             # Build and train 2D CNN
             model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
-                            features_only=False, fit=True,
+                            features_only=MERGE, fit=True,
                             train_data=train_data_freq, eval_data=eval_data_freq, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             epochs=5, nfilt1=32, nfilt2=64, 
@@ -172,7 +173,7 @@ if __name__=='__main__':
 
             # Build and train 2D CNN
             model_2d_dm_time, score_dm_time = frbkeras.construct_conv2d(
-                            features_only=False, fit=True,
+                            features_only=MERGE, fit=True,
                             train_data=train_data_dm, eval_data=eval_data_dm, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             epochs=5, nfilt1=32, nfilt2=64, 
@@ -210,7 +211,7 @@ if __name__=='__main__':
 
             # Build and train 1D CNN
             model_1d_time, score_1d_time = frbkeras.construct_conv1d(
-                            features_only=False, fit=True,
+                            features_only=MERGE, fit=True,
                             train_data=train_data_1d, eval_data=eval_data_1d, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             nfilt1=64, nfilt2=128) 
@@ -260,7 +261,7 @@ if __name__=='__main__':
                 ll+=1
 
         model_mb, score_mb = frbkeras.construct_ff1d(
-                                    features_only=False, fit=True, 
+                                    features_only=MERGE, fit=True, 
                                     train_data=train_data_mb, 
                                     train_labels=train_labels,
                                     eval_data=eval_data_mb, 
@@ -284,7 +285,7 @@ if __name__=='__main__':
         print(mistakes)
         print("" % score)
 
-    elif merge is True:
+    elif MERGE is True:
 
         if CLASSIFY_ONLY is True:
             print("Classifying merged model")
@@ -306,13 +307,13 @@ if __name__=='__main__':
             model, score = frbkeras.merge_models(
                                              model_list, train_data_list, 
                                              train_labels, eval_data_list, eval_labels,
-                                             epochs=10)
+                                             epochs=3)
 
             prob, predictions, mistakes = frbkeras.get_predictions(
                                     model, eval_data_list, 
                                     true_labels=eval_labels[:, 1])
 
-            
+
             if save_model is True:
                 fnout_merged = fnout+'_merged.hdf5'
                 model.save(fnout_merged)
