@@ -48,7 +48,11 @@ def read_fil_data(fn, start=0, stop=1e7):
 	fil_obj = filterbank.FilterbankFile(fn)
 	header = fil_obj.header
 	delta_t = fil_obj.header['tsamp'] # delta_t in milliseconds
-	freq = get_freqs(fil_obj)
+	fch1 = header['fch1']
+	nchans = header['nchans']
+	foff = header['foff']
+	fch_f = fch1 + nchans*foff
+	freq = np.linspace(fch1, fch_f, nchans)
 	data = fil_obj.get_spectra(start, stop)
 	# turn array into time-major, for preprocess
 #	data = data.transpose() 

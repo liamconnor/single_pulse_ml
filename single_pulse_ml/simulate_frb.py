@@ -163,8 +163,6 @@ class Event(object):
                                     tau=self._scat_factor, t0=tpix)
             val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
             val /= val.max()
-            val *= 0.
-            val[len(val)//2] = 1.0
             val *= self._fluence / self._width
             val = val * (f / self._f_ref) ** self._spec_ind 
             val = (0.25 + scint_amp[ii]) * val 
@@ -406,7 +404,8 @@ def inject_in_filterbank_background(fn_fil):
     np.save('data_250.npy', data_full)
 
 
-def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, NFREQ=1536, NTIME=2**15):
+def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1, 
+                         NFREQ=1536, NTIME=2**15):
     """ Inject an FRB in each chunk of data 
         at random times. Default params are for Apertif data.
     """
