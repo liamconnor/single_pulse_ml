@@ -475,11 +475,11 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
 #                 plot_burst=False, freq=(1550, 1250), FREQ_REF=1400., 
 # #                 )
 
-a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.01),
-                spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
-                scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
-                plot_burst=False, freq=(800, 400), FREQ_REF=600., 
-                )
+# a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.001),
+#                 spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
+#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
+#                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+#                 )
 
 # fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
 # fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
