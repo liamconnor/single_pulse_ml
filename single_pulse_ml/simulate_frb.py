@@ -90,10 +90,13 @@ class Event(object):
         # Make location of peaks / troughs random
         scint_phi = np.random.rand()
         # Make number of scintils between 0 and 10 (ish)
-        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10))) #liamhack change back
-#        nscint = 10 #hack
+        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10))) 
+        print(nscint)
 
-        return np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)**2
+        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
+        envelope[envelope<0] = 0
+
+        return envelope
 
     def gaussian_profile(self, nt, width, t0=0.):
         """ Use a normalized Gaussian window for the pulse, 
@@ -152,7 +155,6 @@ class Event(object):
 #                                   delta_freq=400.0/1024, 
 #                                   ti=self._width, tsamp=delta_t, tau=0)
             index_width = max(1, (np.round((width_/ delta_t))).astype(int))
-            #index_width = max(1, (np.round((self._width/ delta_t))).astype(int))
             tpix = int(self.arrival_time(f) / delta_t)
 
             if abs(tpix) >= tmid:
@@ -191,6 +193,7 @@ class Event(object):
                 data_full[ii] += data_rot
 
         return data_full
+
 
 class EventSimulator():
     """Generates simulated fast radio bursts.
@@ -400,7 +403,6 @@ def inject_in_filterbank_background(fn_fil):
     data_full = np.concatenate(data_full)
     data_full = data_full.reshape(-1, 32, 250)
 
-    print(data_full.shape)
     np.save('data_250.npy', data_full)
 
 
@@ -418,24 +420,28 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
     for ii in xrange(N_FRBs):
         start, stop = chunksize*ii, chunksize*(ii+1)
         # drop FRB in random location in data chunk
-        offset = int(np.random.uniform(10000, 400000)) 
+        offset = int(np.random.uniform(0.1*chunksize, 0.9*chunksize)) 
 
         data, freq, delta_t, header = reader.read_fil_data(fn_fil, 
                                                 start=start, stop=stop)
 
+        # injected pulse time in seconds since start of file
+        t0_ind = offset+NTIME//2+chunksize*ii
+        t0 = t0_ind * delta_t
+
         if len(data[0])==0:
             break             
 
-        data_event = (data[:NTIME].transpose()).astype(np.float)
+        data_event = (data[offset:offset+NTIME].transpose()).astype(np.float)
 
         data_event, params = gen_simulated_frb(NFREQ=NFREQ, 
-                                               NTIME=NTIME, sim=True, fluence=(2), 
+                                               NTIME=NTIME, sim=True, fluence=(0.01, 1.), 
                                                spec_ind=(-4, 4), width=(delta_t, 2), 
-                                               dm=(100, 1000), scat_factor=(-3, -0.5), 
+                                               dm=(100, 1000), scat_factor=(-4, -0.5), 
                                                background_noise=data_event, 
                                                delta_t=delta_t, plot_burst=False, 
                                                freq=(1550, 1250), 
-                                               FREQ_REF=1400.)
+                                               FREQ_REF=1550.)
 
         params.append(offset)
         print("Injecting with DM:%f width: %f offset: %d" % 
@@ -443,7 +449,11 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
         
         data[offset:offset+NTIME] = data_event.transpose()
 
-        params_full_arr.append(params)
+        #params_full_arr.append(params)
+        width = params[2]
+        downsamp = max(1, int(width/delta_t))
+
+        params_full_arr.append([params[0], 20.0, t0, t0_ind, downsamp])
 
         if ii==0:
             fn_rfi_clean = reader.write_to_fil(data, header, fn_fil_out)
@@ -453,6 +463,10 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
 
         del data 
 
+    params_full_arr = np.array(params_full_arr)
+
+    np.savetxt('/home/arts/connor/arts-analysis/simulated.singlepulse', params_full_arr)
+
     return params_full_arr
 
 # a, p = gen_simulated_frb(NFREQ=1536, NTIME=2**15, sim=True, fluence=(2),
@@ -461,11 +475,11 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
 #                 plot_burst=False, freq=(1550, 1250), FREQ_REF=1400., 
 # #                 )
 
-# a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.001),
-#                 spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
-#                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
-#                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
-#                 )
+a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.01),
+                spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
+                scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
+                plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+                )
 
 # fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
 # fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
