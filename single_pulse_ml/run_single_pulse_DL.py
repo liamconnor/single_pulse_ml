@@ -346,22 +346,23 @@ if __name__=='__main__':
             print("\nIndex of mistakes: %s\n" % mistakes)
             frbkeras.print_metric(eval_labels[:, 1], predictions)
 
-    print('\n==========Results==========')
-    try:
-        print("\nFreq-time accuracy: %f" % score_freq_time[1])
-    except:
-        pass
-    try:
-        print("DM-time accuracy: %f" % score_dm_time[1])
-    except:
-        pass        
-    try:
-        print("Pulse-profile accuracy: %f" % score_1d_time[1])
-    except:
-        pass
-    try:
-        print("Multibeam accuracy: %f" % score_mb[1])
-    except:
-        pass
+    if CLASSIFY_ONLY is False:
+        print('\n==========Results==========')
+        try:
+            print("\nFreq-time accuracy: %f" % score_freq_time[1])
+        except:
+            pass
+        try:
+            print("DM-time accuracy: %f" % score_dm_time[1])
+        except:
+            pass        
+        try:
+            print("Pulse-profile accuracy: %f" % score_1d_time[1])
+        except:
+            pass
+        try:
+            print("Multibeam accuracy: %f" % score_mb[1])
+        except:
+            pass
 
 
