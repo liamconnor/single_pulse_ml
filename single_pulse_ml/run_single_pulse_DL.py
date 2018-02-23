@@ -28,6 +28,7 @@ try:
 
     import matplotlib.pyplot as plt
     from matplotlib import gridspec
+    print("Worked")
 except:
     "Didn't work"
     pass
