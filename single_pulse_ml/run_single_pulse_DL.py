@@ -20,6 +20,7 @@ import h5py
 
 import reader
 import frbkeras
+import plot_tools
 
 FREQTIME=True     # train 2D frequency-time CNN
 TIME1D=False      # train 1D pulse-profile CNN
@@ -155,7 +156,7 @@ if __name__=='__main__':
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
 
-            plot_ranked_trigger(data, prob_arr, h=5, w=5, ascending=False, outname='out')
+            plot_tools.plot_ranked_trigger(data, prob_arr, h=5, w=5, ascending=False, outname='out')
 
             print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
         else:
