@@ -157,7 +157,7 @@ if __name__=='__main__':
             g.close()
 
             plot_tools.plot_ranked_trigger(data_freq[..., None], 
-                        prob_arr[:, None], h=5, w=5, ascending=False, 
+                        y_pred_prob[:, None], h=5, w=5, ascending=False, 
                         outname='out')
 
             print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
