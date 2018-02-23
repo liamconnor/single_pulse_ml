@@ -35,7 +35,7 @@ prob_threshold = 0.5
 
 # Input hdf5 file. 
 fn = './data/arts_b0329_only.hdf5'
-fn = '/data/03/Triggers/140514/oostrum/all_data.hdf5'
+#fn = '/data/03/Triggers/140514/oostrum/all_data.hdf5'
 
 # Save tf model as .hdf5
 save_model = True
@@ -141,17 +141,19 @@ if __name__=='__main__':
 
             frbkeras.print_metric(y, y_pred_freq_time)
 
-            print("\n%d events with probability > %.2f: %s" % 
-                    (len(ind_frb), prob_threshold, ind_frb))
+            print("\n%d out of %d events with probability > %.2f:\n %s" % 
+                    (len(ind_frb), len(y_pred_prob), 
+                        prob_threshold, ind_frb))
 
             low_to_high_ind = np.argsort(y_pred_prob)
-            fnout_ranked = fn.strip('.hdf5') + 'freq_time_candidates.hdf5'
+            fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
 
             g = h5py.File(fnout_ranked, 'w')
             g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
+            g.create_dataset('frb_index', data=ind_frb)
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
-            print("Saved them and all probabilities to \n:%s" % fnout_ranked)
+            print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
         else:
             print("Learning frequency-time array")
 
