@@ -52,7 +52,6 @@ except:
     "Didn't work"
     pass
 
-import keras.backend as backend 
 
 def plot_simulated_events(data, labels, figname,
                           NSIDE, NFREQ, NTIME, cmap='RdBu'):
@@ -214,6 +213,7 @@ class VisualizeLayers:
     layers of a deep neural network in 
     keras.
     """
+    import keras.backend as backend 
 
     def __init__(self, model):
         self._model = model 
