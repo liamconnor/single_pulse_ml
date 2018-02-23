@@ -1,6 +1,4 @@
 import numpy as np
-from scipy.stats import dweibull
-from matplotlib import pyplot as plt
 
 #----------------------------------------------------------------------
 # This function adjusts matplotlib settings for a uniform feel in the textbook.
