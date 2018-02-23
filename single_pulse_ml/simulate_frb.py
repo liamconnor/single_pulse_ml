@@ -28,7 +28,12 @@ except:
 
 class Event(object):
     """ Class to generate a realistic fast radio burst and 
-    add the event to data. 
+    add the event to data, including scintillation, temporal 
+    scattering, spectral index variation, and DM smearing. 
+
+    This class was expanded from real-time FRB injection 
+    in Kiyoshi Masui's 
+    https://github.com/kiyo-masui/burst\_search
     """
     def __init__(self, t_ref, f_ref, dm, fluence, width, 
                  spec_ind, disp_ind=2, scat_factor=0):
@@ -89,11 +94,13 @@ class Event(object):
         """
         # Make location of peaks / troughs random
         scint_phi = np.random.rand()
-        # Make number of scintils between 0 and 10 (ish)
-        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(10))) 
-        print(nscint)
+        f = np.linspace(0, 1, len(freq))
 
-        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
+        # Make number of scintils between 0 and 10 (ish)
+        nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(7))) 
+        #nscint=5
+#        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
+        envelope = np.cos(2*np.pi*nscint*f + scint_phi)
         envelope[envelope<0] = 0
 
         return envelope
@@ -167,7 +174,7 @@ class Event(object):
             val /= val.max()
             val *= self._fluence / self._width
             val = val * (f / self._f_ref) ** self._spec_ind 
-            val = (0.25 + scint_amp[ii]) * val 
+            val = (0.1 + scint_amp[ii]) * val 
             val = np.roll(val, rollind)
             data[ii] += val
 
@@ -198,6 +205,11 @@ class Event(object):
 class EventSimulator():
     """Generates simulated fast radio bursts.
     Events occurrences are drawn from a Poissonian distribution.
+
+
+    This class was expanded from real-time FRB injection 
+    in Kiyoshi Masui's 
+    https://github.com/kiyo-masui/burst\_search
     """
 
     def __init__(self, dm=(0.,2000.), fluence=(0.03,0.3),
@@ -233,9 +245,10 @@ class EventSimulator():
         else:
             self._dm = (float(dm), float(dm))
         if hasattr(fluence, '__iter__') and len(fluence) == 2:
+            fluence = (fluence[1]**-1, fluence[0]**-1)
             self._fluence = tuple(fluence)
         else:
-            self._fluence = (float(fluence), float(fluence))
+            self._fluence = (float(fluence)**-1, float(fluence)**-1)
         if hasattr(width, '__iter__') and len(width) == 2:
             self._width = tuple(width)
         else:
@@ -475,16 +488,12 @@ def inject_in_filterbank(fn_fil, fn_fil_out, N_FRBs=1,
 #                 plot_burst=False, freq=(1550, 1250), FREQ_REF=1400., 
 # #                 )
 
-# a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(0.001),
+# a, p = gen_simulated_frb(NFREQ=32, NTIME=250, sim=True, fluence=(5, 100),
 #                 spec_ind=(-4, 4), width=(dt, 1), dm=(-0.1, 0.1),
 #                 scat_factor=(-3, -0.5), background_noise=None, delta_t=dt,
 #                 plot_burst=False, freq=(800, 400), FREQ_REF=600., 
 #                 )
 
-# fn_fil = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/CB21_injectedFRB.fil'
-# fn_fil_out = '/data/09/filterbank/20171213/2017.12.13-21:13:51.B0531+21/test.fil'
-# p = inject_in_filterbrank(fn_fil, fn_fil_out, N_FRBs=10, NFREQ=1536)
-# np.savetxt(fn_fil_out+'.params', p)
 
 def run_full_simulation(sim_obj, tel_obj, mk_plot=False, 
                         fn_rfi='./data/all_RFI_8001.npy',

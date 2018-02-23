@@ -1,37 +1,48 @@
 """ Script to train and test or multiple deep 
-    neural networks. 
+    neural networks. Input models are expected to be 
+    sequential keras model saved as an .hdf5 file.
+    Input data are .hdf5 files with data sets
+    'labels', 'data_freq_time', 'data_dm_time'. 
+    They can be read by single_pulse_ml.reader.read_hdf5
+
+    --How can this be made more portable? 
+    --What data inputs should it be able to accept? 
+    --Should it have a filterbank reader / dedisperser like 
+    in triggers.py? maybe, not clear
+    --Should I make a separate script for classification only? probably
+
 """
+import sys
 
 import numpy as np 
 import time
 
 import reader
-import frbkeras 
+import frbkeras
 
-FREQTIME=True   # train 2D frequency-time CNN
+FREQTIME=True     # train 2D frequency-time CNN
 TIME1D=False      # train 1D pulse-profile CNN
-DMTIME=True   # train 2D DM-time CNN
-MULTIBEAM=False  # train feed-forward NN on simulated multibeam data
-MERGE = True
+DMTIME=False      # train 2D DM-time CNN
+MULTIBEAM=False   # train feed-forward NN on simulated multibeam data
 
-CLASSIFY_ONLY=False
-model_nm = "./model/keras_model_delta_fct"
-#model_nm = "./model/keras_model_rolled_5"
+# If True, the different nets will be clipped after 
+# feature extraction layers and will not be compiled / fit
+MERGE=False
+
+CLASSIFY_ONLY=True
+model_nm = "./model/keras_model_20000_arts"
 
 # Input hdf5 file. 
-fn = "./data/_data_real_pf_pulses_.hdf5"
-#fn = "./data/data_nt64_nf32_ARTSpulses+RFI+sims.hdf5"
-fn = "./data/data_nt250_nf32_dm0_snr6-75_delta_fct.hdf5"
-fn = "./data/data_nt250_nf32_dm0_snr6-75_rolled_5.hdf5"
-fn = "./data/data_nt250_nf32_dm0_snr6-75_noroll.hdf5"
+fn = './data/arts_b0329_only.hdf5'
+fn = '/data/03/Triggers/140514/oostrum/all_data.hdf5'
 
 # Save tf model as .hdf5
 save_model = True
-fnout = "./model/keras_model_noroll"
+fnout = "./model/keras_model_arts"
 
-NDM=300         # number of DMs in input array
-WIDTH=64        # width to use of arrays along time axis 
-train_size=.75 # fraction of dataset to train on
+NDM=300          # number of DMs in input array
+WIDTH=64         # width to use of arrays along time axis 
+train_size=0.5   # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
@@ -46,21 +57,9 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
     data_freq, y, data_dm = reader.read_hdf5(fn)
-    dshape = data_freq.shape
 
-    # normalize data
-    data_freq = data_freq.reshape(len(data_freq), -1)
-    data_freq -= np.median(data_freq, axis=-1)[:, None]
-    data_freq /= np.std(data_freq, axis=-1)[:, None]
-
-    # zero out nans
-    data_freq[data_freq!=data_freq] = 0.0
-    data_freq = data_freq.reshape(dshape)
-
-    # for xx in range(len(data_freq)):
-    #     if y[xx]==1:
-    #         indroll = int(np.round(np.random.uniform(-5,5)))
-    #         data_freq[xx] = np.roll(data_freq[xx], indroll)
+    #data_freq = data_freq[1::2]
+    #y = y[1::2]
 
     print("Using %s" % fn)
 
@@ -72,7 +71,24 @@ if __name__=='__main__':
 
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
-        
+
+    dshape = data_freq.shape
+
+    # normalize data
+    data_freq = data_freq.reshape(len(data_freq), -1)
+    data_freq -= np.median(data_freq, axis=-1)[:, None]
+    data_freq /= np.std(data_freq, axis=-1)[:, None]
+
+    # zero out nans
+    data_freq[data_freq!=data_freq] = 0.0
+    data_freq = data_freq.reshape(dshape)
+
+#     for ii, dd in enumerate(data_freq):
+# #        nt = np.argmax(dd.mean(0))
+#         nt = int(np.random.normal(0, 5))
+#         dd = np.roll(dd, WIDTH//2-nt)
+#         data_freq[ii] = dd
+
     if DMTIME is True:
         if data_dm.shape[-1] > (th-tl):
             data_dm = data_dm[:, :, tl:th]
@@ -101,6 +117,9 @@ if __name__=='__main__':
         ind = np.arange(NTRIGGER)
         np.random.shuffle(ind)
 
+        # hack
+        #ind = list(np.arange(0, NTRIGGER, 2)) + list(np.arange(1, NTRIGGER, 2))
+
         ind_train = ind[:NTRAIN]
         ind_eval = ind[NTRAIN:]
 
@@ -120,11 +139,11 @@ if __name__=='__main__':
 
             model_freq_time = frbkeras.load_model(model_freq_time_nm)
             y_pred_prob = model_freq_time.predict(data_freq)
-            y_pred = np.round(y_pred_prob[:,1])
+            y_pred_freq_time = np.round(y_pred_prob[:,1])
 
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred_freq_time!=y)[0])
 
-            frbkeras.print_metric(y, y_pred)
+            frbkeras.print_metric(y, y_pred_freq_time)
         else:
             print("Learning frequency-time array")
 
@@ -157,11 +176,11 @@ if __name__=='__main__':
 
             model_dm_time = frbkeras.load_model(model_dm_time_nm)
             y_pred_prob = model_dm_time.predict(data_dm)
-            y_pred = np.round(y_pred_prob[:,1])
+            y_pred_dm_time = np.round(y_pred_prob[:,1])
 
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred_dm_time!=y)[0])
 
-            frbkeras.print_metric(y, y_pred)
+            frbkeras.print_metric(y, y_pred_dm_time)
             print("") 
         else:
             print("Learning DM-time array")
@@ -198,11 +217,11 @@ if __name__=='__main__':
 
             model_1d_time = frbkeras.load_model(model_time_nm)
             y_pred_prob = model_1d_time.predict(data_1d)
-            y_pred = np.round(y_pred_prob[:,1])
+            y_pred_time = np.round(y_pred_prob[:,1])
 
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred_time!=y)[0])
 
-            frbkeras.print_metric(y, y_pred)
+            frbkeras.print_metric(y, y_pred_time)
             print("") 
         else:
             print("Learning pulse profile")            
@@ -289,7 +308,7 @@ if __name__=='__main__':
 
         if CLASSIFY_ONLY is True:
             print("Classifying merged model")
-            model_time_nm = model_nm + '_merged.hdf5'
+            model_merged_nm = model_nm + '_merged.hdf5'
 
             model_merged = frbkeras.load_model(model_merged_nm)
             y_pred_prob = model_merged.predict(data_list)
@@ -307,7 +326,7 @@ if __name__=='__main__':
             model, score = frbkeras.merge_models(
                                              model_list, train_data_list, 
                                              train_labels, eval_data_list, eval_labels,
-                                             epochs=3)
+                                             epochs=5)
 
             prob, predictions, mistakes = frbkeras.get_predictions(
                                     model, eval_data_list, 
@@ -317,25 +336,27 @@ if __name__=='__main__':
             if save_model is True:
                 fnout_merged = fnout+'_merged.hdf5'
                 model.save(fnout_merged)
-                
-            print('\n==========Results==========')
-            try:
-                print("\nFreq-time accuracy: %f" % score_freq_time[1])
-            except:
-                pass
-            try:
-                print("DM-time accuracy: %f" % score_dm_time[1])
-            except:
-                pass        
-            try:
-                print("Pulse-profile accuracy: %f" % score_1d_time[1])
-            except:
-                pass
-            try:
-                print("Multibeam accuracy: %f" % score_mb[1])
-            except:
-                pass
 
             print("\nMerged NN accuracy: %f" % score[1])
             print("\nIndex of mistakes: %s\n" % mistakes)
             frbkeras.print_metric(eval_labels[:, 1], predictions)
+
+    print('\n==========Results==========')
+    try:
+        print("\nFreq-time accuracy: %f" % score_freq_time[1])
+    except:
+        pass
+    try:
+        print("DM-time accuracy: %f" % score_dm_time[1])
+    except:
+        pass        
+    try:
+        print("Pulse-profile accuracy: %f" % score_1d_time[1])
+    except:
+        pass
+    try:
+        print("Multibeam accuracy: %f" % score_mb[1])
+    except:
+        pass
+
+

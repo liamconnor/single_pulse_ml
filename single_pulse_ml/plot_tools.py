@@ -1,4 +1,15 @@
 import numpy as np
+from scipy.stats import dweibull
+from matplotlib import pyplot as plt
+
+#----------------------------------------------------------------------
+# This function adjusts matplotlib settings for a uniform feel in the textbook.
+# Note that with usetex=True, fonts are rendered with LaTeX.  This may
+# result in an error if LaTeX is not installed on your system.  In that case,
+# you can set usetex to False.
+from astroML.plotting import setup_text_plots
+setup_text_plots(fontsize=8, usetex=True)
+
 
 try:
     import matplotlib 
@@ -10,6 +21,18 @@ except:
     pass
 
 import keras.backend as backend 
+
+import matplotlib.pyplot as plt
+x = np.arange(1,100.)/50.
+
+def weib(x,n,a):
+    return (a / n) * (x / n)**(a - 1) * np.exp(-(x / n)**a)
+
+count, bins, ignored = plt.hist(np.random.weibull(.25,1000))
+x = np.arange(1,100.)/50.
+scale = count.max()/weib(x, 1., .25).max()
+plt.plot(x, weib(x, 1., 5.)*scale)
+plt.show()
 
 def plot_simulated_events(data, labels, figname,
                           NSIDE, NFREQ, NTIME, cmap='RdBu'):

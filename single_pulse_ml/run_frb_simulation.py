@@ -1,6 +1,5 @@
 """ Script to build dataset out of simulated 
-
-single pulses + false positive triggers
+	single pulses + false positive triggers
 """
 
 import sim_parameters
@@ -9,30 +8,31 @@ import simulate_frb
 
 # TELESCOPE PARAMETERS:
 freq = (800, 400)   # (FREQ_LOW, FREQ_UP) in MHz
-FREQ_REF = 600      # dispersion reference frequency in MHz
-DELTA_T = 0.0016    # time resolution in seconds
+FREQ_REF = 600      # reference frequency in MHz
+DELTA_T = 0.0016    # time res in seconds
 NAME = "CHIMEPathfinder"
 
 # SIMULATION PARAMETERS 
-NFREQ = 32  # Must agree with false-positive data
-NTIME = 1024 
-dm = (-0.1, 0.1)
-fluence = (0.005, 0.5)
-width = (2*0.0016, 0.25) # width lognormal dist in seconds
+NFREQ = 32  # Number of frequencies. Must agree with FP data
+NTIME = 250 # Number of time stamps per trigger
+dm = (-0.05, 0.05)
+fluence = (5, 100)
+width = (2*0.0016, 0.75) # width lognormal dist in seconds
 spec_ind = (-4., 4.)
-disp_ind = 2. 
-scat_factor = (-4., -1.)
-NRFI = 200
-SNR_MIN = 15.
-SNR_MAX = 100.
+disp_ind = 2.
+scat_factor = (-4., -1.5)
+NRFI = 4560
+SNR_MIN = 8.0
+SNR_MAX = 80.0
 out_file_name = None, 
-mk_plot = False
+mk_plot = True
 NSIDE = 8
 dm_time_array = False
-outname_tag = 'apertif'
+outname_tag = 'apertif_250'
 
 fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
 fn_rfi = None
+fn_noise = './data/apertif_training/apertif_background_250.npy'
 
 sim_obj = sim_parameters.SimParams(dm=dm, fluence=fluence,
                                    width=width, spec_ind=spec_ind,
@@ -47,4 +47,7 @@ tel_obj = telescope.Telescope(freq=freq, FREQ_REF=FREQ_REF,
 
 data, labels, params, snr = simulate_frb.run_full_simulation(
                                     sim_obj, tel_obj, fn_rfi=fn_rfi,
-                                    dm_time_array=dm_time_array)
+                                    fn_noise=fn_noise,
+                                    dm_time_array=dm_time_array, 
+                                    outname_tag=outname_tag)
+
