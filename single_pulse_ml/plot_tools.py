@@ -52,6 +52,8 @@ except:
     "Didn't work"
     pass
 
+plt.plot()
+
 import keras.backend as backend 
 
 def plot_simulated_events(data, labels, figname,
