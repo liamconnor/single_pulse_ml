@@ -138,7 +138,11 @@ if __name__=='__main__':
             y_pred_freq_time = np.round(y_pred_prob)
 
             ind_frb = np.where(y_pred_prob>prob_threshold)[0]
-            print("Events with probability > %.2f: %s" % (prob_threshold, ind_frb))
+
+            frbkeras.print_metric(y, y_pred_freq_time)
+
+            print("\n%d events with probability > %.2f: %s" % 
+                    (len(ind_frb), prob_threshold, ind_frb))
 
             low_to_high_ind = np.argsort(y_pred_prob)
             fnout_ranked = fn.strip('.hdf5') + 'freq_time_candidates.hdf5'
@@ -147,8 +151,7 @@ if __name__=='__main__':
             g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
-
-            frbkeras.print_metric(y, y_pred_freq_time)
+            print("Saved them and all probabilities to \n:%s" % fnout_ranked)
         else:
             print("Learning frequency-time array")
 
