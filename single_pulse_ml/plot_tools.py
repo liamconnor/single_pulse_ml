@@ -49,6 +49,7 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib import gridspec
 except:
+    "Didn't work"
     pass
 
 import keras.backend as backend 
