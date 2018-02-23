@@ -22,6 +22,16 @@ import reader
 import frbkeras
 import plot_tools
 
+try:
+    import matplotlib 
+    matplotlib.use('Agg')
+
+    import matplotlib.pyplot as plt
+    from matplotlib import gridspec
+except:
+    "Didn't work"
+    pass
+
 FREQTIME=True     # train 2D frequency-time CNN
 TIME1D=False      # train 1D pulse-profile CNN
 DMTIME=False      # train 2D DM-time CNN
