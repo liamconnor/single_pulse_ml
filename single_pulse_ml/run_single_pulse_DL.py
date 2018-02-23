@@ -31,6 +31,7 @@ MERGE=False
 
 CLASSIFY_ONLY=True
 model_nm = "./model/keras_model_20000_arts"
+prob_threshold = 0.5
 
 # Input hdf5 file. 
 fn = './data/arts_b0329_only.hdf5'
@@ -83,12 +84,6 @@ if __name__=='__main__':
     data_freq[data_freq!=data_freq] = 0.0
     data_freq = data_freq.reshape(dshape)
 
-#     for ii, dd in enumerate(data_freq):
-# #        nt = np.argmax(dd.mean(0))
-#         nt = int(np.random.normal(0, 5))
-#         dd = np.roll(dd, WIDTH//2-nt)
-#         data_freq[ii] = dd
-
     if DMTIME is True:
         if data_dm.shape[-1] > (th-tl):
             data_dm = data_dm[:, :, tl:th]
@@ -139,9 +134,19 @@ if __name__=='__main__':
 
             model_freq_time = frbkeras.load_model(model_freq_time_nm)
             y_pred_prob = model_freq_time.predict(data_freq)
-            y_pred_freq_time = np.round(y_pred_prob[:,1])
+            y_pred_prob = y_pred_prob[:,1]
+            y_pred_freq_time = np.round(y_pred_prob)
 
-            print("\nMistakes: %s" % np.where(y_pred_freq_time!=y)[0])
+            ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+            print("Events with probability > %.2f: %s" % (prob_threshold, ind_frb))
+
+            low_to_high_ind = np.argsort(y_pred_prob)
+            fnout_ranked = fn.strip('.hdf5') + 'freq_time_candidates.hdf5'
+
+            g = h5py.File(fnout_ranked, 'w')
+            g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
+            g.create_dataset('probability', data=y_pred_prob)
+            g.close()
 
             frbkeras.print_metric(y, y_pred_freq_time)
         else:
