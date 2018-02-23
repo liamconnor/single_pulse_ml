@@ -156,7 +156,9 @@ if __name__=='__main__':
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
 
-            plot_tools.plot_ranked_trigger(data, prob_arr, h=5, w=5, ascending=False, outname='out')
+            plot_tools.plot_ranked_trigger(data_freq[..., None], 
+                        prob_arr[:, None], h=5, w=5, ascending=False, 
+                        outname='out')
 
             print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
         else:
