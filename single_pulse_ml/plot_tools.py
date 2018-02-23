@@ -52,8 +52,6 @@ except:
     "Didn't work"
     pass
 
-plt.plot()
-
 import keras.backend as backend 
 
 def plot_simulated_events(data, labels, figname,
@@ -167,6 +165,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     plt.show()
 
+data = np.arange(1000).reshape(-1, 10, 10)
+prob_arr = np.arange(1000)[:, None]
+plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out')
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
