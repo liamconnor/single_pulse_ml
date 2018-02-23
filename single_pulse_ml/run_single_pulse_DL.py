@@ -156,7 +156,7 @@ if __name__=='__main__':
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
 
-            plot_tools.plot_ranked_trigger(data_freq[..., None], 
+            plot_tools.plot_ranked_trigger(data_freq[..., 0], 
                         y_pred_prob[:, None], h=5, w=5, ascending=False, 
                         outname='out')
 
