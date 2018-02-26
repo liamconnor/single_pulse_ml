@@ -5,6 +5,8 @@ import glob
 from scipy import signal
 
 try:
+    import matplotlib 
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 except:
     plt = None
