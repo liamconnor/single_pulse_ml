@@ -1,5 +1,4 @@
 ### single_pulse_ml
-===================
 
 Build, train, and apply deep neural networks to single pulse candidates. 
 
@@ -25,4 +24,14 @@ This code has been used on CHIME Pathfinder incoherent data as well as commissio
 	- matplotlib
 	- tensorflow
 	- keras
- 	
+
+### Tests
+
+In the single_pulse_ml/tests/ directory, 
+"test_run_frb_simulation.py" can be run to generate 100 simulated FRBs
+to ensure the simulation backend works.
+
+"test_frbkeras.py" will generate 1000 gaussian-noise 
+dynamic spectrum candidates of dimension 32x64, then
+build, train, and test a CNN using the tools in frbkeras. 
+This allows a test of the keras/tensorflow code.
