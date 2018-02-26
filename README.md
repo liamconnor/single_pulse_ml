@@ -23,6 +23,6 @@ This code has been used on CHIME Pathfinder incoherent data as well as commissio
 	- scipy
 	- h5py
 	- matplotlib
-	- sklearn 
+	- tensorflow
+	- keras
  	
-
