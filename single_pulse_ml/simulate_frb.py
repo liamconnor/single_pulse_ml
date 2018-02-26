@@ -494,10 +494,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                         fn_rfi='./data/all_RFI_8001.npy',
                         fn_noise=None, 
                         ftype='hdf5', dm_time_array=True, 
-                        outname_tag=''):
-    print("BLEEEEEEEEP")
+                        outname_tag='', outdir = './data/'):
 
-    outdir = './data/'
     outfn = outdir + "data_nt%d_nf%d_dm%d_snr%d-%d_%s.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
                        round(max(sim_obj._dm)), sim_obj._SNR_MIN, 
