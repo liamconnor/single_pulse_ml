@@ -1,4 +1,5 @@
-# single_pulse_ml
+### single_pulse_ml
+===================
 
 Build, train, and apply deep neural networks to single pulse candidates. 
 
