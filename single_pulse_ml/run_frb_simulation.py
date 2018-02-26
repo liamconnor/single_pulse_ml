@@ -2,9 +2,9 @@
 	single pulses + false positive triggers
 """
 
-import sim_parameters
-import telescope
-import simulate_frb
+from single_pulse_ml import sim_parameters
+from single_pulse_ml import telescope
+from single_pulse_ml import simulate_frb
 
 # TELESCOPE PARAMETERS:
 freq = (800, 400)   # (FREQ_LOW, FREQ_UP) in MHz

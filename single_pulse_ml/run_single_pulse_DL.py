@@ -18,9 +18,9 @@ import numpy as np
 import time
 import h5py
 
-import reader
-import frbkeras
-import plot_tools
+from single_pulse_ml import reader
+from single_pulse_ml import frbkeras
+from single_pulse_ml import plot_tools
 
 try:
     import matplotlib 

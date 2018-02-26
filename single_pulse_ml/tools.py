@@ -6,7 +6,7 @@ import numpy as np
 import glob
 import scipy.signal
 
-import dataproc
+from single_pulse_ml import dataproc
 
 def save_background_data(fdir, outfile=None, nfreq = 32):
     """ Read in randomly selected Pathfinder data in directory fdir,

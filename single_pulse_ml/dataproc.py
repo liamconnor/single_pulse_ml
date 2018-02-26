@@ -1,7 +1,6 @@
 """ Tools for preprocessing data
 """
 
-
 import numpy as np
 
 def normalize_data(data):

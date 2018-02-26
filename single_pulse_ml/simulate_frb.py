@@ -10,9 +10,9 @@ except:
     plt = None
     pass
 
-import reader
-import dataproc
-import tools 
+from single_pulse_ml import reader
+from single_pulse_ml import dataproc
+from single_pulse_ml import tools 
 
 try:
     import plot_tools
