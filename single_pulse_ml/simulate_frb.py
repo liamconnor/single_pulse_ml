@@ -495,6 +495,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                         fn_noise=None, 
                         ftype='hdf5', dm_time_array=True, 
                         outname_tag=''):
+    print("BLEEEEEEEEP")
 
     outdir = './data/'
     outfn = outdir + "data_nt%d_nf%d_dm%d_snr%d-%d_%s.%s" \

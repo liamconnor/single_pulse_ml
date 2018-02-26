@@ -14,6 +14,7 @@ class TestSimulate_FRB(unittest.TestCase):
                    scat_factor=(-3, -0.5), background_noise=None, delta_t=0.0016,
                    plot_burst=False, freq=(800, 400), FREQ_REF=600., 
                    )
+
 		dm, fluence, width, spec_ind, disp_ind, scat_factor = params 
 
 		assert np.abs(dm) < 0.1, "DM is not in correct DM range"
