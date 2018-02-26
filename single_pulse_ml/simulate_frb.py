@@ -495,7 +495,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                         fn_rfi='./data/all_RFI_8001.npy',
                         fn_noise=None, 
                         ftype='hdf5', dm_time_array=True, 
-                        outname_tag='', outdir = './data/'):
+                        outname_tag='', outdir = './data/',
+                        figname='./plots/simulated_frb.pdf'):
 
     outfn = outdir + "data_nt%d_nf%d_dm%d_snr%d-%d_%s.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
@@ -644,7 +645,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         mk_plot = False 
 
     if sim_obj._mk_plot==True:
-        figname = 'single_pulse_ml/plots/training_set'
         kk=0
 
         plot_tools.plot_simulated_events(
