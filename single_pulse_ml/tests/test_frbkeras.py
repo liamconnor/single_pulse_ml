@@ -6,7 +6,7 @@ from single_pulse_ml import frbkeras
 class TestFRBkeras(unittest.TestCase):
 
 	def test_get_classification_results(self):
-		""" Test that the treu/false postives/negatives, 
+		""" Test that the true/false postives/negatives, 
 		are correctly identified.
 		"""
 		y_true = np.round(np.random.rand(10000))
