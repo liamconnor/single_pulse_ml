@@ -644,7 +644,7 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         mk_plot = False 
 
     if sim_obj._mk_plot==True:
-        figname = './plots/training_set'
+        figname = 'plots/training_set'
         kk=0
 
         plot_tools.plot_simulated_events(
