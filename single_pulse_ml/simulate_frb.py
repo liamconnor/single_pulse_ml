@@ -20,7 +20,6 @@ except:
     plot_tools = None
 
 
-
 class Event(object):
     """ Class to generate a realistic fast radio burst and 
     add the event to data, including scintillation, temporal 
