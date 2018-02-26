@@ -20,6 +20,7 @@ try:
 except:
     pass
 
+
 def read_hdf5(fn):
     """ Read in data from .hdf5 file 
     containing dynamic spectra, dm-time array, 
@@ -207,11 +208,12 @@ def get_labels():
 			string = "%s %s\n" % (newlist[0].split('/')[-1], c)
 			fout.write(string)
 
-def create_training_set(FT=True, fout='./single_pulse_ml/data/data_freqtime_train'):
-	if FT:
-		data, y = combine_data_FT()
+def create_training_set(freqtime=True, 
+			fout='./single_pulse_ml/data/data_freqtime_train'):
+	if freqtime:
+		data, y = combine_data_FT('test')
 	else:
-		data, y = combine_data_DT()
+		data, y = combine_data_DT('test')
 
 	write_data(data, y, fname=fout)
 
