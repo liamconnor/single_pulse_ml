@@ -19,12 +19,7 @@ try:
 except:
     plot_tools = None
 
-# To do: 
-# Put things into physical units. Scattering measure, actual widths, fluences, etc. 
-# Need inputs of real telescopes. Currently it's vaguely like the Pathfinder.
-# Need to not just simulate noise for the FRB triggers. 
-# More single pixel widths. Unresolved bursts.
-# Inverse fluence relationship right now! UPDATE DO IT 
+
 
 class Event(object):
     """ Class to generate a realistic fast radio burst and 
