@@ -14,7 +14,6 @@ from keras.layers import Dense, Dropout, Flatten, Merge
 from keras.layers import Conv1D, Conv2D
 from keras.layers import MaxPooling2D, MaxPooling1D, GlobalAveragePooling1D
 from keras.optimizers import SGD
-from sklearn.model_selection import train_test_split
 from keras.models import load_model
 
 import frbkeras

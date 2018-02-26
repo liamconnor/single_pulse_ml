@@ -19,7 +19,6 @@ from keras.layers import Dense, Dropout, Flatten, Merge
 from keras.layers import Conv1D, Conv2D
 from keras.layers import MaxPooling2D, MaxPooling1D, GlobalAveragePooling1D, BatchNormalization
 from keras.optimizers import SGD
-from sklearn.model_selection import train_test_split
 from keras.models import load_model
 
 
@@ -99,38 +98,6 @@ def print_metric(y_true, y_pred):
     print("fscore: %f" % fscore)
 
     return accuracy, precision, recall, fscore
-
-def split_data(fn, NFREQ=16, NTIME=250, train_size=0.75):
-    """ Read in numpy file and split randomly into 
-    train and test data 
-
-    Parameters:
-    ----------
-    fn : str 
-        file name
-    train_size : np.float 
-        fraction of data to train on 
-
-    Return: 
-    ------
-    train_data: np.array
-
-    eval_data: np.array
-
-    train_labels: np.array
-
-    eval_labels: np.array
-    """
-    f = np.load(fn)
-
-    train_data, eval_data, train_labels, eval_labels = \
-              train_test_split(f[:, :-1], f[:, -1], train_size=train_size)
-
-    train_data = train_data[..., None].reshape(-1, NFREQ, NTIME, 1)
-    eval_data = eval_data[..., None].reshape(-1, NFREQ, NTIME, 1)
-
-    return train_data, eval_data, train_labels, eval_labels
-
 
 def construct_ff1d(features_only=False, fit=False, 
                      train_data=None, train_labels=None,

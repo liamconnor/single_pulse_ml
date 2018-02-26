@@ -15,3 +15,14 @@ input data products, including:
 run_single_pulse_DL.py can also be used when a trained model already exists and candidates are to be classified
 
 This code has been used on CHIME Pathfinder incoherent data as well as commissioning data on Apertif. 
+
+### Requirements
+
+- You will need the following:
+	- numpy 
+	- scipy
+	- h5py
+	- matplotlib
+	- sklearn 
+ 	
+
