@@ -18,7 +18,7 @@ class TestSimulate_FRB(unittest.TestCase):
 		dm, fluence, width, spec_ind, disp_ind, scat_factor = params 
 
 		print(dm)
-		assert np.abs(dm) < 0.1, "DM is not in correct DM range"
+		assert np.abs(dm) < 0.2, "DM is not in correct DM range"
 		assert width > 0, "Width must be positive"
 		assert disp_ind==2, "Disp index doesn't match input"
 
