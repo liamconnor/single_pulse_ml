@@ -22,9 +22,7 @@ class TestReader(TestCase):
 		g.create_dataset('data_dm_time', data=[])				
 		g.close()
 
-		data, y = reader.read_hdf5(fn)
-		self.assertTrue()
-
+		data_freq, y, data_dm= reader.read_hdf5(fn)
 
 if __name__ == '__main__':
     unittest.main()
