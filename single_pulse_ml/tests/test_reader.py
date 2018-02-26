@@ -7,7 +7,7 @@ from single_pulse_ml import reader
 
 class TestReader(TestCase):
 
-	def __init__(self):
+	def test_read_hdf5(self):
 		NFREQ = 64
 		NTIME = 250
 		NCANDIDATES = 100
@@ -21,8 +21,7 @@ class TestReader(TestCase):
 		g.create_dataset('labels', data=labels)
 		g.create_dataset('data_dm_time', data=[])				
 		g.close()
-
-	def test_read_hdf5(self):
+		
 		data_freq, y, data_dm= reader.read_hdf5(fn)
 
 if __name__ == '__main__':
