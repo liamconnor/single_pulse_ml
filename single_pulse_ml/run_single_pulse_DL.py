@@ -12,6 +12,7 @@
     --Should I make a separate script for classification only? probably
 
 """
+import os
 import sys
 
 import numpy as np 
@@ -43,7 +44,7 @@ MULTIBEAM=False   # train feed-forward NN on simulated multibeam data
 MERGE=False
 
 CLASSIFY_ONLY=True
-model_nm = "./model/keras_model_20000_arts"
+model_nm = os.path.join(os.path.dirname(os.path.realpath(__file__)), "model", "keras_model_20000_arts")
 prob_threshold = 0.5
 
 # Input hdf5 file. 
@@ -71,7 +72,7 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm = reader.read_hdf5(fn)
+    data_freq, y, data_dm, params = reader.read_hdf5(fn, read_params=True)
 
     #data_freq = data_freq[1::2]
     #y = y[1::2]
@@ -166,11 +167,12 @@ if __name__=='__main__':
             g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
             g.create_dataset('frb_index', data=ind_frb)
             g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('params', data=params[ind_frb])
             g.close()
 
-            plot_tools.plot_ranked_trigger(data_freq[..., 0], 
-                        y_pred_prob[:, None], h=5, w=5, ascending=False, 
-                        outname='out')
+            #plot_tools.plot_ranked_trigger(data_freq[..., 0], 
+            #            y_pred_prob[:, None], h=5, w=5, ascending=False, 
+            #            outname='out')
 
             print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
         else:
