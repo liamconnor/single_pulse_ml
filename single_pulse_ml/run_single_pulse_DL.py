@@ -18,20 +18,20 @@ import numpy as np
 import time
 import h5py
 
+from single_pulse_ml import plot_tools
 from single_pulse_ml import reader
 from single_pulse_ml import frbkeras
-from single_pulse_ml import plot_tools
 
-try:
-    import matplotlib 
-    matplotlib.use('Agg')
+#try:
+#    import matplotlib 
+#    matplotlib.use('Agg')
 
-    import matplotlib.pyplot as plt
-    from matplotlib import gridspec
-    print("Worked")
-except:
-    "Didn't work"
-    pass
+#    import matplotlib.pyplot as plt
+#    from matplotlib import gridspec
+#    print("Worked")
+#except:
+#    "Didn't work"
+#    pass
 
 FREQTIME=True     # train 2D frequency-time CNN
 TIME1D=False      # train 1D pulse-profile CNN
@@ -47,8 +47,9 @@ model_nm = "./model/keras_model_20000_arts"
 prob_threshold = 0.5
 
 # Input hdf5 file. 
-fn = './data/arts_b0329_only.hdf5'
+#fn = './data/arts_b0329_only.hdf5'
 #fn = '/data/03/Triggers/140514/oostrum/all_data.hdf5'
+fn = sys.argv[1]
 
 # Save tf model as .hdf5
 save_model = True

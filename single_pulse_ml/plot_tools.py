@@ -7,7 +7,7 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib import gridspec
 except:
-    "Didn't work"
+    print("Didn't work")
     pass
 
 def plot_simulated_events(data, labels, figname,
@@ -107,7 +107,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
         #plt.axis('off')
         plt.xticks([])
         plt.yticks([])
-        plt.title('p='+str(np.round(prob_arr[ranking[ii], 1], 5)), fontsize=12)
+        plt.title('p='+str(np.round(prob_arr[ranking[ii], 0], 5)), fontsize=12)
 
         if ii % w == 0:
             plt.ylabel("Freq", fontsize=14)
