@@ -45,7 +45,7 @@ MERGE=False
 
 CLASSIFY_ONLY=True
 model_nm = os.path.join(os.path.dirname(os.path.realpath(__file__)), "model", "keras_model_20000_arts")
-prob_threshold = 0.5
+prob_threshold = 0.01
 
 # Input hdf5 file. 
 #fn = './data/arts_b0329_only.hdf5'
@@ -166,7 +166,7 @@ if __name__=='__main__':
             g = h5py.File(fnout_ranked, 'w')
             g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
             g.create_dataset('frb_index', data=ind_frb)
-            g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('probability', data=y_pred_prob[ind_frb])
             g.create_dataset('params', data=params[ind_frb])
             g.close()
 
