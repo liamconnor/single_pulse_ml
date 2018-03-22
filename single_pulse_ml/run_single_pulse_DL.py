@@ -45,7 +45,7 @@ MERGE=False
 
 CLASSIFY_ONLY=True
 model_nm = os.path.join(os.path.dirname(os.path.realpath(__file__)), "model", "keras_model_20000_arts")
-prob_threshold = 0.01
+prob_threshold = 0.1
 
 # Input hdf5 file. 
 #fn = './data/arts_b0329_only.hdf5'
