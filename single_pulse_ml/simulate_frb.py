@@ -54,18 +54,21 @@ class Event(object):
         return self._t_ref + t
 
     def calc_width(self, dm, freq_c, bw=400.0, NFREQ=1024,
-                   ti=1, tsamp=1, tau=0):
+                   ti=0.001, tsamp=0.001, tau=0):
         """ Calculated effective width of pulse 
         including DM smearing, sample time, etc.
+        Input/output times are in seconds.
         """
 
+        ti *= 1e3
+        tsamp *= 1e3
         delta_freq = bw/NFREQ
 
         # taudm in milliseconds
         tdm = 8.3e-3 * dm * delta_freq / freq_c**3
         tI = np.sqrt(ti**2 + tsamp**2 + tdm**2 + tau**2)
 
-        return tI
+        return 1e-3*tI
 
     def dm_smear(self, DM, freq_c, bw=400.0, NFREQ=1024,
                  ti=1, tsamp=0.0016, tau=0):  
@@ -149,7 +152,7 @@ class Event(object):
         rollind = 0#*int(np.random.normal(0, 5)) #hack
         
         for ii, f in enumerate(freq):
-            width_ = 1e-3 * self.calc_width(self._dm, self._f_ref*1e-3, 
+            width_ = self.calc_width(self._dm, self._f_ref*1e-3, 
                                             bw=400.0, NFREQ=NFREQ,
                                             ti=self._width, tsamp=delta_t, tau=0)
 
