@@ -273,7 +273,9 @@ class EventSimulator():
 
     def draw_event_parameters(self):
         dm = uniform_range(*self._dm)
-        fluence = uniform_range(*self._fluence)**(-2/3.)/0.5**(-2/3.)
+        fluence = uniform_range(*self._fluence)**(-2/3.)
+        # Convert to Jy ms from Jy s                                                                       
+        fluence *= 1e3*self._fluence[0]**(-2/3.)
         spec_ind = uniform_range(*self._spec_ind)
         disp_ind = uniform_range(*self._disp_ind)
         # turn this into a log uniform dist. Note not *that* many 
