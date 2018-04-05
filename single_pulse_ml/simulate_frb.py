@@ -150,7 +150,9 @@ class Event(object):
         tmid = NTIME//2
 
         scint_amp = self.scintillation(freq)
-        
+        self._fluence /= np.sqrt(NFREQ)
+        stds = np.std(data)
+
         for ii, f in enumerate(freq):
             width_ = self.calc_width(self._dm, self._f_ref*1e-3, 
                                             bw=400.0, NFREQ=NFREQ,
@@ -165,15 +167,15 @@ class Event(object):
 
             pp = self.pulse_profile(NTIME, index_width, f, 
                                     tau=self._scat_factor, t0=tpix)
-            val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
-            val /= val.max()
-            val *= self._fluence / self._width
+            val = pp.copy()
+            val /= (val.max()*stds)
+            val *= self._fluence
+            val /= (width_ / delta_t)
             val = val * (f / self._f_ref) ** self._spec_ind 
 
             if scintillate is True:
                 val = (0.1 + scint_amp[ii]) * val 
 
-            val /= np.sqrt(index_width)
             data[ii] += val
 
     def dm_transform(self, delta_t, data, freq, maxdm=5.0, NDM=50):
