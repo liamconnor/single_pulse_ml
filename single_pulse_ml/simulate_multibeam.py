@@ -1,5 +1,4 @@
-# Hacked together a script for simulating
-# multi-beam detections 
+# Script for simulating multi-beam detections 
 # 5 December 2017 
 # Liam Connor
 import sys

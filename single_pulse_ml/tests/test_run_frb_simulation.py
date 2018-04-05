@@ -30,6 +30,7 @@ NSIDE = 8
 dm_time_array = False
 outname_tag = 'test'
 outdir = '../data/'
+figname = '../plots/test_out_fig.pdf'
 
 fn_rfi = None
 fn_noise = None
@@ -49,5 +50,6 @@ data, labels, params, snr = simulate_frb.run_full_simulation(
                                     sim_obj, tel_obj, fn_rfi=fn_rfi,
                                     fn_noise=fn_noise,
                                     dm_time_array=dm_time_array, 
-                                    outname_tag=outname_tag, outdir=outdir)
+                                    outname_tag=outname_tag, outdir=outdir,
+                                    figname=figname)
 

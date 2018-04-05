@@ -6,7 +6,7 @@ import numpy as np
 import glob
 import scipy.signal
 
-import dataproc
+from single_pulse_ml import dataproc
 
 def save_background_data(fdir, outfile=None, nfreq = 32):
     """ Read in randomly selected Pathfinder data in directory fdir,
@@ -108,7 +108,7 @@ def calc_snr(arr, fast=False):
             std_chunk = scipy.signal.detrend(arr_, type='linear')
             std_chunk.sort()
             ntime_r = len(std_chunk)
-            stds = 1.148*np.sqrt((std_chunk[ntime_r/40:-ntime_r/40]**2.0).sum() /
+            stds = 1.148*np.sqrt((std_chunk[ntime_r//40:-ntime_r//40]**2.0).sum() /
                                     (0.95*ntime_r))
             snr_ = std_chunk[-1] / stds 
         else:

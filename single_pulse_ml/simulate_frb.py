@@ -5,20 +5,21 @@ import glob
 from scipy import signal
 
 try:
+    import matplotlib 
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 except:
     plt = None
     pass
 
-import reader
-import dataproc
-import tools 
+from single_pulse_ml import reader
+from single_pulse_ml import dataproc
+from single_pulse_ml import tools 
 
 try:
-    import plot_tools
+    from single_pulse_ml import plot_tools
 except:
     plot_tools = None
-
 
 
 class Event(object):
@@ -334,7 +335,7 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     if background_noise is None:
         # Generate background noise with unit variance
         data = np.random.normal(0, 1, NTIME*NFREQ).reshape(NFREQ, NTIME)
-    else:
+    else: 
         data = background_noise
 
     # What about reading in noisy background?
@@ -497,7 +498,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
                         fn_rfi='./data/all_RFI_8001.npy',
                         fn_noise=None, 
                         ftype='hdf5', dm_time_array=True, 
-                        outname_tag='', outdir = './data/'):
+                        outname_tag='', outdir = './data/',
+                        figname='./plots/simulated_frb.pdf'):
 
     outfn = outdir + "data_nt%d_nf%d_dm%d_snr%d-%d_%s.%s" \
                     % (sim_obj._NTIME, sim_obj._NFREQ, 
@@ -646,7 +648,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
         mk_plot = False 
 
     if sim_obj._mk_plot==True:
-        figname = './plots/training_set'
         kk=0
 
         plot_tools.plot_simulated_events(
