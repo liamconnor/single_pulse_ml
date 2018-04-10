@@ -19,6 +19,9 @@ import numpy as np
 import time
 import h5py
 
+# set visible GPUs (before importing keras)
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+
 from single_pulse_ml import plot_tools
 from single_pulse_ml import reader
 from single_pulse_ml import frbkeras
