@@ -329,7 +329,7 @@ def merge_models(model_list, train_data_list,
 
     model = Sequential()
     model.add(Merge(model_list, mode = 'concat'))
-    #model.add(Dense(256, activation='relu'))
+    model.add(Dense(256, activation='relu'))
     model.add(Dense(2, init = 'normal', activation = 'sigmoid'))
     sgd = SGD(lr = 0.1, momentum = 0.9, decay = 0, nesterov = False)
     model.compile(loss = 'binary_crossentropy', 
