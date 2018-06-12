@@ -18,9 +18,13 @@ import numpy as np
 import time
 import h5py
 
-from single_pulse_ml import reader
-from single_pulse_ml import frbkeras
-from single_pulse_ml import plot_tools
+#from single_pulse_ml import reader
+#from single_pulse_ml import frbkeras
+#from single_pulse_ml import plot_tools
+
+import reader
+import frbkeras
+import plot_tools
 
 try:
     import matplotlib 
@@ -33,8 +37,8 @@ except:
     "Didn't work"
     pass
 
-FREQTIME=True     # train 2D frequency-time CNN
-TIME1D=False      # train 1D pulse-profile CNN
+FREQTIME=False     # train 2D frequency-time CNN
+TIME1D=True      # train 1D pulse-profile CNN
 DMTIME=False      # train 2D DM-time CNN
 MULTIBEAM=False   # train feed-forward NN on simulated multibeam data
 
@@ -42,21 +46,29 @@ MULTIBEAM=False   # train feed-forward NN on simulated multibeam data
 # feature extraction layers and will not be compiled / fit
 MERGE=False
 
+MK_PLOT=False
 CLASSIFY_ONLY=True
-model_nm = "./model/keras_model_20000_arts"
-prob_threshold = 0.5
+model_nm = "./model/arts_67166_test"
+#model_nm = "./model/arts_21246"
+prob_threshold = 0.0
 
-# Input hdf5 file. 
-fn = './data/arts_b0329_only.hdf5'
-#fn = '/data/03/Triggers/140514/oostrum/all_data.hdf5'
+## Input hdf5 file. 
+#fn = './data/arts_b0329_only.hdf5'
+fn = './data/arts_21246events.hdf5'
+fn='/data/03/Triggers/triggers/data/data_nt250_nf32_dm0_snr6-250_apertif_250_2018_06_02_16:03:48.hdf5'
+#fn='./data/data_nt250_nf32_dm0_snr0-10_apertif_250_2018_06_07_11:29:52.hdf5'
+#fn = './data/data_nt250_nf32_dm0_snr0-10_apertif_250.hdf5'
+#fn = './data/data_nt250_nf32_dm0_snr0-100_apertif_250.hdf5'
+#fn = './data/data_nt250_nf32_dm0_snr6-100_apertif_250.hdf5'
 
 # Save tf model as .hdf5
-save_model = True
-fnout = "./model/keras_model_arts"
+save_model = False
+fnout = "./model/arts_21246"
+#fnout = "./model/arts_67166_test"
 
 NDM=300          # number of DMs in input array
 WIDTH=64         # width to use of arrays along time axis 
-train_size=0.5   # fraction of dataset to train on
+train_size=0.05   # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
@@ -70,10 +82,8 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm = reader.read_hdf5(fn)
-
-    #data_freq = data_freq[1::2]
-    #y = y[1::2]
+    data_freq, y, data_dm, data_mb = reader.read_hdf5(fn)
+    NTRIGGER = len(y)
 
     print("Using %s" % fn)
 
@@ -107,10 +117,15 @@ if __name__=='__main__':
         # tf/keras expects 4D tensors
         data_dm = data_dm[..., None]
 
+    if TIME1D is True:
+        data_1d = data_freq.mean(1)[..., None]
+        #hack 
+        from scipy.signal import detrend
+        data_1d = detrend(data_1d, axis=1)
+
     if FREQTIME is True:
         # tf/keras expects 4D tensors
         data_freq = data_freq[..., None]
-        data_1d = data_freq.mean(1)
 
     if CLASSIFY_ONLY is False:
         # total number of triggers
@@ -124,9 +139,6 @@ if __name__=='__main__':
 
         ind = np.arange(NTRIGGER)
         np.random.shuffle(ind)
-
-        # hack
-        #ind = list(np.arange(0, NTRIGGER, 2)) + list(np.arange(1, NTRIGGER, 2))
 
         ind_train = ind[:NTRAIN]
         ind_eval = ind[NTRAIN:]
@@ -167,7 +179,8 @@ if __name__=='__main__':
             g.create_dataset('probability', data=y_pred_prob)
             g.close()
 
-            plot_tools.plot_ranked_trigger(data_freq[..., 0], 
+            if MK_PLOT is True:
+                plot_tools.plot_ranked_trigger(data_freq[..., 0], 
                         y_pred_prob[:, None], h=5, w=5, ascending=False, 
                         outname='out')
 
@@ -178,6 +191,7 @@ if __name__=='__main__':
             # split up data into training and evaluation sets
             train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
 
+            print(train_data_freq.shape)
             # Build and train 2D CNN
             model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
                             features_only=MERGE, fit=True,
@@ -191,11 +205,28 @@ if __name__=='__main__':
             eval_data_list.append(eval_data_freq)
 
             if save_model is True:
-                fnout_freqtime = fnout + 'freq_time.hdf5'
+                if MERGE is True:
+                    fnout_freqtime = fnout+'freq_time_features.hdf5'
+                else:
+                    fnout_freqtime = fnout + 'freq_time.hdf5'
                 model_2d_freq_time.save(fnout_freqtime)
                 print("Saving freq-time model to: %s" % fnout_freqtime)
 
+            fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
+            y_pred_prob = model_2d_freq_time.predict(eval_data_freq)
+            y_pred_prob = y_pred_prob[:,1]
+            ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+            
+            g = h5py.File(fnout_ranked, 'w')
+            g.create_dataset('data_frb_candidate', data=eval_data_freq)
+            g.create_dataset('frb_index', data=ind_frb)
+            g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('labels', data=eval_labels)
+            g.close()
+
+
     if DMTIME is True:
+
         if CLASSIFY_ONLY is True:
             print("Classifying dm-time data")
 
@@ -231,7 +262,10 @@ if __name__=='__main__':
             eval_data_list.append(eval_data_dm)
 
             if save_model is True:
-                fnout_dmtime = fnout+'dm_time.hdf5'
+                if MERGE is True:
+                    fnout_dmtime = fnout+'dm_time_features.hdf5'
+                else:
+                    fnout_dmtime = fnout+'dm_time.hdf5'
                 model_2d_dm_time.save(fnout_dmtime)
                 print("Saving dm-time model to: %s" % fnout_dmtime)
 
@@ -246,6 +280,9 @@ if __name__=='__main__':
             model_1d_time = frbkeras.load_model(model_time_nm)
             y_pred_prob = model_1d_time.predict(data_1d)
             y_pred_time = np.round(y_pred_prob[:,1])
+
+            eval_data_1d = data_1d #hack
+            eval_labels = y
 
             print("\nMistakes: %s" % np.where(y_pred_time!=y)[0])
 
@@ -268,46 +305,79 @@ if __name__=='__main__':
             eval_data_list.append(eval_data_1d)
 
             if save_model is True:
-                fnout_1dtime = fnout+'1d_time.hdf5'
+                if MERGE is True:
+                    fnout_1dtime = fnout+'1d_time_features.hdf5'
+                else:
+                    fnout_1dtime = fnout+'1d_time.hdf5'
                 model_1d_time.save(fnout_1dtime)
                 print("Saving 1d-time model to: %s" % fnout_1dtime)
 
+            y_pred_prob = model_1d_time.predict(eval_data_1d)
+            y_pred_prob = y_pred_prob[:,1]
+            ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+        
+        fnout_ranked = fn.rstrip('.hdf5') + '1d_time_candidates.hdf5'
+        g = h5py.File(fnout_ranked, 'w')
+        g.create_dataset('data_frb_candidate', data=eval_data_1d)
+#        g.create_dataset('frb_index', data=ind_frb)
+        g.create_dataset('probability', data=y_pred_prob)
+        g.create_dataset('labels', data=eval_labels)
+        g.close()
+        print(eval_labels)
+
     if MULTIBEAM is True:
-        print("Learning multibeam data")
 
-        # Right now just simulate multibeam, simulate S/N per beam.
-        import simulate_multibeam as sm 
+        if CLASSIFY_ONLY is True:
+            print("Classifying multibeam SNR")
 
-        nbeam = 32
-        # Simulate a multibeam dataset
-        data_mb, labels_mb = sm.make_multibeam_data(ntrigger=NTRIGGER)
-        data_mb_fp = data_mb[labels_mb[:,1]==0]
-        data_mb_tp = data_mb[labels_mb[:,1]==1]
+            model_multibeam_nm = model_nm + '_multibeam.hdf5'
+            eval_data_list.append(data_mb)
 
-        train_data_mb = np.zeros([NTRAIN, nbeam])
-        eval_data_mb = np.zeros([NTRIGGER-NTRAIN, nbeam])
+            model_1d_multibeam = frbkeras.load_model(model_multibeam_nm)
+            y_pred_prob = model_1d_multibeam.predict(data_mb)
+            y_pred_time = np.round(y_pred_prob[:,1])
 
-        data_ = np.empty_like(data_mb)
-        labels_ = np.empty_like(labels_mb)
+            print("\nMistakes: %s" % np.where(y_pred_time!=y)[0])
 
-        kk, ll = 0, 0
-        for ii in range(NTRAIN):
-            if train_labels[ii,1]==0:
-                train_data_mb[ii] = data_mb_fp[kk]
-                kk+=1
-            elif train_labels[ii,1]==1:
-                train_data_mb[ii] = data_mb_tp[ll]
-                ll+=1
+            frbkeras.print_metric(y, y_pred_time)
+            print("") 
+        else:
+            print("Learning multibeam data")
 
-        for ii in range(NTRIGGER-NTRAIN):
-            if eval_labels[ii,1]==0:
-                eval_data_mb[ii] = data_mb_fp[kk]
-                kk+=1
-            elif eval_labels[ii,1]==1:
-                eval_data_mb[ii] = data_mb_tp[ll]
-                ll+=1
+            # Right now just simulate multibeam, simulate S/N per beam.
+            import simulate_multibeam as sm 
 
-        model_mb, score_mb = frbkeras.construct_ff1d(
+            nbeam = 32
+            # Simulate a multibeam dataset
+            data_mb, labels_mb = sm.make_multibeam_data(ntrigger=NTRIGGER)
+
+            data_mb_fp = data_mb[labels_mb[:,1]==0]
+            data_mb_tp = data_mb[labels_mb[:,1]==1]
+            
+            train_data_mb = np.zeros([NTRAIN, nbeam])
+            eval_data_mb = np.zeros([NTRIGGER-NTRAIN, nbeam])
+            
+            data_ = np.empty_like(data_mb)
+            labels_ = np.empty_like(labels_mb)
+            
+            kk, ll = 0, 0
+            for ii in range(NTRAIN):
+                if train_labels[ii,1]==0:
+                    train_data_mb[ii] = data_mb_fp[kk]
+                    kk+=1
+                elif train_labels[ii,1]==1:
+                    train_data_mb[ii] = data_mb_tp[ll]
+                    ll+=1
+
+            for ii in range(NTRIGGER-NTRAIN):
+                if eval_labels[ii,1]==0:
+                    eval_data_mb[ii] = data_mb_fp[kk]
+                    kk+=1
+                elif eval_labels[ii,1]==1:
+                    eval_data_mb[ii] = data_mb_tp[ll]
+                    ll+=1
+
+            model_mb, score_mb = frbkeras.construct_ff1d(
                                     features_only=MERGE, fit=True, 
                                     train_data=train_data_mb, 
                                     train_labels=train_labels,
@@ -316,13 +386,32 @@ if __name__=='__main__':
                                     nbeam=nbeam, epochs=5,
                                     nlayer1=32, nlayer2=32, batch_size=32)
 
-        model_list.append(model_mb)
-        train_data_list.append(train_data_mb)
-        eval_data_list.append(eval_data_mb)
+            model_list.append(model_mb)
+            train_data_list.append(train_data_mb)
+            eval_data_list.append(eval_data_mb)
 
-        if save_model is True:
-            fnout_mb = fnout+'_mb.hdf5'
-            model_mb.save(fnout_mb)
+            if save_model is True:
+                if MERGE is True:
+                    fnout_mb = fnout+'_multibeam_features.hdf5'
+                else:
+                    fnout_mb = fnout+'_multibeam.hdf5'
+                model_mb.save(fnout_mb)
+
+            fnout_ranked = fn.rstrip('.hdf5') + 'multibeam_candidates.hdf5'
+            y_pred_prob = model_mb.predict(eval_data_mb)
+            y_pred_prob = y_pred_prob[:,1]
+            ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+
+            print(fnout_ranked)
+            print(eval_data_mb.shape)
+
+            g = h5py.File(fnout_ranked, 'w')
+            g.create_dataset('data_frb_candidate', data=eval_data_mb)
+            g.create_dataset('frb_index', data=ind_frb)
+            g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('labels', data=eval_labels)
+            g.close()
+
 
     if len(model_list)==1:
         score = model_list[0].evaluate(eval_data_list[0], eval_labels, batch_size=32)
@@ -370,6 +459,7 @@ if __name__=='__main__':
             frbkeras.print_metric(eval_labels[:, 1], predictions)
 
     if CLASSIFY_ONLY is False:
+
         print('\n==========Results==========')
         try:
             print("\nFreq-time accuracy: %f" % score_freq_time[1])

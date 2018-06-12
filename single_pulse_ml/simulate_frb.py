@@ -97,11 +97,12 @@ class Event(object):
 
         # Make number of scintils between 0 and 10 (ish)
         nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(7))) 
-        #nscint=5
-#        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
-        envelope = np.cos(2*np.pi*nscint*f + scint_phi)
-        envelope[envelope<0] = 0
 
+        if nscint<1:
+            nscint = 0
+#        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
+        envelope = np.cos(2*np.pi*nscint*freq**-2/self._f_ref**-2 + scint_phi)
+        envelope[envelope<0] = 0
         return envelope
 
     def gaussian_profile(self, nt, width, t0=0.):
@@ -152,6 +153,7 @@ class Event(object):
         scint_amp = self.scintillation(freq)
         self._fluence /= np.sqrt(NFREQ)
         stds = np.std(data)
+        roll_ind = int(np.random.normal(0, 2))
 
         for ii, f in enumerate(freq):
             width_ = self.calc_width(self._dm, self._f_ref*1e-3, 
@@ -177,6 +179,7 @@ class Event(object):
                 val = (0.1 + scint_amp[ii]) * val 
 
             data[ii] += val
+            data[ii] = np.roll(data[ii], roll_ind)
 
     def dm_transform(self, delta_t, data, freq, maxdm=5.0, NDM=50):
         """ Transform freq/time data to dm/time data.
@@ -200,7 +203,6 @@ class Event(object):
                 data_full[ii] += data_rot
 
         return data_full
-
 
 class EventSimulator():
     """Generates simulated fast radio bursts.
@@ -354,6 +356,9 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     E = Event(t_ref, FREQ_REF, dm, 10e-4*fluence, 
               width, spec_ind, disp_ind, scat_factor)
     # Add FRB to data array 
+    data -= np.median(data)
+    data /= np.std(data)
+
     E.add_to_data(delta_t, freq, data, scintillate=scintillate)
 
     if plot_burst:
@@ -587,7 +592,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
             # Normalize data to have unit variance and zero median
             arr_sim = reader.rebin_arr(arr_sim, sim_obj._NFREQ, sim_obj._NTIME)
             arr_sim = dataproc.normalize_data(arr_sim)
-
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
             snr_ = tools.calc_snr(arr_sim.mean(0), fast=False)
