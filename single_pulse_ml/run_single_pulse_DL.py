@@ -48,6 +48,7 @@ MERGE=False
 
 MK_PLOT=False
 CLASSIFY_ONLY=True
+save_classification=True
 model_nm = "./model/arts_67166_test"
 #model_nm = "./model/arts_21246"
 prob_threshold = 0.0
@@ -173,11 +174,8 @@ if __name__=='__main__':
             low_to_high_ind = np.argsort(y_pred_prob)
             fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
 
-            g = h5py.File(fnout_ranked, 'w')
-            g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
-            g.create_dataset('frb_index', data=ind_frb)
-            g.create_dataset('probability', data=y_pred_prob)
-            g.close()
+            eval_data_freq = data_freq #hack
+            eval_labels = y
 
             if MK_PLOT is True:
                 plot_tools.plot_ranked_trigger(data_freq[..., 0], 
@@ -191,7 +189,6 @@ if __name__=='__main__':
             # split up data into training and evaluation sets
             train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
 
-            print(train_data_freq.shape)
             # Build and train 2D CNN
             model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
                             features_only=MERGE, fit=True,
@@ -216,14 +213,16 @@ if __name__=='__main__':
             y_pred_prob = model_2d_freq_time.predict(eval_data_freq)
             y_pred_prob = y_pred_prob[:,1]
             ind_frb = np.where(y_pred_prob>prob_threshold)[0]
-            
+
+        if save_classification is True:
+            fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
             g = h5py.File(fnout_ranked, 'w')
             g.create_dataset('data_frb_candidate', data=eval_data_freq)
             g.create_dataset('frb_index', data=ind_frb)
             g.create_dataset('probability', data=y_pred_prob)
             g.create_dataset('labels', data=eval_labels)
             g.close()
-
+            print("\nSaved classification results to: \n%s" % fnout_ranked)
 
     if DMTIME is True:
 
@@ -236,6 +235,9 @@ if __name__=='__main__':
             model_dm_time = frbkeras.load_model(model_dm_time_nm)
             y_pred_prob = model_dm_time.predict(data_dm)
             y_pred_dm_time = np.round(y_pred_prob[:,1])
+
+            eval_data_dm = data_dm #hack
+            eval_labels = y
 
             print("\nMistakes: %s" % np.where(y_pred_dm_time!=y)[0])
 
@@ -268,6 +270,16 @@ if __name__=='__main__':
                     fnout_dmtime = fnout+'dm_time.hdf5'
                 model_2d_dm_time.save(fnout_dmtime)
                 print("Saving dm-time model to: %s" % fnout_dmtime)
+ 
+        if save_classification is True:
+            fnout_ranked = fn.rstrip('.hdf5') + 'dm_time_candidates.hdf5'
+            g = h5py.File(fnout_ranked, 'w')
+            g.create_dataset('data_frb_candidate', data=eval_data_dm)
+            g.create_dataset('frb_index', data=ind_frb)
+            g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('labels', data=eval_labels)
+            g.close()
+            print("\nSaved classification results to: \n%s" % fnout_ranked)
 
     if TIME1D is True:
 
@@ -280,6 +292,7 @@ if __name__=='__main__':
             model_1d_time = frbkeras.load_model(model_time_nm)
             y_pred_prob = model_1d_time.predict(data_1d)
             y_pred_time = np.round(y_pred_prob[:,1])
+            ind_frb = np.where(y_pred_prob>prob_threshold)[0]
 
             eval_data_1d = data_1d #hack
             eval_labels = y
@@ -315,15 +328,16 @@ if __name__=='__main__':
             y_pred_prob = model_1d_time.predict(eval_data_1d)
             y_pred_prob = y_pred_prob[:,1]
             ind_frb = np.where(y_pred_prob>prob_threshold)[0]
-        
-        fnout_ranked = fn.rstrip('.hdf5') + '1d_time_candidates.hdf5'
-        g = h5py.File(fnout_ranked, 'w')
-        g.create_dataset('data_frb_candidate', data=eval_data_1d)
-#        g.create_dataset('frb_index', data=ind_frb)
-        g.create_dataset('probability', data=y_pred_prob)
-        g.create_dataset('labels', data=eval_labels)
-        g.close()
-        print(eval_labels)
+ 
+        if save_classification is True:
+            fnout_ranked = fn.rstrip('.hdf5') + '1d_time_candidates.hdf5'
+            g = h5py.File(fnout_ranked, 'w')
+            g.create_dataset('data_frb_candidate', data=eval_data_1d)
+            g.create_dataset('frb_index', data=ind_frb)
+            g.create_dataset('probability', data=y_pred_prob)
+            g.create_dataset('labels', data=eval_labels)
+            g.close()
+            print("\nSaved classification results to: \n%s" % fnout_ranked)
 
     if MULTIBEAM is True:
 
