@@ -29,7 +29,12 @@ def read_hdf5(fn):
 
     f = h5py.File(fn, 'r')
     data_freq = f['data_freq_time'][:]
-    y = f['labels'][:]
+
+    try:
+        y = f['labels'][:]
+    except:
+        print("labels dataset not there")
+        y = -1*np.zeros([len(data_freq)])
 
     try:
         data_dm = f['data_dm_time'][:]
