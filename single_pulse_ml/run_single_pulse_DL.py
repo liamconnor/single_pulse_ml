@@ -528,7 +528,7 @@ np.save('vals_prec', data=vals_prec)
 np.save('vals_rec', data=vals_rec)
 np.save('vals_f1', data=vals_f1)
 
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 
 fig, ax = plt.subplots()
 
