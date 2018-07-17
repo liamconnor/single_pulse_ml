@@ -88,8 +88,8 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
     data_freq, y, data_dm, data_mb = reader.read_hdf5(fn)
-#    data_freq += np.random.normal(0, 2, len(data_freq.flatten())).reshape(data_freq.shape) # hack
-#    data_dm += np.random.normal(0, 2, len(data_dm.flatten())).reshape(data_dm.shape) # hack
+#    data_freq += np.random.normal(0, 1.8, len(data_freq.flatten())).reshape(data_freq.shape) # hack
+#    data_dm += np.random.normal(0, 1., len(data_dm.flatten())).reshape(data_dm.shape) # hack
     NTRIGGER = len(y)
 
     print("Using %s" % fn)
@@ -126,9 +126,9 @@ if __name__=='__main__':
 
     if TIME1D is True:
         data_1d = data_freq.mean(1)[..., None]
-        #hack 
         from scipy.signal import detrend
         data_1d = detrend(data_1d, axis=1)
+#        data_1d += np.random.uniform(0, 1, len(data_1d.flatten())).reshape(data_1d.shape)
 
     if FREQTIME is True:
         # tf/keras expects 4D tensors
@@ -244,8 +244,8 @@ if __name__=='__main__':
 
             eval_data_dm = data_dm #hack
             eval_labels = y
-
-            print("\nMistakes: %s" % np.where(y_pred_dm_time!=y)[0])
+            mistakes = np.where(y_pred_dm_time!=y)[0]
+            print("\nMistakes: %s" % mistakes)
 
             frbkeras.print_metric(y, y_pred_dm_time)
             print("") 
@@ -485,7 +485,9 @@ if __name__=='__main__':
             y_pred_prob = model_freq_time.predict(eval_data_freq)
             y_pred = np.round(y_pred_prob[:,1])
             tfreq_acc, tfreq_prec, tfreq_rec, tfreq_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
+
+            mistakes_freq = np.where(y_pred!=eval_labels[:,1])[0]
+            print("\nMistakes: %s" % mistakes_freq)
         except:
             pass
         try:
@@ -493,7 +495,10 @@ if __name__=='__main__':
             y_pred_prob = model_dm_time.predict(eval_data_dm)
             y_pred = np.round(y_pred_prob[:,1])
             dm_acc, dm_prec, dm_rec, dm_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
+
+            mistakes_dm = np.where(y_pred!=eval_labels[:,1])[0]
+#            np.save('data_dm_mistakes', eval_data_dm[mistakes])
+            print("\nMistakes: %s" % mistakes_dm)
         except:
             pass        
         try:
@@ -501,7 +506,10 @@ if __name__=='__main__':
             y_pred_prob = model_1d_time.predict(eval_data_1d)
             y_pred = np.round(y_pred_prob[:,1])
             pp_acc, pp_prec, pp_rec, pp_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
+
+            mistakes_1d = np.where(y_pred!=eval_labels[:,1])[0]
+#            np.save('data_1d_mistakes', eval_1d_dm[mistakes])
+            print("\nMistakes: %s" % mistakes_1d)
         except:
             pass
         try:
@@ -512,6 +520,28 @@ if __name__=='__main__':
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
+
+h = h5py.File('mistakes.hdf5', 'w')
+h.create_dataset('data_freq',data=eval_data_freq)
+h.create_dataset('data_dm',data=eval_data_dm)
+h.create_dataset('data_1d',data=eval_data_1d)
+h.create_dataset('mistakes_freq',data=mistakes_freq)
+h.create_dataset('mistakes_dm',data=mistakes_dm)
+h.create_dataset('mistakes_1d',data=mistakes_1d)
+h.create_dataset('labels',data=eval_labels[:,1])
+
+h.close()
+
+exit()
+
+df = h['data_freq'][:]
+ddm = h['data_dm'][:]
+d1d = h['data_1d'][:]
+mf = h['mistakes_freq'][:]
+mdm = h['mistakes_dm'][:]
+m1d = h['mistakes_1d'][:]
+y = h['labels'][:]
+
 
 x_acc = np.arange(4)
 x_prec = x_acc + 0.25
