@@ -38,9 +38,9 @@ except:
     pass
 
 FREQTIME=True     # train 2D frequency-time CNN
-TIME1D=True       # train 1D pulse-profile CNN
-DMTIME=True      # train 2D DM-time CNN
-MULTIBEAM=True    # train feed-forward NN on simulated multibeam data
+TIME1D=False       # train 1D pulse-profile CNN
+DMTIME=False      # train 2D DM-time CNN
+MULTIBEAM=False    # train feed-forward NN on simulated multibeam data
 
 # If True, the different nets will be clipped after 
 # feature extraction layers and will not be compiled / fit
@@ -49,27 +49,15 @@ MERGE=False
 MK_PLOT=False
 CLASSIFY_ONLY=False
 save_classification=True
-model_nm = "./model/arts_67166_new"
-#model_nm = "./model/arts_21246_new"
+model_nm = "./model/model_name"
 prob_threshold = 0.0
 
 ## Input hdf5 file. 
-fn = './data/arts_b0329_only_labeled.hdf5'
-fn = './data/test_set_b0329.hdf5'
-fn = './data/july_injected_heimdall.hdf5'
-#fn = './data/arts_21246events.hdf5'
-#fn='/data/03/Triggers/triggers/data/data_nt250_nf32_dm0_snr6-250_apertif_250_2018_06_02_16:03:48.hdf5'
-#fn='./data/data_nt250_nf32_dm0_snr5-25_apertif_250.hdf5'
-#fn='./data/data_nt250_nf32_dm0_snr0-10_apertif_250_2018_06_07_11:29:52.hdf5'
-#fn = './data/data_nt250_nf32_dm0_snr0-10_apertif_250.hdf5'
-#fn = './data/data_nt250_nf32_dm0_snr0-100_apertif_250.hdf5'
-#fn = './data/data_nt250_nf32_dm0_snr6-100_apertif_250.hdf5'
+fn = './data/input_data.hdf5'
 
 # Save tf model as .hdf5
 save_model = True
-fnout = "./model/arts_21246_new"
-fnout = "./model/arts_67166_new"
-fnout = "./model/heimdall_"
+fnout = "./model/model_out_name"
 
 NDM=300          # number of DMs in input array
 WIDTH=64         # width to use of arrays along time axis 
@@ -88,8 +76,6 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
     data_freq, y, data_dm, data_mb = reader.read_hdf5(fn)
-#    data_freq += np.random.normal(0, 1.8, len(data_freq.flatten())).reshape(data_freq.shape) # hack
-#    data_dm += np.random.normal(0, 1., len(data_dm.flatten())).reshape(data_dm.shape) # hack
     NTRIGGER = len(y)
 
     print("Using %s" % fn)
@@ -128,7 +114,6 @@ if __name__=='__main__':
         data_1d = data_freq.mean(1)[..., None]
         from scipy.signal import detrend
         data_1d = detrend(data_1d, axis=1)
-#        data_1d += np.random.uniform(0, 1, len(data_1d.flatten())).reshape(data_1d.shape)
 
     if FREQTIME is True:
         # tf/keras expects 4D tensors
@@ -520,57 +505,6 @@ if __name__=='__main__':
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
-
-h = h5py.File('mistakes.hdf5', 'w')
-h.create_dataset('data_freq',data=eval_data_freq)
-h.create_dataset('data_dm',data=eval_data_dm)
-h.create_dataset('data_1d',data=eval_data_1d)
-h.create_dataset('mistakes_freq',data=mistakes_freq)
-h.create_dataset('mistakes_dm',data=mistakes_dm)
-h.create_dataset('mistakes_1d',data=mistakes_1d)
-h.create_dataset('labels',data=eval_labels[:,1])
-
-h.close()
-
-exit()
-
-df = h['data_freq'][:]
-ddm = h['data_dm'][:]
-d1d = h['data_1d'][:]
-mf = h['mistakes_freq'][:]
-mdm = h['mistakes_dm'][:]
-m1d = h['mistakes_1d'][:]
-y = h['labels'][:]
-
-
-x_acc = np.arange(4)
-x_prec = x_acc + 0.25
-x_rec = x_acc + 0.50
-x_rec = x_acc + 0.75
-
-vals_acc = np.array([tfreq_acc, dm_acc, pp_acc, mb_acc])
-vals_prec = np.array([tfreq_prec, dm_prec, pp_prec, mb_prec])
-vals_rec = np.array([tfreq_rec, dm_rec, pp_rec, mb_rec])
-vals_f1 = np.array([tfreq_f, dm_f, pp_f, mb_f])
-
-np.save('vals_acc', vals_acc)
-np.save('vals_prec', vals_prec)
-np.save('vals_rec', vals_rec)
-np.save('vals_f1', vals_f1)
-
-#import matplotlib.pyplot as plt 
-
-fig, ax = plt.subplots()
-
-w = 0.25
-
-r1 = ax.bar(x_acc, vals_acc, width=w, alpha=0.5)
-r2 = ax.bar(x_prec, vals_prec, width=w, alpha=0.5, color='red')
-r3 = ax.bar(x_rec, vals_rec, width=w, color='k', alpha=0.75)
-r4 = ax.bar(x_f, vals_f1, width=w, color='k', alpha=0.75)
-
-plt.show()
-
 
 
 
