@@ -479,8 +479,7 @@ if __name__=='__main__':
             frbkeras.print_metric(eval_labels[:, 1], predictions)
 
     if CLASSIFY_ONLY is False:
-        y_pred_prob = model_freq_time.predict(eval_data_freq)
-        frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
+
 
         y_pred_prob = model_dm_time.predict(eval_data_dm)
         frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
@@ -489,25 +488,25 @@ if __name__=='__main__':
         try:
             print("\nFreq-time accuracy: %f" % score_freq_time[1])
             y_pred_prob = model_freq_time.predict(eval_data_freq)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
         except:
             pass
         try:
             print("DM-time accuracy: %f" % score_dm_time[1])
             y_pred_prob = model_dm_time.predict(eval_data_dm)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
         except:
             pass        
         try:
             print("Pulse-profile accuracy: %f" % score_1d_time[1])
-            y_pred_prob = model.predict(eval_data_1d)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
+            y_pred_prob = model_1d_time.predict(eval_data_1d)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
         except:
             pass
         try:
             print("Multibeam accuracy: %f" % score_mb[1])
-            y_pred_prob = model.predict(data)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
+            y_pred_prob = model_mb.predict(data_mb)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
         except:
             pass
 
