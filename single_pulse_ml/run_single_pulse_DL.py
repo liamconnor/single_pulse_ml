@@ -196,14 +196,14 @@ if __name__=='__main__':
             train_data_freq, eval_data_freq = data_freq[ind_train], data_freq[ind_eval]
 
             # Build and train 2D CNN
-            model_2d_freq_time, score_freq_time = frbkeras.construct_conv2d(
+            model_freq_time, score_freq_time = frbkeras.construct_conv2d(
                             features_only=MERGE, fit=True,
                             train_data=train_data_freq, eval_data=eval_data_freq, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             epochs=5, nfilt1=32, nfilt2=64, 
                             nfreq=NFREQ, ntime=WIDTH)
 
-            model_list.append(model_2d_freq_time)
+            model_list.append(model_freq_time)
             train_data_list.append(train_data_freq)
             eval_data_list.append(eval_data_freq)
 
@@ -212,11 +212,11 @@ if __name__=='__main__':
                     fnout_freqtime = fnout+'freq_time_features.hdf5'
                 else:
                     fnout_freqtime = fnout + 'freq_time.hdf5'
-                model_2d_freq_time.save(fnout_freqtime)
+                model_freq_time.save(fnout_freqtime)
                 print("Saving freq-time model to: %s" % fnout_freqtime)
 
             fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
-            y_pred_prob = model_2d_freq_time.predict(eval_data_freq)
+            y_pred_prob = model_freq_time.predict(eval_data_freq)
             y_pred_prob = y_pred_prob[:,1]
             ind_frb = np.where(y_pred_prob>prob_threshold)[0]
 
@@ -258,14 +258,14 @@ if __name__=='__main__':
             train_data_dm, eval_data_dm = data_dm[ind_train], data_dm[ind_eval]
 
             # Build and train 2D CNN
-            model_2d_dm_time, score_dm_time = frbkeras.construct_conv2d(
+            model_dm_time, score_dm_time = frbkeras.construct_conv2d(
                             features_only=MERGE, fit=True,
                             train_data=train_data_dm, eval_data=eval_data_dm, 
                             train_labels=train_labels, eval_labels=eval_labels,
                             epochs=5, nfilt1=32, nfilt2=64, 
                             nfreq=NDM, ntime=WIDTH)
         
-            model_list.append(model_2d_dm_time)
+            model_list.append(model_dm_time)
             train_data_list.append(train_data_dm)
             eval_data_list.append(eval_data_dm)
 
@@ -274,7 +274,7 @@ if __name__=='__main__':
                     fnout_dmtime = fnout+'dm_time_features.hdf5'
                 else:
                     fnout_dmtime = fnout+'dm_time.hdf5'
-                model_2d_dm_time.save(fnout_dmtime)
+                model_dm_time.save(fnout_dmtime)
                 print("Saving dm-time model to: %s" % fnout_dmtime)
 
         if save_classification is True:
