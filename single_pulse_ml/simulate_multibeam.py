@@ -20,7 +20,7 @@ import frbkeras
 def gauss(x, xo, sig):
     return np.exp(-(x-xo)**2/sig**2)
 
-def generate_multibeam(nbeam=32, rows=8, cols=4, width=27, nside=1000):
+def generate_multibeam(nbeam=40, rows=8, cols=5, width=27, nside=1000):
     """ width in arcminutes
     """
     # convert arcminutes to degrees
@@ -87,8 +87,10 @@ def test_merge_model(n=32, m=64, ntrigger=10000):
 
     return data, labels, train_data_mb, train_labels, model
 
-def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
-    A = generate_multibeam()
+def make_multibeam_data(ntrigger=2304, tp_frac=0.5, 
+                        nbeam=40, rows=8, cols=5):
+
+    A = generate_multibeam(nbeam=nbeam, rows=rows, cols=cols)
     # Take a euclidean flux distribution
     sn = np.random.uniform(1, 1000, 100*ntrigger)**-(2/3.) 
     sn /= np.median(sn)
@@ -112,7 +114,6 @@ def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
                 multis += 1
 
     ntrigger = min(2*len(det_), ntrigger)
-    nbeam = 32 # number of beams
     data = np.zeros([nbeam*ntrigger]).reshape(-1, nbeam)
     N_FP = int((1-tp_frac)*ntrigger)
     N_TP = int(tp_frac*ntrigger)
@@ -123,7 +124,7 @@ def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
         # Generate number of beams RFI shows up in
         nbeam_ii = min(nbeam, int(np.random.lognormal(1.25, 0.8))) 
 
-        ind = set(np.random.uniform(1, 32, nbeam_ii).astype(int).astype(list))
+        ind = set(np.random.uniform(1, nbeam, nbeam_ii).astype(int).astype(list))
         data[ii][list(ind)] = np.random.normal(20, 5, len(ind))
 
     for ii in range(N_TP):
@@ -143,10 +144,10 @@ def make_multibeam_data(ntrigger=2304, tp_frac=0.5):
 
     return data, labels
 
-def run_model(n):
+def run_model(n, nbeam=40):
     import frbkeras
 
-    data_mb, labels = make_multibeam_data(ntrigger=n, tp_frac=0.5)
+    data_mb, labels = make_multibeam_data(nbeam=nbeam, ntrigger=n, tp_frac=0.5)
     train_data_mb = data_mb[::2]
     train_labels = labels[::2]
     eval_data_mb = data_mb[1::2]
@@ -158,7 +159,7 @@ def run_model(n):
                                 train_labels=train_labels,
                                 eval_data=eval_data_mb, 
                                 eval_labels=eval_labels,
-                                nbeam=32, epochs=5,
+                                nbeam=nbeam, epochs=5,
                                 nlayer1=32, nlayer2=32, 
                                 batch_size=32)
 

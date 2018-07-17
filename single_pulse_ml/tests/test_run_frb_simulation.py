@@ -1,5 +1,8 @@
 """ Test script generating 100 RFI events + 
 100 simulated FRBs. Gaussian noise is used. 
+Parameters of the CHIME Pathfinder are used. 
+Data are saved to hdf5 file and a plot is made 
+of FRBs. 
 """
 
 from single_pulse_ml import sim_parameters

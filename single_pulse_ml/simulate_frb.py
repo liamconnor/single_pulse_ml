@@ -55,18 +55,21 @@ class Event(object):
         return self._t_ref + t
 
     def calc_width(self, dm, freq_c, bw=400.0, NFREQ=1024,
-                   ti=1, tsamp=1, tau=0):
+                   ti=0.001, tsamp=0.001, tau=0):
         """ Calculated effective width of pulse 
         including DM smearing, sample time, etc.
+        Input/output times are in seconds.
         """
 
+        ti *= 1e3
+        tsamp *= 1e3
         delta_freq = bw/NFREQ
 
         # taudm in milliseconds
         tdm = 8.3e-3 * dm * delta_freq / freq_c**3
         tI = np.sqrt(ti**2 + tsamp**2 + tdm**2 + tau**2)
 
-        return tI
+        return 1e-3*tI
 
     def dm_smear(self, DM, freq_c, bw=400.0, NFREQ=1024,
                  ti=1, tsamp=0.0016, tau=0):  
@@ -94,11 +97,12 @@ class Event(object):
 
         # Make number of scintils between 0 and 10 (ish)
         nscint = np.exp(np.random.uniform(np.log(1e-3), np.log(7))) 
-        #nscint=5
-#        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
-        envelope = np.cos(2*np.pi*nscint*f + scint_phi)
-        envelope[envelope<0] = 0
 
+        if nscint<1:
+            nscint = 0
+#        envelope = np.cos(nscint*(freq - self._f_ref)/self._f_ref + scint_phi)
+        envelope = np.cos(2*np.pi*nscint*freq**-2/self._f_ref**-2 + scint_phi)
+        envelope[envelope<0] = 0
         return envelope
 
     def gaussian_profile(self, nt, width, t0=0.):
@@ -135,7 +139,7 @@ class Event(object):
     
         return pulse_prof
 
-    def add_to_data(self, delta_t, freq, data):
+    def add_to_data(self, delta_t, freq, data, scintillate=True):
         """ Method to add already-dedispersed pulse 
         to background noise data. Includes frequency-dependent 
         width (smearing, scattering, etc.) and amplitude 
@@ -147,16 +151,15 @@ class Event(object):
         tmid = NTIME//2
 
         scint_amp = self.scintillation(freq)
-        rollind = 0#*int(np.random.normal(0, 5)) #hack
-        
+        self._fluence /= np.sqrt(NFREQ)
+        stds = np.std(data)
+        roll_ind = int(np.random.normal(0, 2))
+
         for ii, f in enumerate(freq):
-            width_ = 1e-3 * self.calc_width(self._dm, self._f_ref*1e-3, 
+            width_ = self.calc_width(self._dm, self._f_ref*1e-3, 
                                             bw=400.0, NFREQ=NFREQ,
                                             ti=self._width, tsamp=delta_t, tau=0)
 
-#            width_ = self.dm_smear(self._dm, self._f_ref, 
-#                                   delta_freq=400.0/1024, 
-#                                   ti=self._width, tsamp=delta_t, tau=0)
             index_width = max(1, (np.round((width_/ delta_t))).astype(int))
             tpix = int(self.arrival_time(f) / delta_t)
 
@@ -166,13 +169,17 @@ class Event(object):
 
             pp = self.pulse_profile(NTIME, index_width, f, 
                                     tau=self._scat_factor, t0=tpix)
-            val = pp.copy()#[:len(pp)//NTIME * NTIME].reshape(NTIME, -1).mean(-1)
-            val /= val.max()
-            val *= self._fluence / self._width
+            val = pp.copy()
+            val /= (val.max()*stds)
+            val *= self._fluence
+            val /= (width_ / delta_t)
             val = val * (f / self._f_ref) ** self._spec_ind 
-            val = (0.1 + scint_amp[ii]) * val 
-            val = np.roll(val, rollind)
+
+            if scintillate is True:
+                val = (0.1 + scint_amp[ii]) * val 
+
             data[ii] += val
+            data[ii] = np.roll(data[ii], roll_ind)
 
     def dm_transform(self, delta_t, data, freq, maxdm=5.0, NDM=50):
         """ Transform freq/time data to dm/time data.
@@ -196,7 +203,6 @@ class Event(object):
                 data_full[ii] += data_rot
 
         return data_full
-
 
 class EventSimulator():
     """Generates simulated fast radio bursts.
@@ -269,7 +275,9 @@ class EventSimulator():
 
     def draw_event_parameters(self):
         dm = uniform_range(*self._dm)
-        fluence = uniform_range(*self._fluence)**(-2/3.)/0.5**(-2/3.)
+        fluence = uniform_range(*self._fluence)**(-2/3.)
+        # Convert to Jy ms from Jy s                                                                       
+        fluence *= 1e3*self._fluence[0]**(-2/3.)
         spec_ind = uniform_range(*self._spec_ind)
         disp_ind = uniform_range(*self._disp_ind)
         # turn this into a log uniform dist. Note not *that* many 
@@ -288,7 +296,7 @@ def uniform_range(min_, max_):
 def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
                 spec_ind=(-4, 4), width=(2*0.0016, 1), dm=(-0.01, 0.01),
                 scat_factor=(-3, -0.5), background_noise=None, delta_t=0.0016,
-                plot_burst=False, freq=(800, 400), FREQ_REF=600., 
+                plot_burst=False, freq=(800, 400), FREQ_REF=600., scintillate=True,
                 ):
     """ Simulate fast radio bursts using the EventSimulator class.
 
@@ -348,7 +356,10 @@ def gen_simulated_frb(NFREQ=16, NTIME=250, sim=True, fluence=(0.03,0.3),
     E = Event(t_ref, FREQ_REF, dm, 10e-4*fluence, 
               width, spec_ind, disp_ind, scat_factor)
     # Add FRB to data array 
-    E.add_to_data(delta_t, freq, data)
+    data -= np.median(data)
+    data /= np.std(data)
+
+    E.add_to_data(delta_t, freq, data, scintillate=scintillate)
 
     if plot_burst:
         subplot(211)
@@ -581,7 +592,6 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
             # Normalize data to have unit variance and zero median
             arr_sim = reader.rebin_arr(arr_sim, sim_obj._NFREQ, sim_obj._NTIME)
             arr_sim = dataproc.normalize_data(arr_sim)
-
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
             snr_ = tools.calc_snr(arr_sim.mean(0), fast=False)

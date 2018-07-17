@@ -4,7 +4,8 @@
 
 from single_pulse_ml import sim_parameters
 from single_pulse_ml import telescope
-from single_pulse_ml import simulate_frb
+#from single_pulse_ml import simulate_frb
+import simulate_frb
 
 # TELESCOPE PARAMETERS:
 freq = (800, 400)   # (FREQ_LOW, FREQ_UP) in MHz
@@ -16,23 +17,24 @@ NAME = "CHIMEPathfinder"
 NFREQ = 32  # Number of frequencies. Must agree with FP data
 NTIME = 250 # Number of time stamps per trigger
 dm = (-0.05, 0.05)
-fluence = (5, 100)
-width = (2*0.0016, 0.75) # width lognormal dist in seconds
+fluence = (1, 10)
+width = (0.0016, 0.75) # width lognormal dist in seconds
 spec_ind = (-4., 4.)
 disp_ind = 2.
 scat_factor = (-4., -1.5)
-NRFI = 4560
-SNR_MIN = 8.0
-SNR_MAX = 80.0
+NRFI = 5000
+SNR_MIN = 5.0
+SNR_MAX = 25.00
 out_file_name = None, 
-mk_plot = True
+mk_plot = False
 NSIDE = 8
 dm_time_array = False
 outname_tag = 'apertif_250'
 
-fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
-fn_rfi = None
-fn_noise = './data/apertif_training/apertif_background_250.npy'
+#fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
+fn_rfi = './data/arts_FPs_33583.hdf5'
+fn_noise = './data/apertif_background3669.npy'
+#fn_rfi = './data/arts_fps_5000.npy'
 
 sim_obj = sim_parameters.SimParams(dm=dm, fluence=fluence,
                                    width=width, spec_ind=spec_ind,
