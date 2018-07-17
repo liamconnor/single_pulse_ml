@@ -485,7 +485,7 @@ if __name__=='__main__':
             y_pred_prob = model_freq_time.predict(eval_data_freq)
             y_pred = np.round(y_pred_prob[:,1])
             frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
         try:
@@ -493,7 +493,7 @@ if __name__=='__main__':
             y_pred_prob = model_dm_time.predict(eval_data_dm)
             y_pred = np.round(y_pred_prob[:,1])
             frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass        
         try:
@@ -501,7 +501,7 @@ if __name__=='__main__':
             y_pred_prob = model_1d_time.predict(eval_data_1d)
             y_pred = np.round(y_pred_prob[:,1])
             frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
         try:
@@ -509,7 +509,7 @@ if __name__=='__main__':
             y_pred_prob = model_mb.predict(eval_data_mb)
             y_pred = np.round(y_pred_prob[:,1])
             frbkeras.print_metric(eval_labels[:,1], y_pred)
-            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
+            print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
 
