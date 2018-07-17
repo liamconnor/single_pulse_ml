@@ -37,39 +37,43 @@ except:
     "Didn't work"
     pass
 
-FREQTIME=False     # train 2D frequency-time CNN
-TIME1D=True      # train 1D pulse-profile CNN
-DMTIME=False      # train 2D DM-time CNN
-MULTIBEAM=False   # train feed-forward NN on simulated multibeam data
+FREQTIME=True     # train 2D frequency-time CNN
+TIME1D=True       # train 1D pulse-profile CNN
+DMTIME=True      # train 2D DM-time CNN
+MULTIBEAM=True    # train feed-forward NN on simulated multibeam data
 
 # If True, the different nets will be clipped after 
 # feature extraction layers and will not be compiled / fit
 MERGE=False
 
 MK_PLOT=False
-CLASSIFY_ONLY=True
+CLASSIFY_ONLY=False
 save_classification=True
-model_nm = "./model/arts_67166_test"
-#model_nm = "./model/arts_21246"
+model_nm = "./model/arts_67166_new"
+#model_nm = "./model/arts_21246_new"
 prob_threshold = 0.0
 
 ## Input hdf5 file. 
-#fn = './data/arts_b0329_only.hdf5'
-fn = './data/arts_21246events.hdf5'
-fn='/data/03/Triggers/triggers/data/data_nt250_nf32_dm0_snr6-250_apertif_250_2018_06_02_16:03:48.hdf5'
+fn = './data/arts_b0329_only_labeled.hdf5'
+fn = './data/test_set_b0329.hdf5'
+fn = './data/july_injected_heimdall.hdf5'
+#fn = './data/arts_21246events.hdf5'
+#fn='/data/03/Triggers/triggers/data/data_nt250_nf32_dm0_snr6-250_apertif_250_2018_06_02_16:03:48.hdf5'
+#fn='./data/data_nt250_nf32_dm0_snr5-25_apertif_250.hdf5'
 #fn='./data/data_nt250_nf32_dm0_snr0-10_apertif_250_2018_06_07_11:29:52.hdf5'
 #fn = './data/data_nt250_nf32_dm0_snr0-10_apertif_250.hdf5'
 #fn = './data/data_nt250_nf32_dm0_snr0-100_apertif_250.hdf5'
 #fn = './data/data_nt250_nf32_dm0_snr6-100_apertif_250.hdf5'
 
 # Save tf model as .hdf5
-save_model = False
-fnout = "./model/arts_21246"
-#fnout = "./model/arts_67166_test"
+save_model = True
+fnout = "./model/arts_21246_new"
+fnout = "./model/arts_67166_new"
+fnout = "./model/heimdall_"
 
 NDM=300          # number of DMs in input array
 WIDTH=64         # width to use of arrays along time axis 
-train_size=0.05   # fraction of dataset to train on
+train_size=0.5   # fraction of dataset to train on
 
 ftype = fn.split('.')[-1]
 
@@ -84,6 +88,8 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
     data_freq, y, data_dm, data_mb = reader.read_hdf5(fn)
+#    data_freq += np.random.normal(0, 2, len(data_freq.flatten())).reshape(data_freq.shape) # hack
+#    data_dm += np.random.normal(0, 2, len(data_dm.flatten())).reshape(data_dm.shape) # hack
     NTRIGGER = len(y)
 
     print("Using %s" % fn)
@@ -270,7 +276,7 @@ if __name__=='__main__':
                     fnout_dmtime = fnout+'dm_time.hdf5'
                 model_2d_dm_time.save(fnout_dmtime)
                 print("Saving dm-time model to: %s" % fnout_dmtime)
- 
+
         if save_classification is True:
             fnout_ranked = fn.rstrip('.hdf5') + 'dm_time_candidates.hdf5'
             g = h5py.File(fnout_ranked, 'w')
@@ -361,7 +367,7 @@ if __name__=='__main__':
             # Right now just simulate multibeam, simulate S/N per beam.
             import simulate_multibeam as sm 
 
-            nbeam = 32
+            nbeam = 40
             # Simulate a multibeam dataset
             data_mb, labels_mb = sm.make_multibeam_data(ntrigger=NTRIGGER)
 
@@ -477,18 +483,26 @@ if __name__=='__main__':
         print('\n==========Results==========')
         try:
             print("\nFreq-time accuracy: %f" % score_freq_time[1])
+            y_pred_prob = model_freq_time.predict(eval_data_freq)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
         except:
             pass
         try:
             print("DM-time accuracy: %f" % score_dm_time[1])
+            y_pred_prob = model_dm_time.predict(eval_data_dm)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
         except:
             pass        
         try:
             print("Pulse-profile accuracy: %f" % score_1d_time[1])
+            y_pred_prob = model.predict(eval_data_1d)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
         except:
             pass
         try:
             print("Multibeam accuracy: %f" % score_mb[1])
+            y_pred_prob = model.predict(data)
+            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
         except:
             pass
 
