@@ -484,7 +484,7 @@ if __name__=='__main__':
             print("\nFreq-time accuracy:\n--------------------")
             y_pred_prob = model_freq_time.predict(eval_data_freq)
             y_pred = np.round(y_pred_prob[:,1])
-            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            tfreq_acc, tfreq_prec, tfreq_rec, tfreq_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
@@ -492,7 +492,7 @@ if __name__=='__main__':
             print("\nDM-time accuracy:\n--------------------")
             y_pred_prob = model_dm_time.predict(eval_data_dm)
             y_pred = np.round(y_pred_prob[:,1])
-            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            dm_acc, dm_prec, dm_rec, dm_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass        
@@ -500,7 +500,7 @@ if __name__=='__main__':
             print("\nPulse-profile Results:\n--------------------")
             y_pred_prob = model_1d_time.predict(eval_data_1d)
             y_pred = np.round(y_pred_prob[:,1])
-            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            pp_acc, pp_prec, pp_rec, pp_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
@@ -508,9 +508,37 @@ if __name__=='__main__':
             print("\nMultibeam Results:\n--------------------")
             y_pred_prob = model_mb.predict(eval_data_mb)
             y_pred = np.round(y_pred_prob[:,1])
-            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            mb_acc, mb_prec, mb_rec, mb_f = frbkeras.print_metric(eval_labels[:,1], y_pred)
             print("\nMistakes: %s" % np.where(y_pred!=eval_labels[:,1])[0])
         except:
             pass
+
+import matplotlib.pyplot as plt 
+
+fig, ax = plt.subplots()
+
+w = 0.25
+
+x_acc = np.arange(4)
+x_prec = x_acc + 0.25
+x_rec = x_acc + 0.50
+x_rec = x_acc + 0.75
+
+vals_acc = np.array([tfreq_acc, dm_acc, pp_acc, mb_acc])
+vals_prec = np.array([tfreq_prec, dm_prec, pp_prec, mb_prec])
+vals_rec = np.array([tfreq_rec, dm_rec, pp_rec, mb_rec])
+vals_f1 = np.array([tfreq_f, dm_f, pp_f, mb_f])
+
+r1 = ax.bar(x_acc, vals_acc, width=w, alpha=0.5)
+r2 = ax.bar(x_prec, vals_prec, width=w, alpha=0.5, color='red')
+r3 = ax.bar(x_rec, vals_rec, width=w, color='k', alpha=0.75)
+r4 = ax.bar(x_f, vals_f1, width=w, color='k', alpha=0.75)
+
+plt.show()
+
+
+
+
+
 
 
