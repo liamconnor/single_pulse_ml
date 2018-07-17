@@ -34,7 +34,7 @@ if __name__=="__main__":
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model)
 
-    data_freq, y, data_dm = reader.read_hdf5(fn_data)
+    data_freq, y, data_dm, data_mb = reader.read_hdf5(fn_data)
 
     NFREQ = data_freq.shape[1]
     NTIME = data_freq.shape[2]
