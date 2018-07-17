@@ -481,27 +481,35 @@ if __name__=='__main__':
     if CLASSIFY_ONLY is False:
         print('\n==========Results==========')
         try:
-            print("\nFreq-time accuracy:\n-------------")
+            print("\nFreq-time accuracy:\n--------------------")
             y_pred_prob = model_freq_time.predict(eval_data_freq)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
+            y_pred = np.round(y_pred_prob[:,1])
+            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
         except:
             pass
         try:
-            print("\nDM-time accuracy:\n-------------")
+            print("\nDM-time accuracy:\n--------------------")
             y_pred_prob = model_dm_time.predict(eval_data_dm)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
+            y_pred = np.round(y_pred_prob[:,1])
+            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
         except:
             pass        
         try:
-            print("\nPulse-profile Results:\n-------------")
+            print("\nPulse-profile Results:\n--------------------")
             y_pred_prob = model_1d_time.predict(eval_data_1d)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
+            y_pred = np.round(y_pred_prob[:,1])
+            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
         except:
             pass
         try:
-            print("\nMultibeam Results:\n-------------")
+            print("\nMultibeam Results:\n--------------------")
             y_pred_prob = model_mb.predict(eval_data_mb)
-            frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob[:,1]))
+            y_pred = np.round(y_pred_prob[:,1])
+            frbkeras.print_metric(eval_labels[:,1], y_pred)
+            print("\nMistakes: %s" % np.where(y_pred!=y)[0])
         except:
             pass
 
