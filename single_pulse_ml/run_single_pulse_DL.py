@@ -523,10 +523,10 @@ vals_prec = np.array([tfreq_prec, dm_prec, pp_prec, mb_prec])
 vals_rec = np.array([tfreq_rec, dm_rec, pp_rec, mb_rec])
 vals_f1 = np.array([tfreq_f, dm_f, pp_f, mb_f])
 
-np.save('vals_acc', data=vals_acc)
-np.save('vals_prec', data=vals_prec)
-np.save('vals_rec', data=vals_rec)
-np.save('vals_f1', data=vals_f1)
+np.save('vals_acc', vals_acc)
+np.save('vals_prec', vals_prec)
+np.save('vals_rec', vals_rec)
+np.save('vals_f1', vals_f1)
 
 #import matplotlib.pyplot as plt 
 
