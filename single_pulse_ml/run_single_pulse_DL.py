@@ -513,12 +513,6 @@ if __name__=='__main__':
         except:
             pass
 
-import matplotlib.pyplot as plt 
-
-fig, ax = plt.subplots()
-
-w = 0.25
-
 x_acc = np.arange(4)
 x_prec = x_acc + 0.25
 x_rec = x_acc + 0.50
@@ -528,6 +522,17 @@ vals_acc = np.array([tfreq_acc, dm_acc, pp_acc, mb_acc])
 vals_prec = np.array([tfreq_prec, dm_prec, pp_prec, mb_prec])
 vals_rec = np.array([tfreq_rec, dm_rec, pp_rec, mb_rec])
 vals_f1 = np.array([tfreq_f, dm_f, pp_f, mb_f])
+
+np.save('vals_acc', data=vals_acc)
+np.save('vals_prec', data=vals_prec)
+np.save('vals_rec', data=vals_rec)
+np.save('vals_f1', data=vals_f1)
+
+import matplotlib.pyplot as plt 
+
+fig, ax = plt.subplots()
+
+w = 0.25
 
 r1 = ax.bar(x_acc, vals_acc, width=w, alpha=0.5)
 r2 = ax.bar(x_prec, vals_prec, width=w, alpha=0.5, color='red')
