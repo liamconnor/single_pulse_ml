@@ -479,6 +479,11 @@ if __name__=='__main__':
             frbkeras.print_metric(eval_labels[:, 1], predictions)
 
     if CLASSIFY_ONLY is False:
+        y_pred_prob = model_freq_time.predict(eval_data_freq)
+        frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
+
+        y_pred_prob = model_dm_time.predict(eval_data_dm)
+        frbkeras.print_metric(eval_labels[:,1], np.round(y_pred_prob))
 
         print('\n==========Results==========')
         try:
