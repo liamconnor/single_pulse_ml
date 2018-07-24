@@ -1,5 +1,7 @@
 import numpy as np
 
+#import matplotlib.pyplot as plt
+
 try:
     import matplotlib 
     matplotlib.use('Agg')
@@ -75,39 +77,41 @@ def get_title2(y_pred, y_test, target_names, i):
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
 
-def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'):
+def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out', cmap='RdBu'):
     assert len(data.shape) == 3, "data should be (batchsize, nside, nside)"
 
-    ranking = np.argsort(prob_arr[:, 0])
+    if len(prob_arr.shape)>1:
+        prob_arr = prob_arr[:,0]
+
+    ranking = np.argsort(prob_arr)
 
     if ascending == True:
         ranking = ranking[::-1]
         title_str = 'RFI most probable'
-        outname = outname + 'rfi.png'
+        outname = outname
     elif ascending == 'mid':
 #        cp = np.argsort(abs(prob_arr[:,0]-0.5))
 #        ranking = cp[:h*w]
-        inflection = np.argmax(abs(np.diff(prob_arr[:,0][ranking])))
+        inflection = np.argmax(abs(np.diff(prob_arr[ranking])))
         ranking = ranking[inflection-h*w/2:inflection+h*w/2]
         title_str = 'Marginal events'
-        outname = outname + 'marginal.png'
-        print(prob_arr[ranking,0])
+        outname = outname
     else:
         title_str = 'FRB most probable'
-        outname = outname + 'FRB.png'
+        outname = outname
 
     fig = plt.figure(figsize=(15,15))
 
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
         plt.imshow(data[ranking[ii]], 
-            cmap='Greys', interpolation='nearest', 
-            aspect='auto', vmin=-10, vmax=10, 
+            cmap=cmap, interpolation='nearest', 
+            aspect='auto', vmin=-3, vmax=3, 
             extent=[0, 1, 400, 800])
         #plt.axis('off')
         plt.xticks([])
         plt.yticks([])
-        plt.title('p='+str(np.round(prob_arr[ranking[ii], 1], 5)), fontsize=12)
+        plt.title('p='+str(np.round(prob_arr[ranking[ii]], 5)), fontsize=12)
 
         if ii % w == 0:
             plt.ylabel("Freq", fontsize=14)
@@ -448,3 +452,32 @@ class VisualizeLayers:
         self.remove_doubles(activations)
         self.im_all(self._activations_nonred, NSIDE=NSIDE, figname=figname)
 
+if __name__=='__main__':
+    import sys 
+
+    import h5py
+
+    fn = sys.argv[1]
+    
+    f = h5py.File(fn,'r')
+    data_frb_candidate = f['data_frb_candidate'][:]
+    frb_index = f['frb_index'][:]
+    probability = f['probability'][:]
+    
+    f.close()
+
+    ntrig = len(frb_index)
+    nside = 5
+    probability = probability[frb_index]
+    ind = np.argsort(probability)[::-1]
+    data = data_frb_candidate[ind]
+    probability_ = probability[ind]
+
+    for ii in range(ntrig//nside**2):
+        fnfigout = fn.strip('hdf5').split('/')[-1]+'%d.pdf' % ii
+        print("Saving to %s" % fnfigout)
+        data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
+        prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
+        plot_ranked_trigger(data_sub, prob_sub,
+                            h=nside, w=nside, ascending=True, 
+                            outname=fnfigout, cmap=None)
