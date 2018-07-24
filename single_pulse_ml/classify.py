@@ -4,7 +4,7 @@ import h5py
 
 import frbkeras
 import reader
-
+import plot_tools
 
 if __name__=="__main__":
     parser = optparse.OptionParser(prog="classify.py", \
@@ -15,10 +15,10 @@ if __name__=="__main__":
     parser.add_option('--pthresh', dest='prob_threshold', type='float', \
                         help="probability treshold", default=0.5)
 
-    parser.add_option('--save_ranked', dest='save_ranked', type='float', \
+    parser.add_option('--save_ranked', dest='save_ranked', action='store_true', \
                         help="save FRB events + probabilities", default=False)
 
-    parser.add_option('--plot_ranked', dest='plot_ranked', type='float', \
+    parser.add_option('--plot_ranked', dest='plot_ranked', action='store_true',\
                         help="plot triggers", default=False)
 
     parser.add_option('--twindow', dest='twindow', type='int', \
@@ -57,8 +57,8 @@ if __name__=="__main__":
     data_freq[data_freq!=data_freq] = 0.0
     data_freq = data_freq.reshape(dshape)
 
-    data_freq = data_freq[..., None]
-    data_dm = data_dm[..., None]
+    if len(data_freq)==3:
+        data_freq = data_freq[..., None]
 
     model = frbkeras.load_model(fn_model)
     y_pred_prob = model.predict(data_freq)
@@ -83,6 +83,7 @@ if __name__=="__main__":
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if options.plot_ranked is True:
+        print(data_freq.shape)
         plot_tools.plot_ranked_trigger(data_freq[..., 0], 
-                y_pred_prob[:, None], h=5, w=5, ascending=False, 
+                y_pred_prob, h=5, w=5, ascending=False, 
                 outname='out')
