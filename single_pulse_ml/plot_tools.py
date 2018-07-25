@@ -125,6 +125,32 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     plt.show()
 
+def plot_multiple_ranked(fn, nside=5):
+    import sys 
+    import h5py
+    
+    f = h5py.File(fn,'r')
+    data_frb_candidate = f['data_frb_candidate'][:]
+    frb_index = f['frb_index'][:]
+    probability = f['probability'][:]
+    f.close()
+
+    ntrig = len(frb_index)
+    probability = probability[frb_index]
+    ind = np.argsort(probability)[::-1]
+    data = data_frb_candidate[ind]
+    probability_ = probability[ind]
+
+    for ii in range(ntrig//nside**2+1):
+        fnfigout = fn.strip('hdf5').split('/')[-1]+'%d.pdf' % ii
+        print("Saving to %s" % fnfigout)
+        data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
+        prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
+
+        plot_ranked_trigger(data_sub, prob_sub,
+                            h=nside, w=nside, ascending=True, 
+                            outname=fnfigout, cmap=None)
+
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
     assert (len(FT_arr.shape)==2) and (len(DT_arr.shape)==2), "Input data should be (nfreq, ntimes)"
@@ -293,24 +319,6 @@ class VisualizeLayers:
 
             return
 
-#         for ii in range(N_SUBFIG):
-#             size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
-#             size=min(size, NSIDE//8)
-
-#             print(size, skip, ii*size*skip)
-#             ax = plt.subplot2grid((NSIDE,NSIDE), 
-#                         (self.grid_counter, start_grid + ii*size*skip), 
-#                         colspan=size, rowspan=size)
-#             data = activation[0, :, :, ii]
-# #            data -= np.median(data)
-#             vmax = 4*np.std(data)
-#             vmin = -4*np.std(data)
-#             self.imshow_custom(data, cmap=cmap)#, vmax=vmax, vmin=vmin)
-#             plt.axis('off')
-
-#        self.grid_counter += (NSIDE//32+int(size))
-
-        #plt.show()
 
     def im_layers(self, activations, loc_obj, cmap='Greys'):
         
@@ -459,25 +467,4 @@ if __name__=='__main__':
 
     fn = sys.argv[1]
     
-    f = h5py.File(fn,'r')
-    data_frb_candidate = f['data_frb_candidate'][:]
-    frb_index = f['frb_index'][:]
-    probability = f['probability'][:]
-    
-    f.close()
-
-    ntrig = len(frb_index)
-    nside = 5
-    probability = probability[frb_index]
-    ind = np.argsort(probability)[::-1]
-    data = data_frb_candidate[ind]
-    probability_ = probability[ind]
-
-    for ii in range(ntrig//nside**2+1):
-        fnfigout = fn.strip('hdf5').split('/')[-1]+'%d.pdf' % ii
-        print("Saving to %s" % fnfigout)
-        data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
-        prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
-        plot_ranked_trigger(data_sub, prob_sub,
-                            h=nside, w=nside, ascending=True, 
-                            outname=fnfigout, cmap=None)
+    plot_multiple_ranked(fn, nside=5)
