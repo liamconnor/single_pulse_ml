@@ -1,7 +1,5 @@
 import numpy as np
 
-#import matplotlib.pyplot as plt
-
 try:
     import matplotlib 
     matplotlib.use('Agg')
@@ -122,8 +120,8 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     if outname is not None:
         fig.savefig(outname)
-
-    plt.show()
+    else:
+        plt.show()
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='fig_rankedtriggers'):
     import sys 
