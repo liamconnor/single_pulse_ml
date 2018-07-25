@@ -125,14 +125,16 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     plt.show()
 
-def plot_multiple_ranked(argin, nside=5):
+def plot_multiple_ranked(argin, nside=5, fnfigout='fig_rankedtriggers'):
     import sys 
     import h5py
     
     if type(argin)==tuple:
         data_frb_candidate, frb_index, probability = argin
+        fn = './'
     elif type(argin)==str:
-        f = h5py.File(argin,'r')
+        fn = argin
+        f = h5py.File(fn,'r')
         data_frb_candidate = f['data_frb_candidate'][:]
         frb_index = f['frb_index'][:]
         probability = f['probability'][:]
@@ -148,7 +150,7 @@ def plot_multiple_ranked(argin, nside=5):
     probability_ = probability[ind]
 
     for ii in range(ntrig//nside**2+1):
-        fnfigout = fn.strip('hdf5').split('/')[-1]+'%d.pdf' % ii
+        fnfigout = fnfigout+'%d.pdf' % ii
         print("Saving to %s" % fnfigout)
         data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
