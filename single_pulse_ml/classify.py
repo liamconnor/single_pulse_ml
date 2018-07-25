@@ -84,7 +84,7 @@ if __name__=="__main__":
 
     if options.plot_ranked is True:
         if options.save_ranked is False:
-            argtup = (data_frb_candidate, frb_index, probability)
+            argtup = (data_freq[ind_frb], ind_frb, y_pred_prob)
             plot_tools.plot_multiple_ranked(argtup, nside=5)
         else:
             plot_tools.plot_multiple_ranked(fnout_ranked, nside=5)
