@@ -125,15 +125,21 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     plt.show()
 
-def plot_multiple_ranked(fn, nside=5):
+def plot_multiple_ranked(argin, nside=5):
     import sys 
     import h5py
     
-    f = h5py.File(fn,'r')
-    data_frb_candidate = f['data_frb_candidate'][:]
-    frb_index = f['frb_index'][:]
-    probability = f['probability'][:]
-    f.close()
+    if type(argin)==tuple:
+        data_frb_candidate, frb_index, probability = argin
+    elif type(argin)==str:
+        f = h5py.File(fn,'r')
+        data_frb_candidate = f['data_frb_candidate'][:]
+        frb_index = f['frb_index'][:]
+        probability = f['probability'][:]
+        f.close()
+    else:
+        print("Wrong input argument")
+        return
 
     ntrig = len(frb_index)
     probability = probability[frb_index]
@@ -468,3 +474,6 @@ if __name__=='__main__':
     fn = sys.argv[1]
     
     plot_multiple_ranked(fn, nside=5)
+
+
+

@@ -83,7 +83,13 @@ if __name__=="__main__":
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if options.plot_ranked is True:
-        print(data_freq.shape)
-        plot_tools.plot_ranked_trigger(data_freq[..., 0], 
-                y_pred_prob, h=5, w=5, ascending=False, 
-                outname='out')
+        if options.save_ranked is False:
+            argtup = (data_frb_candidate, frb_index, probability)
+            plot_tools.plot_multiple_ranked(argtup, nside=5)
+        else:
+            plot_tools.plot_multiple_ranked(fnout_ranked, nside=5)
+
+        # print(data_freq.shape)
+        # plot_tools.plot_ranked_trigger(data_freq[..., 0], 
+        #         y_pred_prob, h=5, w=5, ascending=False, 
+        #         outname='out')
