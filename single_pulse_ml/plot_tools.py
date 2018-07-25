@@ -132,7 +132,7 @@ def plot_multiple_ranked(argin, nside=5):
     if type(argin)==tuple:
         data_frb_candidate, frb_index, probability = argin
     elif type(argin)==str:
-        f = h5py.File(fn,'r')
+        f = h5py.File(argin,'r')
         data_frb_candidate = f['data_frb_candidate'][:]
         frb_index = f['frb_index'][:]
         probability = f['probability'][:]
