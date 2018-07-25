@@ -473,7 +473,7 @@ if __name__=='__main__':
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
 
-    for ii in range(ntrig//nside**2):
+    for ii in range(ntrig//nside**2+1):
         fnfigout = fn.strip('hdf5').split('/')[-1]+'%d.pdf' % ii
         print("Saving to %s" % fnfigout)
         data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]

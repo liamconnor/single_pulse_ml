@@ -57,7 +57,7 @@ if __name__=="__main__":
     data_freq[data_freq!=data_freq] = 0.0
     data_freq = data_freq.reshape(dshape)
 
-    if len(data_freq)==3:
+    if len(data_freq.shape)==3:
         data_freq = data_freq[..., None]
 
     model = frbkeras.load_model(fn_model)
