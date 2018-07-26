@@ -24,6 +24,9 @@ if __name__=="__main__":
     parser.add_option('--twindow', dest='twindow', type='int', \
                         help="time width, default 64", default=64)
 
+    parser.add_option('--fnout', dest='fnout', type='str', \
+                        help="beginning of figure names", default='ranked_trig')
+
     options, args = parser.parse_args()
 
     assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
@@ -57,10 +60,14 @@ if __name__=="__main__":
     data_freq[data_freq!=data_freq] = 0.0
     data_freq = data_freq.reshape(dshape)
 
-    if len(data_freq.shape)==3:
+    if data_freq.shape[-1]!=1:
         data_freq = data_freq[..., None]
 
     model = frbkeras.load_model(fn_model)
+
+    if len(model.input.shape)==3:
+        data_freq = data_freq.mean(1)
+        
     y_pred_prob = model.predict(data_freq)
     y_pred_prob = y_pred_prob[:,1]
 
@@ -85,10 +92,10 @@ if __name__=="__main__":
     if options.plot_ranked is True:
         if options.save_ranked is False:
             argtup = (data_freq[ind_frb], ind_frb, y_pred_prob)
-            plot_tools.plot_multiple_ranked(argtup, nside=5)
+            plot_tools.plot_multiple_ranked(argtup, nside=5, fnfigout=options.fnout)
         else:
-            plot_tools.plot_multiple_ranked(fnout_ranked, nside=5)
-
+            plot_tools.plot_multiple_ranked(fnout_ranked, nside=5, fnfigout=options.fnout)
+            
         # print(data_freq.shape)
         # plot_tools.plot_ranked_trigger(data_freq[..., 0], 
         #         y_pred_prob, h=5, w=5, ascending=False, 

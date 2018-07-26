@@ -123,7 +123,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
     else:
         plt.show()
 
-def plot_multiple_ranked(argin, nside=5, fnfigout='fig_rankedtriggers'):
+def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig'):
     import sys 
     import h5py
     
@@ -148,14 +148,14 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='fig_rankedtriggers'):
     probability_ = probability[ind]
 
     for ii in range(ntrig//nside**2+1):
-        fnfigout = fnfigout+'%d.pdf' % ii
+        fnfigout_ = fnfigout+'%d.pdf' % ii
         print("Saving to %s" % fnfigout)
         data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
 
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=True, 
-                            outname=fnfigout, cmap=None)
+                            outname=fnfigout_, cmap=None)
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
