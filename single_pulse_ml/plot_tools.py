@@ -75,11 +75,37 @@ def get_title2(y_pred, y_test, target_names, i):
     true_name = target_names[y_test[i]]
     return 'predicted: %s\ntrue:      %s' % (pred_name, true_name)
 
-def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out', cmap='RdBu'):
-    assert len(data.shape) == 3, "data should be (batchsize, nside, nside)"
+def plot_ranked_trigger(data, prob_arr, h=6, w=6, 
+                        ascending=False, outname='out', 
+                        cmap='RdBu', vmax=3, vmin=-3,
+                        yaxlabel='Freq'):
+    """ Plot single-pulse triggers ranked by the
+    classifier's assigned probability.
+
+    Parameters
+    ----------
+    data : np.array
+        data array with triggers 
+    prob_arr : np.array
+        probability of event being a true FRB
+    h : np.int 
+        number of rows of triggers 
+    w : np.int 
+        number of columns of triggers 
+    ascending : bool / str
+        plot in ascending order (True, False, 'mid')
+    outname : str 
+        figure name 
+    cmap : str 
+        colormap to use in imshow 
+
+    Returns 
+    -------
+    None 
+    """ 
 
     if len(prob_arr.shape)>1:
-        prob_arr = prob_arr[:,0]
+        prob_arr = prob_arr[:,1]
 
     ranking = np.argsort(prob_arr)
 
@@ -102,28 +128,49 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6, ascending=False, outname='out'
 
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
-        plt.imshow(data[ranking[ii]], 
-            cmap=cmap, interpolation='nearest', 
-            aspect='auto', vmin=-3, vmax=3, 
-            extent=[0, 1, 400, 800])
+        if len(data.shape)==3:
+            plt.imshow(data[ranking[ii]], 
+                cmap=cmap, interpolation='nearest', 
+                aspect='auto', vmin=vmin, vmax=vmax, 
+                extent=[0, 1, 400, 800])
+        elif len(data.shape)==2:
+            plt.plot(data[ranking[ii]])
+        else:
+            print("Wrong data input shape")
+            return 
+
         #plt.axis('off')
         plt.xticks([])
         plt.yticks([])
         plt.title('p='+str(np.round(prob_arr[ranking[ii]], 5)), fontsize=12)
 
         if ii % w == 0:
-            plt.ylabel("Freq", fontsize=14)
+            plt.ylabel(yaxlabel, fontsize=14)
         if ii >= (h*w-w):
             plt.xlabel("Time", fontsize=14)
-
-    plt.suptitle(title_str, fontsize=40)
 
     if outname is not None:
         fig.savefig(outname)
     else:
         plt.show()
 
-def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig'):
+def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
+                         ascending=True):
+    """ Generate multiple multi-panel figures 
+    using plot_ranked_trigger
+
+    Parameters
+    ----------
+
+    argin : str/tuple 
+        input arguments, either 
+        (data_frb_candidate, frb_index, probability)
+        or a filename 
+    nside : np.int 
+        number of figures per row/col 
+    fnfigout : str 
+        fig name 
+    """
     import sys 
     import h5py
     
@@ -150,16 +197,17 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig'):
     for ii in range(ntrig//nside**2+1):
         fnfigout_ = fnfigout+'%d.pdf' % ii
         print("Saving to %s" % fnfigout)
-        data_sub = data[nside**2*ii:nside**2*(ii+1),:,:,0]
+        data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
 
         plot_ranked_trigger(data_sub, prob_sub,
-                            h=nside, w=nside, ascending=True, 
+                            h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None)
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
-    assert (len(FT_arr.shape)==2) and (len(DT_arr.shape)==2), "Input data should be (nfreq, ntimes)"
+    assert (len(FT_arr.shape)==2) and (len(DT_arr.shape)==2), \
+                "Input data should be (nfreq, ntimes)"
 
     gs2 = gridspec.GridSpec(4, 3)
     ax1 = plt.subplot(gs2[:2, :2])
@@ -183,7 +231,8 @@ def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
     ax3.yaxis.set_ticklabels('')
     plt.ylabel('Freq', fontsize=18)
     plt.xlabel('Time', fontsize=18)
-    ax3.imshow(DT_arr, cmap='RdBu', interpolation='nearest', aspect='auto')
+    ax3.imshow(DT_arr, cmap='RdBu', interpolation='nearest', \
+                aspect='auto')
 
     ax4 = plt.subplot(gs2[2:, 2:])
     ax4.yaxis.set_label_position('right')
@@ -254,7 +303,9 @@ class VisualizeLayers:
         outputs = [layer.output for layer in self._model.layers if
                    layer.name == layer_name or layer_name is None]  # all layer outputs
 
-        funcs = [backend.function(inp + [backend.learning_phase()], [out]) for out in outputs]  # evaluation functions
+        funcs = [backend.function(inp + \
+                    [backend.learning_phase()], [out]) \
+                    for out in outputs]  # evaluation functions
 
         if model_multi_inputs_cond:
             list_inputs = []
@@ -316,8 +367,8 @@ class VisualizeLayers:
             data -= np.median(data)
             vmax = 6*np.std(data)
             vmin = -1*np.std(data)
-            self.imshow_custom(data,
-                                cmap=cmap, extent=[0, 1, 400, 800], vmax=vmax, vmin=vmin)
+            self.imshow_custom(data, cmap=cmap, extent=[0, 1, 400, 800], \
+                               vmax=vmax, vmin=vmin)
             print(self.grid_counter,'1')
 
             plt.xlabel('Time')
@@ -391,56 +442,6 @@ class VisualizeLayers:
             elif kk==1:
                 self.im_layers(activations[1:5], loc_obj, cmap='Greys')
 
-        # for kk, activation in enumerate(activations[:]): #hack
-        #     print(activation.shape)
-        #     if activation.shape[-1]==2: # For binary classification
-        #         activation = activation[0]
-        #         activation[0] = 0.025 # Hack for now, visualizing.
-        #         ind = np.array([0, 1])
-        #         width = 0.75
-        #         ax = plt.subplot2grid((NSIDE,NSIDE), 
-        #                               (self.grid_counter, 3*NSIDE//8), 
-        #                                colspan=NSIDE//4, rowspan=NSIDE//4)
-
-        #         rects1 = ax.bar(ind[1], activation[1], width, color='r', alpha=0.5)
-        #         rects2 = ax.bar(ind[0], activation[0], width, color='green', alpha=0.5)
-
-        #         ax.set_xticks(ind + width / 2)
-        #         ax.set_xticklabels(('Noise', 'FRB'))
-        #         ax.set_ylim(0, 1.25)
-        #         ax.set_xlim(-0.25, 2.0)
-        #     elif activation.shape[-1]==1:
-        #         self.im_feature_layer(activation, NSIDE=NSIDE, 
-        #                                 N_SUBFIG=1, skip=1)
-        #     elif (activation.shape[-1]>64) and (activation.shape[-1]<1024):
-        #         ax = plt.subplot2grid((NSIDE,NSIDE), (self.grid_counter, 0), 
-        #                               colspan=NSIDE, rowspan=NSIDE//32)
-        #         activation = activation*np.ones([2, 1])
-        #         plt.imshow((activation[:, :]), interpolation='nearest', 
-        #                    cmap='RdBu')
-        #         plt.axis('off')
-        #         self.grid_counter += NSIDE//8
-        #         ax.get_yaxis().set_visible(False)
-
-            # elif activation.shape[-1]<64:
-            #     N_SUBFIG = n_neuron_map[kk]
-            #     if kk==1:
-            #         skip = 1
-            #         size = int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
-            #         size = min(size, NSIDE//8)       
-            #         start_grid = NSIDE//2 - N_SUBFIG*size//2
-            #     elif N_SUBFIG==n_neuron_map[kk-1]:
-            #         start_grid = start_grid + size//3
-            #         skip = size//2                    
-            #         size = int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
-            #         size = min(size, NSIDE//8)
-            #     else:
-            #         start_grid=0
-            #         skip = 1
-
-            #     self.im_feature_layer(activation, NSIDE=NSIDE, 
-            #                             start_grid=start_grid, N_SUBFIG=N_SUBFIG, skip=skip)
-
             if figname is not None:
                 plt.savefig(figname)#, facecolor=color)
 
@@ -471,7 +472,11 @@ if __name__=='__main__':
 
     import h5py
 
-    fn = sys.argv[1]
+    try:
+        fn = sys.argv[1]
+    except:
+        print("\nExpected input datafile as argument\n")
+        exit()
     
     plot_multiple_ranked(fn, nside=5)
 
