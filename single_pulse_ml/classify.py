@@ -17,6 +17,7 @@ def classify(data, model, save_ranked=False,
 
     model = frbkeras.load_model(fn_model_freq)
 
+    mshape = model.input.shape
     dshape = data.shape
 
     # normalize data
@@ -28,12 +29,27 @@ def classify(data, model, save_ranked=False,
     data[data!=data] = 0.0
     data = data.reshape(dshape)
 
-    if data_freq.shape[-1]!=1:
+    if data.shape[-1]!=1:
         data = data[..., None]
 
-    if len(model.input.shape)==3:
+    if len(mshape)==3:
         data = data.mean(1)
         
+    print(data.shape)
+    if mshape[1]!=dshape[1]:
+        print('Mismatch axis 1')
+        nm = int(mshape[1])
+        nd = dshape[1]
+        data = data[:, nd//2-nm//2:nd//2+nm//2]
+
+    if mshape[2]!=dshape[2]:
+        print('Mismatch axis 2')
+        nm = int(mshape[2])
+        nd = dshape[2]
+        data = data[:, :, nd//2-nm//2:nd//2+nm//2]
+
+    print(data.shape)
+
     y_pred_prob = model.predict(data)
     y_pred_prob = y_pred_prob[:,1]
 
@@ -140,6 +156,8 @@ if __name__=="__main__":
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=options.fnout)
+        else:
+            print("No DM/time data to classify")
 
     if options.fn_model_time is not None:
         classify(data_freq, options.fn_model_time, 
