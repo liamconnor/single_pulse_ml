@@ -15,7 +15,7 @@ def classify(data, model, save_ranked=False,
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked'):
 
-    model = frbkeras.load_model(fn_model_freq)
+    model = frbkeras.load_model(model)
 
     mshape = model.input.shape
     dshape = data.shape
@@ -29,26 +29,34 @@ def classify(data, model, save_ranked=False,
     data[data!=data] = 0.0
     data = data.reshape(dshape)
 
-    if data.shape[-1]!=1:
+    if dshape[-1]!=1:
         data = data[..., None]
 
     if len(mshape)==3:
         data = data.mean(1)
-        
-    print(data.shape)
-    if mshape[1]!=dshape[1]:
+        dshape = data.shape
+
+    if mshape[1]<dshape[1]:
         print('Mismatch axis 1')
         nm = int(mshape[1])
         nd = dshape[1]
         data = data[:, nd//2-nm//2:nd//2+nm//2]
+    elif mshape[1]>dshape[1]:
+        print("Model expects:", mshape)
+        print("Data has:", dshape) 
 
-    if mshape[2]!=dshape[2]:
+        return 
+
+    if mshape[2]<dshape[2]:
         print('Mismatch axis 2')
         nm = int(mshape[2])
         nd = dshape[2]
         data = data[:, :, nd//2-nm//2:nd//2+nm//2]
+    elif mshape[2]>dshape[2]:
+        print("Model expects:", mshape)
+        print("Data has:", dshape) 
 
-    print(data.shape)
+        return 
 
     y_pred_prob = model.predict(data)
     y_pred_prob = y_pred_prob[:,1]
@@ -143,28 +151,35 @@ if __name__=="__main__":
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
 
+    fn_fig_out = options.fnout + '_freq_time'
+    print("\nCLASSIFYING FREQ/TIME DATA\n")
     classify(data_freq, fn_model_freq, 
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=options.fnout)
+             fnout=fn_fig_out)
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
+            print("\nCLASSIFYING DM/TIME DATA\n)")
+            print(data_dm.shape)
+            fn_fig_out = options.fnout + '_dm_time'
             classify(data_dm, options.fn_model_dm, 
-             save_ranked=options.save_ranked, 
-             plot_ranked=options.plot_ranked, 
-             prob_threshold=options.prob_threshold,
-             fnout=options.fnout)
+                     save_ranked=options.save_ranked, 
+                     plot_ranked=options.plot_ranked, 
+                     prob_threshold=options.prob_threshold,
+                     fnout=fn_fig_out)
         else:
             print("No DM/time data to classify")
 
     if options.fn_model_time is not None:
+        print("\nCLASSIFYING 1D TIME DATA\n)")
+        fn_fig_out = options.fnout + '_1d_time'
         classify(data_freq, options.fn_model_time, 
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=options.fnout)
+                 fnout=fn_fig_out)
 
     if options.fn_model_mb is not None:
         classify(data_mb, options.fn_model_mb, 
