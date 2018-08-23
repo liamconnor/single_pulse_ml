@@ -7,6 +7,12 @@ import optparse
 import numpy as np
 import h5py
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import matplotlib as mpl
+mpl.use('pdf')
+
 import frbkeras
 import reader
 import plot_tools
