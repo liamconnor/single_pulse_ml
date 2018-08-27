@@ -199,11 +199,13 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         pmin, pmax = prob_sub.min(), prob_sub.max()
 
+        fnfigout_ = fnfigout+'prob:%.2f-%.2f.pdf' % (pmin, pmax)
+        print("Saving to %s" % fnfigout)
+
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None)
-        fnfigout_ = fnfigout+'prob:%.2f-%.2f.pdf' % (pmin, pmax)
-        print("Saving to %s" % fnfigout)
+
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
 
