@@ -19,7 +19,8 @@ import plot_tools
 
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
-             fnout='ranked', nside=8, params=None):
+             fnout='ranked', nside=8, params=None,
+             ranked_ind=None):
 
     model = frbkeras.load_model(model)
 
@@ -87,17 +88,20 @@ def classify(data, model, save_ranked=False,
         g.close()
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
+
     if plot_ranked is True:
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
 
-            plot_tools.plot_multiple_ranked(argtup, nside=nside, \
+            ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
-                                            params=params)
+                                            params=params, ranked_ind=ranked_ind)
         else:
-            plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
+            ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
                                             params=params)
+
+    return ranked_ind_
 
 
 if __name__=="__main__":
@@ -165,12 +169,12 @@ if __name__=="__main__":
 
     fn_fig_out = options.fnout + '_freq_time'
     print("\nCLASSIFYING FREQ/TIME DATA\n")
-    classify(data_freq, fn_model_freq, 
-             save_ranked=options.save_ranked, 
-             plot_ranked=options.plot_ranked, 
-             prob_threshold=options.prob_threshold,
-             fnout=fn_fig_out, params=params, 
-             nside=options.nside)
+    ranked_ind_freq = classify(data_freq, fn_model_freq, 
+                             save_ranked=options.save_ranked, 
+                             plot_ranked=options.plot_ranked, 
+                             prob_threshold=options.prob_threshold,
+                             fnout=fn_fig_out, params=params, 
+                             nside=options.nside)
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
@@ -181,7 +185,8 @@ if __name__=="__main__":
                      save_ranked=options.save_ranked, 
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
-                     fnout=fn_fig_out)
+                     fnout=fn_fig_out, params=params, 
+                     nside=options.nside, ranked_ind=ranked_ind_freq)
         else:
             print("No DM/time data to classify")
 
@@ -192,65 +197,16 @@ if __name__=="__main__":
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-                 fnout=fn_fig_out)
+             fnout=fn_fig_out, params=params, 
+             nside=options.nside)
 
     if options.fn_model_mb is not None:
         classify(data_mb, options.fn_model_mb, 
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=options.fnout)
-
-    exit()
-
-    dshape = data_freq.shape
-
-    # normalize data
-    data_freq = data_freq.reshape(len(data_freq), -1)
-    data_freq -= np.median(data_freq, axis=-1)[:, None]
-    data_freq /= np.std(data_freq, axis=-1)[:, None]
-
-    # zero out nans
-    data_freq[data_freq!=data_freq] = 0.0
-    data_freq = data_freq.reshape(dshape)
-
-    if data_freq.shape[-1]!=1:
-        data_freq = data_freq[..., None]
-
-    model = frbkeras.load_model(fn_model_freq)
-
-    if len(model.input.shape)==3:
-        data_freq = data_freq.mean(1)
-        
-    y_pred_prob = model.predict(data_freq)
-    y_pred_prob = y_pred_prob[:,1]
-
-    ind_frb = np.where(y_pred_prob>options.prob_threshold)[0]
-
-    print("\n%d out of %d events with probability > %.2f:\n %s" % 
-            (len(ind_frb), len(y_pred_prob), 
-                options.prob_threshold, ind_frb))
-
-    low_to_high_ind = np.argsort(y_pred_prob)
-
-    if options.save_ranked is True:
-        fnout_ranked = fn_data.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
-
-        g = h5py.File(fnout_ranked, 'w')
-        g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
-        g.create_dataset('frb_index', data=ind_frb)
-        g.create_dataset('probability', data=y_pred_prob)
-        g.close()
-        print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
-
-    if options.plot_ranked is True:
-        if options.save_ranked is False:
-            argtup = (data_freq[ind_frb], ind_frb, y_pred_prob)
-            plot_tools.plot_multiple_ranked(argtup, nside=5, \
-                fnfigout=options.fnout)
-        else:
-            plot_tools.plot_multiple_ranked(fnout_ranked, nside=5, \
-                                            fnfigout=options.fnout)
+             fnout=options.fnout, params=params, 
+             nside=options.nside)
 
 
 

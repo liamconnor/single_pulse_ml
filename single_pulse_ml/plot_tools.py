@@ -78,7 +78,8 @@ def get_title2(y_pred, y_test, target_names, i):
 def plot_ranked_trigger(data, prob_arr, h=6, w=6, 
                         ascending=False, outname='out', 
                         cmap='RdBu', vmax=3, vmin=-3,
-                        yaxlabel='Freq', params=None):
+                        yaxlabel='Freq', params=None,
+                        ranking=None):
     """ Plot single-pulse triggers ranked by the
     classifier's assigned probability.
 
@@ -104,6 +105,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     None 
     """ 
 
+    # Label each subplot with dm/time
     if params is not None:
         dms = params[:, 1]
         tt = params[:, -2]
@@ -114,15 +116,15 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
 
-    ranking = np.argsort(prob_arr)
+    # If order wasn't provided, rank by probabilities
+    if ranking is None:
+        ranking = np.argsort(prob_arr)
 
     if ascending == True:
         ranking = ranking[::-1]
         title_str = 'RFI most probable'
         outname = outname
     elif ascending == 'mid':
-#        cp = np.argsort(abs(prob_arr[:,0]-0.5))
-#        ranking = cp[:h*w]
         inflection = np.argmax(abs(np.diff(prob_arr[ranking])))
         ranking = ranking[inflection-h*w/2:inflection+h*w/2]
         title_str = 'Marginal events'
@@ -146,7 +148,6 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
             print("Wrong data input shape")
             return 
 
-        #plt.axis('off')
         plt.xticks([])
         plt.yticks([])
         plt.title('p:%0.2f dm:%d \n   t:%0.1fs' % \
@@ -163,7 +164,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         plt.show()
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
-                         ascending=True, params=None):
+                         ascending=True, params=None, ranked_ind=None):
     """ Generate multiple multi-panel figures 
     using plot_ranked_trigger
 
@@ -197,8 +198,12 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         return
 
     ntrig = len(frb_index)
-    probability = probability[frb_index]
-    ind = np.argsort(probability)[::-1]
+    if ranked_ind is None:
+        probability = probability[frb_index]
+        ind = np.argsort(probability)[::-1]
+    else:
+        ind = ranked_ind
+
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
 
@@ -213,6 +218,8 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, params=params)
+
+    return ind
 
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
