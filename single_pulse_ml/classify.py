@@ -208,7 +208,7 @@ if __name__=="__main__":
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=options.fnout, params=params, 
-             nside=options.nsidem, ranked_ind_freq)
+             nside=options.nsidem, ranked_ind=ranked_ind_freq)
 
 
 

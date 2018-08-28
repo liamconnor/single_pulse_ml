@@ -200,9 +200,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         f.close()
     else:
         print("Wrong input argument")
-        return
-
-    
+        return    
 
     if ranked_ind is None:
         probability = probability[frb_index]
