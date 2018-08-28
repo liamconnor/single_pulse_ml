@@ -202,7 +202,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         print("Wrong input argument")
         return
 
-    ntrig = len(frb_index)
+    
 
     if ranked_ind is None:
         probability = probability[frb_index]
@@ -210,12 +210,14 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     else:
         ind = ranked_ind
 
+    ntrig = len(ind)
     print('dit', ind)
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
     params_ = params[ind]
-    
+
     for ii in range(ntrig//nside**2+1):
+        print(ii, ntrig//nside**2+1)
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         params_sub = params_[nside**2*ii:nside**2*(ii+1)]
