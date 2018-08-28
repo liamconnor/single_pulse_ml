@@ -101,6 +101,7 @@ def classify(data, model, save_ranked=False,
                                             fnfigout=fnout, ascending=False,
                                             params=params)
 
+            print(ranked_ind)
     return ranked_ind_
 
 
@@ -179,14 +180,15 @@ if __name__=="__main__":
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
             print("\nCLASSIFYING DM/TIME DATA\n)")
-            print(data_dm.shape)
+            print(ranked_ind_freq)
             fn_fig_out = options.fnout + '_dm_time'
             classify(data_dm, options.fn_model_dm, 
                      save_ranked=options.save_ranked, 
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
-                     nside=options.nside, ranked_ind=ranked_ind_freq)
+                     nside=options.nside, 
+                     ranked_ind=ranked_ind_freq)
         else:
             print("No DM/time data to classify")
 
