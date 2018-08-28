@@ -223,7 +223,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
 
         pmin, pmax = prob_sub.min(), prob_sub.max()
 
-        fnfigout_ = fnfigout+'_%d_prob:%.2f-%.2f.pdf' % (ii, pmin, pmax)
+        fnfigout_ = fnfigout+'_%03d_prob:%.2f-%.2f.pdf' % (ii, pmin, pmax)
         print("Saving to %s" % fnfigout)
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
