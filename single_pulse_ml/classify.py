@@ -99,7 +99,7 @@ def classify(data, model, save_ranked=False,
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
-                                            params=params)
+                                            params=params, ranked_ind=ranked_ind)
 
             print(ranked_ind)
     return ranked_ind_
