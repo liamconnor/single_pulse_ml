@@ -198,12 +198,14 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         return
 
     ntrig = len(frb_index)
+
     if ranked_ind is None:
         probability = probability[frb_index]
         ind = np.argsort(probability)[::-1]
     else:
         ind = ranked_ind
 
+    print('dit', ind)
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
     params_ = params[ind]
