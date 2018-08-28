@@ -48,7 +48,13 @@ def read_hdf5(fn):
         print("multibeam dataset not there")
         data_mb = None
 
-    return data_freq, y, data_dm, data_mb
+    try:
+    	params = f['params'][:]
+    except:
+    	print("params dataset not there")
+    	params = []
+
+    return data_freq, y, data_dm, data_mb, params
 
 def write_to_fil(data, header, fn):
 	filterbank.create_filterbank_file(
