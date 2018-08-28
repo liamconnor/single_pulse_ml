@@ -145,7 +145,7 @@ if __name__=="__main__":
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model_freq)
 
-    data_freq, y, data_dm, data_mb = reader.read_hdf5(fn_data)
+    data_freq, y, data_dm, data_mb, params = reader.read_hdf5(fn_data)
 
     NFREQ = data_freq.shape[1]
     NTIME = data_freq.shape[2]
@@ -163,7 +163,7 @@ if __name__=="__main__":
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=fn_fig_out)
+             fnout=fn_fig_out, params=params)
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
