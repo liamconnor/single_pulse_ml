@@ -187,7 +187,7 @@ if __name__=="__main__":
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
-                     nside=options.nside)
+                     nside=options.nside, ranked_ind=ranked_ind_freq)
         else:
             print("No DM/time data to classify")
 
@@ -208,7 +208,7 @@ if __name__=="__main__":
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=options.fnout, params=params, 
-             nside=options.nside)
+             nside=options.nsidem, ranked_ind_freq)
 
 
 

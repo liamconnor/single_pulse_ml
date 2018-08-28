@@ -214,7 +214,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
     params_ = params[ind]
-    print(data.shape, data_frb_candidate.shape)
+    
     for ii in range(ntrig//nside**2+1):
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
