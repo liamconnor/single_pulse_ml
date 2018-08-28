@@ -121,7 +121,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if ranking is None:
         ranking = np.argsort(prob_arr)
     print('Ranking\n', ranking) #hack 
-    
+
     if ascending == True:
         ranking = ranking[::-1]
         title_str = 'RFI most probable'
@@ -216,6 +216,8 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         params_sub = params_[nside**2*ii:nside**2*(ii+1)]
+        ind_sub = ind[nside**2*ii:nside**2*(ii+1)]
+
         pmin, pmax = prob_sub.min(), prob_sub.max()
 
         fnfigout_ = fnfigout+'_prob:%.2f-%.2f.pdf' % (pmin, pmax)
@@ -224,7 +226,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
-                            params=params_sub)
+                            params=params_sub, ranking=ind_sub)
 
     return ind
 
