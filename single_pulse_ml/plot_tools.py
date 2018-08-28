@@ -109,9 +109,11 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if params is not None:
         dms = params[:, 1]
         tt = params[:, -2]
+        snr = params[:, 0]
     else:
         dms = np.zeros([len(prob_arr)]) - 1
         tt = np.zeros([len(prob_arr)]) - 1
+        snr = np.zeros([len(prob_arr)]) - 1
 
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
@@ -152,8 +154,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
         plt.xticks([])
         plt.yticks([])
-        plt.title('p:%0.2f dm:%d \n   t:%0.1fs' % \
-            (prob_arr[ranking[ii]], dms[ranking[ii]], tt[ranking[ii]]), fontsize=6)
+        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f' % \
+            (prob_arr[ranking[ii]], dms[ranking[ii]], \
+                tt[ranking[ii]], snr[ranking[ii]]), fontsize=6)
 
         if ii % w == 0:
             plt.ylabel(yaxlabel, fontsize=14)
@@ -226,7 +229,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
-                            params=params_sub, ranking=ind_sub)
+                            params=params_sub, ranking=range(len(ind_sub)))
 
     return ind
 
