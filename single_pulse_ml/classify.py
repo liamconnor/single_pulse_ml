@@ -137,6 +137,10 @@ if __name__=="__main__":
                        help="beginning of figure names", \
                        default='ranked_trig')
 
+    parser.add_option('--nside', dest='nside', type='int', \
+                       help="number of rows/cols of subplots per figure", \
+                       default=7)
+
     options, args = parser.parse_args()
 
     assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
@@ -165,7 +169,8 @@ if __name__=="__main__":
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=fn_fig_out, params=params)
+             fnout=fn_fig_out, params=params, 
+             nside=options.nside)
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
