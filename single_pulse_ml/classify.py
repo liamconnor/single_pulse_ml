@@ -94,6 +94,7 @@ def classify(data, model, save_ranked=False,
             plot_tools.plot_multiple_ranked(argtup, nside=10, \
                                             fnfigout=fnout, ascending=False)
         else:
+            fnout='./here.pdf' #hack
             plot_tools.plot_multiple_ranked(fnout_ranked, nside=10, \
                                             fnfigout=fnout, ascending=False)
 
