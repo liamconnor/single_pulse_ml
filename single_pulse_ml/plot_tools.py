@@ -164,7 +164,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         plt.show()
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
-                         ascending=True):
+                         ascending=True, params=None):
     """ Generate multiple multi-panel figures 
     using plot_ranked_trigger
 
@@ -213,7 +213,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
 
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
-                            outname=fnfigout_, cmap=None)
+                            outname=fnfigout_, cmap=None, params=params)
 
 
 def plot_image_probabilities(FT_arr, DT_arr, FT_prob_spec, DT_prob_spec):
