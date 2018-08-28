@@ -78,7 +78,7 @@ def get_title2(y_pred, y_test, target_names, i):
 def plot_ranked_trigger(data, prob_arr, h=6, w=6, 
                         ascending=False, outname='out', 
                         cmap='RdBu', vmax=3, vmin=-3,
-                        yaxlabel='Freq'):
+                        yaxlabel='Freq', params=None):
     """ Plot single-pulse triggers ranked by the
     classifier's assigned probability.
 
@@ -103,6 +103,13 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     -------
     None 
     """ 
+
+    if params is not None:
+        dms = params[:, 1]
+        tt = params[:, -2]
+    else:
+        dms = np.zeros([len(prob_arr)]) - 1
+        tt = np.zeros([len(prob_arr)]) - 1
 
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
@@ -143,7 +150,8 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         plt.xticks([])
         plt.yticks([])
 #        plt.title('p='+str(np.round(prob_arr[ranking[ii]], 5)), fontsize=12)
-        plt.title('p=%0.2f' % prob_arr[ranking[ii]], fontsize=12)
+        plt.title('p:%0.2f dm:%d tt:%0.2f' % \
+            (prob_arr[ranking[ii]], dm[ranking[ii], tt_[ranking[ii]), fontsize=12)
 
         if ii % w == 0:
             plt.ylabel(yaxlabel, fontsize=14)
