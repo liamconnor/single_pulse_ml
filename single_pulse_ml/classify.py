@@ -19,7 +19,7 @@ import plot_tools
 
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
-             fnout='ranked'):
+             fnout='ranked', nside=8):
 
     model = frbkeras.load_model(model)
 
@@ -91,11 +91,10 @@ def classify(data, model, save_ranked=False,
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
 
-            plot_tools.plot_multiple_ranked(argtup, nside=10, \
+            plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False)
         else:
-            fnout='./here.pdf' #hack
-            plot_tools.plot_multiple_ranked(fnout_ranked, nside=10, \
+            plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False)
 
 

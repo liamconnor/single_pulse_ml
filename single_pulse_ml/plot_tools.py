@@ -200,7 +200,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         pmin, pmax = prob_sub.min(), prob_sub.max()
 
-        fnfigout_ = fnfigout+'prob:%.2f-%.2f.pdf' % (pmin, pmax)
+        fnfigout_ = fnfigout+'_prob:%.2f-%.2f.pdf' % (pmin, pmax)
         print("Saving to %s" % fnfigout)
 
         plot_ranked_trigger(data_sub, prob_sub,
