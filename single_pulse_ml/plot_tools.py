@@ -116,10 +116,12 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
 
+    print('\nRanking', ranking)
     # If order wasn't provided, rank by probabilities
     if ranking is None:
         ranking = np.argsort(prob_arr)
-
+    print('Ranking\n', ranking) #hack 
+    
     if ascending == True:
         ranking = ranking[::-1]
         title_str = 'RFI most probable'
