@@ -101,7 +101,6 @@ def classify(data, model, save_ranked=False,
                                             fnfigout=fnout, ascending=False,
                                             params=params, ranked_ind=ranked_ind)
 
-            print(ranked_ind)
     return ranked_ind_
 
 
@@ -140,7 +139,7 @@ if __name__=="__main__":
 
     parser.add_option('--fnout', dest='fnout', type='str', \
                        help="beginning of figure names", \
-                       default='newyearnewme')
+                       default='ranked')
 
     parser.add_option('--nside', dest='nside', type='int', \
                        help="number of rows/cols of subplots per figure", \
@@ -180,7 +179,6 @@ if __name__=="__main__":
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
             print("\nCLASSIFYING DM/TIME DATA\n)")
-            print(ranked_ind_freq)
             fn_fig_out = options.fnout + '_dm_time'
             classify(data_dm, options.fn_model_dm, 
                      save_ranked=options.save_ranked, 
