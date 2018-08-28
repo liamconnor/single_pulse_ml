@@ -140,7 +140,7 @@ if __name__=="__main__":
 
     parser.add_option('--fnout', dest='fnout', type='str', \
                        help="beginning of figure names", \
-                       default='ranked_trig')
+                       default='newyearnewme')
 
     parser.add_option('--nside', dest='nside', type='int', \
                        help="number of rows/cols of subplots per figure", \
@@ -187,8 +187,7 @@ if __name__=="__main__":
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
-                     nside=options.nside, 
-                     ranked_ind=ranked_ind_freq)
+                     nside=options.nside)
         else:
             print("No DM/time data to classify")
 
@@ -200,7 +199,8 @@ if __name__=="__main__":
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=fn_fig_out, params=params, 
-             nside=options.nside)
+             nside=options.nside, 
+             ranked_ind=ranked_ind_freq)
 
     if options.fn_model_mb is not None:
         classify(data_mb, options.fn_model_mb, 
