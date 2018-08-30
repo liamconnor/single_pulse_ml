@@ -78,8 +78,10 @@ def classify(data, model, save_ranked=False,
 
     if save_ranked is True:
         print("Need to fix the file naming")
-        fnout_ranked = fn_data.rstrip('.hdf5') + \
-                       'freq_time_candidates.hdf5'
+#        fnout_ranked = fn_data.rstrip('.hdf5') + \
+#                       'freq_time_candidates.hdf5'
+
+        fnout_ranked = fnout + '.hdf5'
 
         g = h5py.File(fnout_ranked, 'w')
         g.create_dataset('data_frb_candidate', data=data[ind_frb])
