@@ -87,6 +87,7 @@ def classify(data, model, save_ranked=False,
         g.create_dataset('data_frb_candidate', data=data[ind_frb])
         g.create_dataset('frb_index', data=ind_frb)
         g.create_dataset('probability', data=y_pred_prob)
+        g.create_dataset('params', data=params)
         g.close()
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
