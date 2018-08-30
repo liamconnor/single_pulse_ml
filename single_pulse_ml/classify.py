@@ -103,7 +103,7 @@ def classify(data, model, save_ranked=False,
                                             fnfigout=fnout, ascending=False,
                                             params=params, ranked_ind=ranked_ind)
 
-    return ranked_ind_
+        return ranked_ind_
 
 
 if __name__=="__main__":
