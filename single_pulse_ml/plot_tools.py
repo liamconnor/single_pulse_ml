@@ -118,11 +118,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
 
-    print('\nRanking', ranking)
     # If order wasn't provided, rank by probabilities
     if ranking is None:
         ranking = np.argsort(prob_arr)
-    print('Ranking\n', ranking) #hack 
 
     if ascending == True:
         ranking = ranking[::-1]
@@ -169,7 +167,8 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         plt.show()
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
-                         ascending=True, params=None, ranked_ind=None):
+                         ascending=True, params=None, 
+                         ranked_ind=None, yaxlabel='Freq'):
     """ Generate multiple multi-panel figures 
     using plot_ranked_trigger
 
@@ -209,13 +208,13 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         ind = ranked_ind
 
     ntrig = len(ind)
-    print('dit', ind)
+
     data = data_frb_candidate[ind]
     probability_ = probability[ind]
     params_ = params[ind]
 
     for ii in range(ntrig//nside**2+1):
-        print(ii, ntrig//nside**2+1)
+        print("Plotting %d/%d" % (ii, ntrig//nside**2+1))
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         params_sub = params_[nside**2*ii:nside**2*(ii+1)]
@@ -228,7 +227,8 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         plot_ranked_trigger(data_sub, prob_sub,
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
-                            params=params_sub, ranking=range(len(ind_sub)))
+                            params=params_sub, 
+                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel)
 
     return ind
 

@@ -20,7 +20,7 @@ import plot_tools
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=8, params=None,
-             ranked_ind=None):
+             ranked_ind=None, yaxlabel='Freq'):
 
     model = frbkeras.load_model(model)
 
@@ -87,6 +87,7 @@ def classify(data, model, save_ranked=False,
         g.create_dataset('data_frb_candidate', data=data[ind_frb])
         g.create_dataset('frb_index', data=ind_frb)
         g.create_dataset('probability', data=y_pred_prob)
+        g.create_dataset('params', data=params)
         g.close()
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
@@ -97,11 +98,13 @@ def classify(data, model, save_ranked=False,
 
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
-                                            params=params, ranked_ind=ranked_ind)
+                                            params=params, ranked_ind=ranked_ind,
+                                            yaxlabel=yaxlabel)
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
-                                            params=params, ranked_ind=ranked_ind)
+                                            params=params, ranked_ind=ranked_ind,
+                                            yaxlabel=yaxlabel)
 
         return ranked_ind_
 
@@ -176,7 +179,7 @@ if __name__=="__main__":
                              plot_ranked=options.plot_ranked, 
                              prob_threshold=options.prob_threshold,
                              fnout=fn_fig_out, params=params, 
-                             nside=options.nside)
+                             nside=options.nside, yaxlabel='Freq')
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
@@ -187,7 +190,8 @@ if __name__=="__main__":
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
-                     nside=options.nside, ranked_ind=ranked_ind_freq)
+                     nside=options.nside, 
+                     ranked_ind=ranked_ind_freq, yaxlabel='DM')
         else:
             print("No DM/time data to classify")
 
@@ -200,7 +204,7 @@ if __name__=="__main__":
              prob_threshold=options.prob_threshold,
              fnout=fn_fig_out, params=params, 
              nside=options.nside, 
-             ranked_ind=ranked_ind_freq)
+             ranked_ind=ranked_ind_freq, yaxlabel='')
 
     if options.fn_model_mb is not None:
         classify(data_mb, options.fn_model_mb, 
