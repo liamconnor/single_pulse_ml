@@ -112,15 +112,15 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         dms = params[:, 1]
         tt = params[:, -2]
         snr = params[:, 0]
-        w = params[:, 2]
+        downsample = params[:, 2]
         dt = params[:, -1]
         
         nfreq, ntime = data.shape[1], data.shape[2]
         freqs = np.linspace(freq_low, freq_up, nfreq)
         DM0_delays = dms[None]*4.15E6*(freq_low**-2 - freqs[:, None]**-2)
         # convert DM0_delays from ms to bin widths
-        DM0_delays = DM0_delays*(dt*w*1e3)[None]
-        times = np.arange(ntime)[:, None]*(dt*w)[None]*1e3
+        DM0_delays = DM0_delays*(dt*downsample*1e3)[None]
+        times = np.arange(ntime)[:, None]*(dt*downsample)[None]*1e3
     else:
         dms = np.zeros([len(prob_arr)]) - 1
         tt = np.zeros([len(prob_arr)]) - 1
