@@ -151,7 +151,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
         if len(data.shape)==3:
-            extent = [times[0], times[-1], freq_low, freq_up]
+            extent = [times[ii][0], times[ii][-1], freq_low, freq_up]
             plt.imshow(data[ranking[ii]], 
                 cmap=cmap, interpolation='nearest', 
                 aspect='auto', vmin=vmin, vmax=vmax, 
