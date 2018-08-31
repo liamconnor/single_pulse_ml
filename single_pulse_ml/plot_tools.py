@@ -151,12 +151,12 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
         if len(data.shape)==3:
+            extent = [times[0], times[-1], freq_low, freq_up]
             plt.imshow(data[ranking[ii]], 
                 cmap=cmap, interpolation='nearest', 
                 aspect='auto', vmin=vmin, vmax=vmax, 
-                extent=[0, 1, 400, 800])
+                extent=extent)
             plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
-
         elif len(data.shape)==2:
             plt.plot(data[ranking[ii]])
         else:
