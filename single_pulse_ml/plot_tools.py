@@ -155,10 +155,8 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                 cmap=cmap, interpolation='nearest', 
                 aspect='auto', vmin=vmin, vmax=vmax, 
                 extent=[0, 1, 400, 800])
-            try:
-                plt.plot(DM0_delays[:, ii], freqs[ii], c='r', lw='2', alpha=0.5)
-            except:
-                print("Couldn't plot zero-DM curve")
+            plt.plot(DM0_delays[:, ii], freqs[ii], c='r', lw='2', alpha=0.5)
+
         elif len(data.shape)==2:
             plt.plot(data[ranking[ii]])
         else:
