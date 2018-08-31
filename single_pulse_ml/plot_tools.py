@@ -79,7 +79,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                         ascending=False, outname='out', 
                         cmap='RdBu', vmax=3, vmin=-3,
                         yaxlabel='Freq', params=None,
-                        ranking=None):
+                        ranking=None, 
+                        freq_low=1250.09765625, 
+                        freq_up=1549.90234375):
     """ Plot single-pulse triggers ranked by the
     classifier's assigned probability.
 
@@ -110,6 +112,15 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         dms = params[:, 1]
         tt = params[:, -2]
         snr = params[:, 0]
+        w = params[:, 2]
+        dt = params[:, -1]
+        
+        nfreq, ntime = data.shape[1], data.shape[2]
+        freqs = np.linspace(freq_low, freq_up, nfreq)
+        DM0_delays = dms[None]*4.15E6*(freq_low**-2 - freqs[:, None]**-2)
+        # convert DM0_delays from ms to bin widths
+        DM0_delays = DM0_delays*(dt*w*1e3)[None]
+        times = np.arange(ntime)[:, None]*(dt*w)[None]*1e3
     else:
         dms = np.zeros([len(prob_arr)]) - 1
         tt = np.zeros([len(prob_arr)]) - 1
@@ -144,6 +155,10 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                 cmap=cmap, interpolation='nearest', 
                 aspect='auto', vmin=vmin, vmax=vmax, 
                 extent=[0, 1, 400, 800])
+            try:
+                plt.plot(DM0_delays[:, ii], freqs[ii], c='r', lw='2', alpha=0.5)
+            except:
+                print("Couldn't plot zero-DM curve")
         elif len(data.shape)==2:
             plt.plot(data[ranking[ii]])
         else:
