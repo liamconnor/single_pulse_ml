@@ -74,6 +74,9 @@ def classify(data, model, save_ranked=False,
             (len(ind_frb), len(y_pred_prob), 
                 prob_threshold, ind_frb))
 
+    if len(ind_frb)==0:
+        return 
+
     low_to_high_ind = np.argsort(y_pred_prob)
 
     if save_ranked is True:
@@ -108,6 +111,7 @@ def classify(data, model, save_ranked=False,
 
         return ranked_ind_
 
+    return None
 
 if __name__=="__main__":
     parser = optparse.OptionParser(prog="classify.py", \

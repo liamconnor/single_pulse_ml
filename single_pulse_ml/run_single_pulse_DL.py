@@ -75,7 +75,7 @@ metrics = ["accuracy", "precision", "false_negatives", "recall"]
 
 if __name__=='__main__':
     # read in time-freq data, labels, dm-time data
-    data_freq, y, data_dm, data_mb = reader.read_hdf5(fn)
+    data_freq, y, data_dm, data_mb, params = reader.read_hdf5(fn)
     NTRIGGER = len(y)
 
     print("Using %s" % fn)
