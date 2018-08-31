@@ -26,9 +26,12 @@ def read_hdf5(fn):
     containing dynamic spectra, dm-time array, 
     and data labels  
     """
-
     f = h5py.File(fn, 'r')
-    data_freq = f['data_freq_time'][:]
+    try:
+        data_freq = f['data_freq_time'][:]
+    except:
+        print("freq-time dataset not there")
+        data_freq = None
 
     try:
         y = f['labels'][:]
