@@ -43,6 +43,13 @@ def classify(data, model, save_ranked=False,
         data = data.mean(1)
         dshape = data.shape
 
+    if yaxlabel=='Freq':
+        print("ROLLING TIME AXIS TO MAX PIXEL")
+        for ii, dd in enumerate(data[..., 0]):
+            mx_pix = np.argmax(dd.mean(0))
+            dd = np.roll(dd, NTIME//2-mx_pix, axis=1)
+            data[ii] = dd[..., None]
+
     if mshape[1]<dshape[1]:
         print('Mismatch axis 1')
         nm = int(mshape[1])
