@@ -22,6 +22,9 @@ def classify(data, model, save_ranked=False,
              fnout='ranked', nside=8, params=None,
              ranked_ind=None, yaxlabel='Freq'):
 
+    if ranked_ind is not None:
+        prob_threshold = 0.0
+
     model = frbkeras.load_model(model)
 
     mshape = model.input.shape
@@ -56,7 +59,7 @@ def classify(data, model, save_ranked=False,
         nd = dshape[1]
         data = data[:, nd//2-nm//2:nd//2+nm//2]
     elif mshape[1]>dshape[1]:
-        print("Model expects:", mshape)
+        print("Error: Model expects:", mshape)
         print("Data has:", dshape) 
 
         return 
@@ -67,7 +70,7 @@ def classify(data, model, save_ranked=False,
         nd = dshape[2]
         data = data[:, :, nd//2-nm//2:nd//2+nm//2]
     elif mshape[2]>dshape[2]:
-        print("Model expects:", mshape)
+        print("Error: Model expects:", mshape)
         print("Data has:", dshape) 
 
         return 
@@ -76,7 +79,7 @@ def classify(data, model, save_ranked=False,
     y_pred_prob = y_pred_prob[:,1]
 
     ind_frb = np.where(y_pred_prob>prob_threshold)[0]
-
+    
     print("\n%d out of %d events with probability > %.2f:\n %s" % 
             (len(ind_frb), len(y_pred_prob), 
                 prob_threshold, ind_frb))
