@@ -20,7 +20,7 @@ import plot_tools
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=8, params=None,
-             ranked_ind=None, yaxlabel='Freq'):
+             ranked_ind=None, ind_frb=None, yaxlabel='Freq'):
 
     if ranked_ind is not None:
         prob_threshold = 0.0
@@ -78,7 +78,8 @@ def classify(data, model, save_ranked=False,
     y_pred_prob = model.predict(data)
     y_pred_prob = y_pred_prob[:,1]
 
-    ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+    if ind_frb is None:
+        ind_frb = np.where(y_pred_prob>prob_threshold)[0]
     
     print("\n%d out of %d events with probability > %.2f:\n %s" % 
             (len(ind_frb), len(y_pred_prob), 
@@ -111,15 +112,15 @@ def classify(data, model, save_ranked=False,
 
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
-                                            params=params, ranked_ind=ranked_ind,
+                                            params=params[ind_frb], ranked_ind=ranked_ind,
                                             yaxlabel=yaxlabel)
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
-                                            params=params, ranked_ind=ranked_ind,
+                                            params=params[ind_frb], ranked_ind=ranked_ind,
                                             yaxlabel=yaxlabel)
 
-        return ranked_ind_
+        return ind_frb, ranked_ind_
 
     return None
 
@@ -188,7 +189,7 @@ if __name__=="__main__":
 
     fn_fig_out = options.fnout + '_freq_time'
     print("\nCLASSIFYING FREQ/TIME DATA\n")
-    ranked_ind_freq = classify(data_freq, fn_model_freq, 
+    ind_frb, ranked_ind_freq = classify(data_freq, fn_model_freq, 
                              save_ranked=options.save_ranked, 
                              plot_ranked=options.plot_ranked, 
                              prob_threshold=options.prob_threshold,
@@ -204,7 +205,7 @@ if __name__=="__main__":
                      plot_ranked=options.plot_ranked, 
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
-                     nside=options.nside, 
+                     nside=options.nside, ind_frb=ind_frb,
                      ranked_ind=ranked_ind_freq, yaxlabel='DM')
         else:
             print("No DM/time data to classify")
@@ -217,7 +218,7 @@ if __name__=="__main__":
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=fn_fig_out, params=params, 
-             nside=options.nside, 
+             nside=options.nside, ind_frb=ind_frb,
              ranked_ind=ranked_ind_freq, yaxlabel='')
 
     if options.fn_model_mb is not None:
@@ -225,7 +226,7 @@ if __name__=="__main__":
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
-             fnout=options.fnout, params=params, 
+             fnout=options.fnout, params=params, ind_frb=ind_frb,
              nside=options.nsidem, ranked_ind=ranked_ind_freq)
 
 
