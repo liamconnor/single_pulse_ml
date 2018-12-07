@@ -11,7 +11,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import matplotlib as mpl
-mpl.use('pdf')
+mpl.use('pdf', warn=False)
 
 import frbkeras
 import reader
@@ -62,7 +62,7 @@ def classify(data, model, save_ranked=False,
         print("Error: Model expects:", mshape)
         print("Data has:", dshape) 
 
-        return 
+        return [], []
 
     if mshape[2]<dshape[2]:
         print('Mismatch axis 2')
@@ -73,20 +73,23 @@ def classify(data, model, save_ranked=False,
         print("Error: Model expects:", mshape)
         print("Data has:", dshape) 
 
-        return 
+        return [],[]
 
     y_pred_prob = model.predict(data)
     y_pred_prob = y_pred_prob[:,1]
 
     if ind_frb is None:
+        print("Getting ind")
         ind_frb = np.where(y_pred_prob>prob_threshold)[0]
+        print(len(ind_frb))
     
     print("\n%d out of %d events with probability > %.2f:\n %s" % 
             (len(ind_frb), len(y_pred_prob), 
                 prob_threshold, ind_frb))
 
     if len(ind_frb)==0:
-        return 
+        print("No events above the threshhold. Exiting.")
+        return [],[]
 
     low_to_high_ind = np.argsort(y_pred_prob)
 
@@ -105,7 +108,6 @@ def classify(data, model, save_ranked=False,
         g.close()
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
-
     if plot_ranked is True:
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
@@ -122,7 +124,7 @@ def classify(data, model, save_ranked=False,
 
         return ind_frb, ranked_ind_
 
-    return None
+    return [],[]
 
 if __name__=="__main__":
     parser = optparse.OptionParser(prog="classify.py", \
@@ -188,6 +190,7 @@ if __name__=="__main__":
         data_freq = data_freq[..., tl:th]
 
     fn_fig_out = options.fnout + '_freq_time'
+
     print("\nCLASSIFYING FREQ/TIME DATA\n")
     ind_frb, ranked_ind_freq = classify(data_freq, fn_model_freq, 
                              save_ranked=options.save_ranked, 
@@ -195,6 +198,9 @@ if __name__=="__main__":
                              prob_threshold=options.prob_threshold,
                              fnout=fn_fig_out, params=params, 
                              nside=options.nside, yaxlabel='Freq')
+
+    if len(ind_frb)==0:
+        exit()
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
