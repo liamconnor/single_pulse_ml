@@ -177,7 +177,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         plt.yticks([])
         plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f' % \
             (prob_arr[ranking[ii]], dms[ranking[ii]], \
-                tt[ranking[ii]], snr[ranking[ii]]), fontsize=6)
+                tt[ranking[ii]], snr[ranking[ii]]), fontsize=7)
 
         if ii % w == 0:
             plt.ylabel(yaxlabel, fontsize=14)
