@@ -13,16 +13,16 @@ class RealtimeClassifier():
                  fn_model_mb=None,
                  ):
 
-        if fn_model_freq not None:    
+        if fn_model_freq is not None:    
             self.model_freq = classify.frbkeras.load_model(fn_model_freq)
 
-        if fn_model_time not None:
+        if fn_model_time is not None:
             self.model_time = classify.frbkeras.load_model(fn_model_time)
 
-        if fn_model_dm not None:
+        if fn_model_dm is not None:
             self.model_dm = classify.frbkeras.load_model(fn_model_dm)
 
-        if fn_model_mb not None:
+        if fn_model_mb is not None:
             self.model_mb = classify.frbkeras.load_model(fn_model_mb)
 
         self.data_freq = None
