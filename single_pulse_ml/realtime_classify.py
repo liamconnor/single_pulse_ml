@@ -2,6 +2,11 @@ import os
 import time
 
 import glob
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import matplotlib as mpl
+mpl.use('pdf', warn=False)
 
 import classify
 
@@ -58,9 +63,9 @@ if __name__=='__main__':
         for fn in flist:
             if fn in old_files:
                 print("Sleeping for 1 sec")
-                time.sleep(5.0)
+                time.sleep(1.0)
                 continue
             else:
-                
+
                 old_files.append(fn)
-                time.sleep(5.0)
+                time.sleep(1.0)
