@@ -46,6 +46,7 @@ class RealtimeClassifier():
 if __name__=='__main__':
 
     dir = '/data2/output/20190118/2019-01-18-01:29:59.R2/triggers/data/data_full*'
+    dir = '../../../arts-analysis/arts-analysis/heimearly10-500/data/'
     old_files = []
 
     for ii in range(10):
