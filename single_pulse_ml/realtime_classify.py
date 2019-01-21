@@ -48,7 +48,7 @@ if __name__=='__main__':
     dir = '/data2/output/20190118/2019-01-18-01:29:59.R2/triggers/data/data_full*'
     old_files = []
 
-    while True:
+    for ii in range(10):
         flist = glob.glob(dir)
         print(flist)
 
