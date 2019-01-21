@@ -114,7 +114,8 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         snr = params[:, 0]
         downsample = params[:, 2]
         dt = params[:, -1]
-        
+        twindow_sec = downsample*dt*data.shape[-1]
+
         if yaxlabel=='Freq':
             nfreq, ntime = data.shape[1], data.shape[2]
             freqs = np.linspace(freq_low, freq_up, nfreq)
@@ -175,9 +176,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
         plt.xticks([])
         plt.yticks([])
-        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f' % \
+        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms' % \
             (prob_arr[ranking[ii]], dms[ranking[ii]], \
-                tt[ranking[ii]], snr[ranking[ii]]), fontsize=7)
+                tt[ranking[ii]], snr[ranking[ii]], 1000*twindow_sec[ii]), fontsize=7)
 
         if ii % w == 0:
             plt.ylabel(yaxlabel, fontsize=14)

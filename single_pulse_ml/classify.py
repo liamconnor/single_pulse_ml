@@ -24,9 +24,9 @@ def classify(data, model, save_ranked=False,
 
     if ranked_ind is not None:
         prob_threshold = 0.0
-
+    
+    ttt = time.time()
     model = frbkeras.load_model(model)
-
     mshape = model.input.shape
     dshape = data.shape
 
