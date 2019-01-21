@@ -54,6 +54,8 @@ if __name__=='__main__':
 
         for fn in flist:
             if fn in old_files:
+                print("Sleeping for 1 sec")
+                time.sleep(1.0)
                 continue
             else:
                 classify.main()
