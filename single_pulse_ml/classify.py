@@ -17,6 +17,7 @@ import frbkeras
 import reader
 import plot_tools
 
+
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=8, params=None,
@@ -25,8 +26,11 @@ def classify(data, model, save_ranked=False,
     if ranked_ind is not None:
         prob_threshold = 0.0
     
-    ttt = time.time()
-    model = frbkeras.load_model(model)
+    if type(model)==str:
+        model = frbkeras.load_model(model)
+    else:
+        print(type(model))
+        
     mshape = model.input.shape
     dshape = data.shape
 
