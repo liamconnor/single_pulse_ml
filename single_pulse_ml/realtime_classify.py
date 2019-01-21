@@ -1,6 +1,7 @@
 import os
 import time
 
+import optparse
 import glob
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -52,14 +53,66 @@ class RealtimeClassifier():
 
 if __name__=='__main__':
 
-    dir = '/data2/output/20190118/2019-01-18-01:29:59.R2/triggers/data/data_full*'
-    dir = '../../../arts-analysis/arts-analysis/heimearly10-500/data/data_full*'
-    mod = './model/october1_heimdall_crab_simfreq_time.hdf5'
+    parser = optparse.OptionParser(prog="classify.py", \
+                        version="", \
+                        usage="%prog DATADIR FN_MODEL [OPTIONS]", \
+                        description="Apply DNN model to FRB candidates")
+
+    parser.add_option('--fn_model_dm', dest='fn_model_dm', type='str', \
+                        help="Filename of dm_time model. Default None", \
+                        default=None)
+
+    parser.add_option('--fn_model_time', dest='fn_model_time', type='str', \
+                        help="Filename of 1d time model. Default None", \
+                        default=None)
+
+    parser.add_option('--fn_model_mb', dest='fn_model_mb', type='str', \
+                        help="Filename of multibeam model. Default None", \
+                        default=None)
+
+    parser.add_option('--pthresh', dest='prob_threshold', type='float', \
+                        help="probability treshold", default=0.5)
+
+    parser.add_option('--save_ranked', dest='save_ranked', 
+                        action='store_true', \
+                        help="save FRB events + probabilities", \
+                        default=False)
+
+    parser.add_option('--plot_ranked', dest='plot_ranked', \
+                        action='store_true',\
+                        help="plot triggers", default=False)
+
+    parser.add_option('--twindow', dest='twindow', type='int', \
+                        help="time width, default 64", default=64)
+
+    parser.add_option('--fnout', dest='fnout', type='str', \
+                       help="beginning of figure names", \
+                       default='ranked')
+
+    parser.add_option('--nside', dest='nside', type='int', \
+                       help="number of rows/cols of subplots per figure", \
+                       default=7)
+
+    options, args = parser.parse_args()
+
+    assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
+
+    data_dir = args[0]
+    fn_model_freq = args[1]
+
+    print("Using datafile %s" % fn_data)
+    print("Using keras model in %s" % fn_model_freq)
+
+    SLEEPTIME = 0.1 # seconds 
     old_files = []
-    RT_Classifier = RealtimeClassifier(mod)
+    RT_Classifier = RealtimeClassifier(fn_model_freq=fn_model_freq,
+                                       fn_model_dm=options.fn_model_dm, 
+                                       fn_model_time=options.fn_model_time,
+                                       fn_model_mb=options.fn_model_mb,
+                                       twindow=64, nfreq=32, ntime=64))
 
     while True:
-        flist = glob.glob(dir)
+        flist = glob.glob(data_dir + '*.hdf5')
         for fn in flist:
             if fn in old_files:
                 time.sleep(SLEEPTIME)
