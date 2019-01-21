@@ -100,7 +100,7 @@ if __name__=='__main__':
     data_dir = args[0]
     fn_model_freq = args[1]
 
-    print("Using datafile %s" % fn_data)
+    print("Using data directory %s" % data_dir)
     print("Using keras model in %s" % fn_model_freq)
 
     SLEEPTIME = 0.1 # seconds 
@@ -109,7 +109,7 @@ if __name__=='__main__':
                                        fn_model_dm=options.fn_model_dm, 
                                        fn_model_time=options.fn_model_time,
                                        fn_model_mb=options.fn_model_mb,
-                                       twindow=64, nfreq=32, ntime=64))
+                                       twindow=64, nfreq=32, ntime=64)
 
     while True:
         flist = glob.glob(data_dir + '*.hdf5')
