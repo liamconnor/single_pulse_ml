@@ -50,6 +50,8 @@ if __name__=='__main__':
     old_files = []
 
     for ii in range(10):
+        RT_Classifier = RealtimeClassifier()
+
         flist = glob.glob(dir)
         print(flist)
 
@@ -59,6 +61,6 @@ if __name__=='__main__':
                 time.sleep(5.0)
                 continue
             else:
-                classify.main()
+                
                 old_files.append(fn)
                 time.sleep(5.0)
