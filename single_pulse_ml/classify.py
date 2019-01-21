@@ -27,9 +27,8 @@ def classify(data, model, save_ranked=False,
         prob_threshold = 0.0
     
     if type(model)==str:
+        print("Modelstring", model)
         model = frbkeras.load_model(model)
-    else:
-        print(type(model))
         
     mshape = model.input.shape
     dshape = data.shape
