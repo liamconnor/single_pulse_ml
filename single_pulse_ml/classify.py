@@ -20,7 +20,7 @@ import plot_tools
 
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
-             fnout='ranked', nside=8, params=None,
+             fnout='ranked', nside=5, params=None,
              ranked_ind=None, ind_frb=None, yaxlabel='Freq'):
 
     if ranked_ind is not None:
@@ -53,6 +53,7 @@ def classify(data, model, save_ranked=False,
         print("ROLLING TIME AXIS TO MAX PIXEL")
         for ii, dd in enumerate(data[..., 0]):
             mx_pix = np.argmax(dd.mean(0))
+            NTIME = dd.shape[1]
             dd = np.roll(dd, NTIME//2-mx_pix, axis=1)
             data[ii] = dd[..., None]
 
@@ -168,7 +169,7 @@ if __name__=="__main__":
 
     parser.add_option('--nside', dest='nside', type='int', \
                        help="number of rows/cols of subplots per figure", \
-                       default=7)
+                       default=5)
 
     options, args = parser.parse_args()
 
