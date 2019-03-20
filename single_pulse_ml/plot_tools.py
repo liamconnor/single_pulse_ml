@@ -2,7 +2,7 @@ import numpy as np
 
 try:
     import matplotlib 
-    matplotlib.use('Agg')
+    matplotlib.use('Agg', warn=False)
 
     import matplotlib.pyplot as plt
     from matplotlib import gridspec
@@ -149,6 +149,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         outname = outname
 
     fig = plt.figure(figsize=(15,15))
+    plt.suptitle(outname)
 
     for ii in range(min(h*w, len(prob_arr))):
         plt.subplot(h, w, ii+1)
@@ -176,7 +177,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
         plt.xticks([])
         plt.yticks([])
-        plt.title('p:%0.2f dm:%d window=%0.1f ms\n t:%0.1fs s/n:%0.1f' % \
+        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms' % \
             (prob_arr[ranking[ii]], dms[ranking[ii]], \
                 tt[ranking[ii]], snr[ranking[ii]], 1000*twindow_sec[ii]), fontsize=7)
 
