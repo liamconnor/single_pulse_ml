@@ -21,7 +21,7 @@ except:
     pass
 
 
-def read_hdf5(fn):
+def read_hdf5(fn, return_tab=False):
     """ Read in data from .hdf5 file 
     containing dynamic spectra, dm-time array, 
     and data labels  
@@ -57,7 +57,19 @@ def read_hdf5(fn):
     	print("params dataset not there")
     	params = []
 
-    return data_freq, y, data_dm, data_mb, params
+    try: 
+        tab_int = f['tab'][0]
+        tab = "_{:02d}".format(tab_int)
+
+    except:
+        print('tab number not there')
+        tab = ''
+
+    if return_tab:
+        return data_freq, y, data_dm, data_mb, params, tab
+    else:
+        return data_freq, y, data_dm, data_mb, params
+        
 
 def write_to_fil(data, header, fn):
 	filterbank.create_filterbank_file(
