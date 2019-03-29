@@ -21,9 +21,10 @@ class TestReader(TestCase):
         g.create_dataset('labels', data=labels)
         g.create_dataset('data_dm_time', data=[])               
         g.close()
-        
-        data_freq, y, data_dm, params = reader.read_hdf5(fn)
-                data_freq, y, data_dm, params, tab = reader.read_hdf5(fn, return_tab=True)
+
+        data_freq, y, data_dm, data_mb, params = reader.read_hdf5(fn)
+
+        data_freq, y, data_dm, data_mb, params, tab = reader.read_hdf5(fn, return_tab=True)
 
 if __name__ == '__main__':
     unittest.main()

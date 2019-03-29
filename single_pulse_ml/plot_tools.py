@@ -81,7 +81,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                         yaxlabel='Freq', params=None,
                         ranking=None, 
                         freq_low=1250.09765625, 
-                        freq_up=1549.90234375):
+                        freq_up=1549.90234375, tab=None):
     """ Plot single-pulse triggers ranked by the
     classifier's assigned probability.
 
@@ -131,6 +131,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     if len(prob_arr.shape)>1:
         prob_arr = prob_arr[:,1]
 
+    if tab is None:
+        tab = -1*np.ones([len(params)])
+
     # If order wasn't provided, rank by probabilities
     if ranking is None:
         ranking = np.argsort(prob_arr)
@@ -177,9 +180,9 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
         plt.xticks([])
         plt.yticks([])
-        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms' % \
+        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms TAB=%d' % \
             (prob_arr[ranking[ii]], dms[ranking[ii]], \
-                tt[ranking[ii]], snr[ranking[ii]], 1000*twindow_sec[ii]), fontsize=7)
+                tt[ranking[ii]], snr[ranking[ii]], 1000*twindow_sec[ii], tab[ranking[ii]]), fontsize=7)
 
         if ii % w == 0:
             plt.ylabel(yaxlabel, fontsize=14)
@@ -193,7 +196,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
                          ascending=True, params=None, 
-                         ranked_ind=None, yaxlabel='Freq'):
+                         ranked_ind=None, yaxlabel='Freq', tab=None):
     """ Generate multiple multi-panel figures 
     using plot_ranked_trigger
 
@@ -253,7 +256,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
                             params=params_sub, 
-                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel)
+                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel, tab=tab)
 
     return ind
 

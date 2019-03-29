@@ -37,7 +37,7 @@ def read_hdf5(fn, return_tab=False):
         y = f['labels'][:]
     except:
         print("labels dataset not there")
-        y = -1*np.zeros([len(data_freq)])
+        y = -1*np.ones([len(data_freq)])
 
     try:
         data_dm = f['data_dm_time'][:]
@@ -55,15 +55,13 @@ def read_hdf5(fn, return_tab=False):
     	params = f['params'][:]
     except:
     	print("params dataset not there")
-    	params = []
+    	params = [] 
 
     try: 
-        tab_int = f['tab'][0]
-        tab = "_{:02d}".format(tab_int)
-
+        tab = f['tab'][:]
     except:
         print('tab number not there')
-        tab = ''
+        tab = -1*np.ones([len(data_freq)])
 
     if return_tab:
         return data_freq, y, data_dm, data_mb, params, tab

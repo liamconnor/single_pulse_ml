@@ -14,15 +14,15 @@ DELTA_T = 0.0016    # time res in seconds
 NAME = "CHIMEPathfinder"
 
 # SIMULATION PARAMETERS 
-NFREQ = 32  # Number of frequencies. Must agree with FP data
-NTIME = 250 # Number of time stamps per trigger
+NFREQ = 1536  # Number of frequencies. Must agree with FP data
+NTIME = 10000 # Number of time stamps per trigger
 dm = (-0.05, 0.05)
 fluence = (1, 10)
 width = (0.0016, 0.75) # width lognormal dist in seconds
 spec_ind = (-4., 4.)
 disp_ind = 2.
 scat_factor = (-4., -1.5)
-NRFI = 5000
+NRFI = 10
 SNR_MIN = 5.0
 SNR_MAX = 25.00
 out_file_name = None, 
@@ -35,6 +35,8 @@ outname_tag = 'apertif_250'
 fn_rfi = './data/arts_FPs_33583.hdf5'
 fn_noise = './data/apertif_background3669.npy'
 #fn_rfi = './data/arts_fps_5000.npy'
+fn_noise = None
+fn_rfi = None
 
 sim_obj = sim_parameters.SimParams(dm=dm, fluence=fluence,
                                    width=width, spec_ind=spec_ind,

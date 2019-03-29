@@ -21,11 +21,11 @@ import plot_tools
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=5, params=None,
-             ranked_ind=None, ind_frb=None, yaxlabel='Freq'):
+             ranked_ind=None, ind_frb=None, yaxlabel='Freq', tab=None):
 
     if ranked_ind is not None:
         prob_threshold = 0.0
-    
+
     if type(model)==str:
         print("Modelstring", model)
         model = frbkeras.load_model(model)
@@ -48,6 +48,9 @@ def classify(data, model, save_ranked=False,
     if len(mshape)==3:
         data = data.mean(1)
         dshape = data.shape
+
+    if tab is None:
+        tab = -1*np.ones([len(data)])
 
     if yaxlabel=='Freq':
         print("ROLLING TIME AXIS TO MAX PIXEL")
@@ -109,6 +112,7 @@ def classify(data, model, save_ranked=False,
         g.create_dataset('frb_index', data=ind_frb)
         g.create_dataset('probability', data=y_pred_prob)
         g.create_dataset('params', data=params)
+        g.create_dataset('tab', data=tab[ind_frb])
         g.close()
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
@@ -119,12 +123,12 @@ def classify(data, model, save_ranked=False,
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                            yaxlabel=yaxlabel)
+                                                          yaxlabel=yaxlabel, tab=tab[ind_frb])
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                            yaxlabel=yaxlabel)
+                                                          yaxlabel=yaxlabel, tab=tab[ind_frb])
 
         return ind_frb, ranked_ind_
 
@@ -181,7 +185,7 @@ if __name__=="__main__":
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model_freq)
 
-    data_freq, y, data_dm, data_mb, params = reader.read_hdf5(fn_data)
+    data_freq, y, data_dm, data_mb, params, tab = reader.read_hdf5(fn_data, return_tab=True)
 
     NFREQ = data_freq.shape[1]
     NTIME = data_freq.shape[2]
@@ -201,7 +205,7 @@ if __name__=="__main__":
                              plot_ranked=options.plot_ranked, 
                              prob_threshold=options.prob_threshold,
                              fnout=fn_fig_out, params=params, 
-                             nside=options.nside, yaxlabel='Freq')
+                                        nside=options.nside, yaxlabel='Freq', tab=tab)
 
     if len(ind_frb)==0:
         exit()
