@@ -226,7 +226,7 @@ if __name__=="__main__":
 
     if options.fn_model_time is not None:
         print("\nCLASSIFYING 1D TIME DATA\n)")
-        fn_fig_out = options.fnout + '_1d_time'
+        fn_fig_out = options.fnout + '_time'
         classify(data_freq, options.fn_model_time, 
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
