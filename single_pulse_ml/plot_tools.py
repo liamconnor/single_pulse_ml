@@ -241,8 +241,8 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     probability_ = probability[ind]
     params_ = params[ind]
 
-    for ii in range(ntrig//nside**2+1):
-        print("Plotting %d/%d" % (ii, ntrig//nside**2+1))
+    for ii in range(ntrig//nside**2):
+        print("Plotting %d/%d" % (ii, ntrig//nside**2))
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
         params_sub = params_[nside**2*ii:nside**2*(ii+1)]
