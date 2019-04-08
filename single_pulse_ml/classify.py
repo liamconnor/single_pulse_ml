@@ -32,6 +32,15 @@ def classify(data, model, save_ranked=False,
         
     mshape = model.input.shape
     dshape = data.shape
+    
+    if yaxlabel=='Freq':
+        if dshape[1]>mshape[1]:
+            print('Rebinning data in frequency')
+            print(dshape, mshape)
+            data = data.reshape((dshape[0], mshape[1], dshape[1]//int(mshape[1])) + dshape[2:])
+            data = data.mean(2)
+            dshape = data.shape
+            print(dshape, mshape)
 
     # normalize data
     data = data.reshape(len(data), -1)
@@ -117,6 +126,7 @@ def classify(data, model, save_ranked=False,
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if plot_ranked is True:
+        print(tab.shape, data.shape, len(ind_frb))
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
 
