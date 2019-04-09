@@ -36,11 +36,9 @@ def classify(data, model, save_ranked=False,
     if yaxlabel=='Freq':
         if dshape[1]>mshape[1]:
             print('Rebinning data in frequency')
-            print(dshape, mshape)
             data = data.reshape((dshape[0], mshape[1], dshape[1]//int(mshape[1])) + dshape[2:])
             data = data.mean(2)
             dshape = data.shape
-            print(dshape, mshape)
 
     # normalize data
     data = data.reshape(len(data), -1)
