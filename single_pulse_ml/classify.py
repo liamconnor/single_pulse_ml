@@ -183,6 +183,10 @@ if __name__=="__main__":
                        help="number of rows/cols of subplots per figure", \
                        default=5)
 
+    parser.add_option('--DMgal', dest='DMgal', type='float', \
+                       help="expected DM contribution from Milky Way",\
+                       default=0.)
+
     options, args = parser.parse_args()
 
     assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
