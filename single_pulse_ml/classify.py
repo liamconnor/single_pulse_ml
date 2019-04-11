@@ -178,7 +178,6 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
                              nside=options.nside, yaxlabel='Freq', tab=tab)
 
     if len(ind_frb)==0:
-        print("Couldn't find any FRBs")
         return
 
     if options.fn_model_dm is not None:
