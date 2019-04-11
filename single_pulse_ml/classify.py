@@ -266,7 +266,7 @@ if __name__=="__main__":
     fn_data = args[0]
     fn_model_freq = args[1]
 
-    run_main(fn_data, fn_model_freq, options, DMgal=0)
+    run_main(fn_data, fn_model_freq, options)
 
 
 
