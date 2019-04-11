@@ -269,7 +269,11 @@ if __name__=="__main__":
     fn_data = args[0]
     fn_model_freq = args[1]
 
-    run_main(fn_data, fn_model_freq, options)
+    run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
+
+    if options.DMgal > 0:
+        run_main(fn_data, fn_model_freq, options, dm_min=0., dm_max=options.DMgal)
+
 
 
 
