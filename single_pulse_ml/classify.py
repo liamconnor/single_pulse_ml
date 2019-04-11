@@ -21,7 +21,8 @@ import plot_tools
 def classify(data, model, save_ranked=False, 
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=5, params=None,
-             ranked_ind=None, ind_frb=None, yaxlabel='Freq', tab=None):
+             ranked_ind=None, ind_frb=None, 
+             yaxlabel='Freq', tab=None):
 
     if ranked_ind is not None:
         prob_threshold = 0.0
@@ -124,19 +125,18 @@ def classify(data, model, save_ranked=False,
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if plot_ranked is True:
-        print(tab.shape, data.shape, len(ind_frb))
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
 
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                                          yaxlabel=yaxlabel, tab=tab[ind_frb])
+                                            yaxlabel=yaxlabel, tab=tab[ind_frb])
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                                          yaxlabel=yaxlabel, tab=tab[ind_frb])
+                                            yaxlabel=yaxlabel, tab=tab[ind_frb])
 
         return ind_frb, ranked_ind_
 
@@ -167,7 +167,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
 
-    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min, dm_max)
+    fn_fig_out = options.fnout + '_freq_time_dm%0.1f' % dm_min
 
     print("\nCLASSIFYING FREQ/TIME DATA\n")
 
