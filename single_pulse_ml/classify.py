@@ -143,11 +143,20 @@ def classify(data, model, save_ranked=False,
     return [],[]
 
 
-def run_main(fn_data, fn_model_freq, options, DMgal=0):
+def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model_freq)
 
     data_freq, y, data_dm, data_mb, params, tab = reader.read_hdf5(fn_data, return_tab=True)
+    
+    dms = params[:, 1]
+    ind_dm = np.where((dms>=dm_min) & (dms<dm_max))[0]
+    params = params[ind_dm]
+    data_freq = data_freq[ind_dm]
+    y = y[ind_dm]
+    data_dm = data_dm[ind_dm]
+    data_mb = data_mb[ind_dm]
+    tab = tab[ind_dm]
 
     NFREQ = data_freq.shape[1]
     NTIME = data_freq.shape[2]
