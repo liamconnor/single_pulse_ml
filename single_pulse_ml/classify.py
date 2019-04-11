@@ -125,6 +125,7 @@ def classify(data, model, save_ranked=False,
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if plot_ranked is True:
+        print(fnout)
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
 
@@ -167,7 +168,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
 
-    fn_fig_out = options.fnout + '_freq_time_dm%0.1f' % dm_min
+    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min, dm_max)
 
     print("\nCLASSIFYING FREQ/TIME DATA\n")
 
@@ -271,10 +272,9 @@ if __name__=="__main__":
     fn_data = args[0]
     fn_model_freq = args[1]
 
-    run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
-
     if options.DMgal > 0:
         run_main(fn_data, fn_model_freq, options, dm_min=0., dm_max=options.DMgal)
+        run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
 
 
 
