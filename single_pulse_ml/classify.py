@@ -178,7 +178,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
                                         nside=options.nside, yaxlabel='Freq', tab=tab)
 
     if len(ind_frb)==0:
-        exit()
+        return
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
