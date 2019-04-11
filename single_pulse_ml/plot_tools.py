@@ -417,7 +417,6 @@ class VisualizeLayers:
                           (self.grid_counter, 3*NSIDE//8), 
                           colspan=NSIDE//4, rowspan=NSIDE//4) 
 
-            print(self.grid_counter,'0')
             self.grid_counter += (NSIDE//4+NSIDE//16) # Add one extra unit of space 
             print(activation.shape)
             data = activation[0,:,:,0]
@@ -426,7 +425,6 @@ class VisualizeLayers:
             vmin = -1*np.std(data)
             self.imshow_custom(data, cmap=cmap, extent=[0, 1, 400, 800], \
                                vmax=vmax, vmin=vmin)
-            print(self.grid_counter,'1')
 
             plt.xlabel('Time')
             plt.ylabel('Freq [MHz]')
