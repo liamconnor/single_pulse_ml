@@ -125,10 +125,8 @@ def classify(data, model, save_ranked=False,
         print("\nSaved them and all probabilities to: \n%s" % fnout_ranked)
 
     if plot_ranked is True:
-        print(fnout)
         if save_ranked is False:
             argtup = (data[ind_frb], ind_frb, y_pred_prob)
-            print(argtup)
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
                                             params=params[ind_frb], ranked_ind=ranked_ind,
