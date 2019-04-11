@@ -151,6 +151,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     
     dms = params[:, 1]
     ind_dm = np.where((dms>=dm_min) & (dms<dm_max))[0]
+    print(len(ind_dm))
     params = params[ind_dm]
     data_freq = data_freq[ind_dm]
     y = y[ind_dm]
