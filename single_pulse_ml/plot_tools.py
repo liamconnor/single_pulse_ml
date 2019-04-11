@@ -216,7 +216,6 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
         fig name 
     """
     
-    print(argin)
     if type(argin)==tuple:
         data_frb_candidate, frb_index, probability = argin
         fn = './'
@@ -243,9 +242,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     probability_ = probability[ind]
     params_ = params[ind]
 
-    print(ntrig, ntrig//nside**2)
-    for ii in range(ntrig//nside**2):
-        print(ii)
+    for ii in range(ntrig//nside**2 + 1):
         print("Plotting %d/%d" % (ii, ntrig//nside**2))
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
