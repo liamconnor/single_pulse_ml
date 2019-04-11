@@ -154,8 +154,6 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     params = params[ind_dm]
     data_freq = data_freq[ind_dm]
     y = y[ind_dm]
-    data_dm = data_dm[ind_dm]
-    data_mb = data_mb[ind_dm]
     tab = tab[ind_dm]
 
     NFREQ = data_freq.shape[1]
@@ -183,6 +181,8 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
 
     if options.fn_model_dm is not None:
         if len(data_dm)>0:
+            data_dm = data_dm[ind_dm]
+
             print("\nCLASSIFYING DM/TIME DATA\n)")
             fn_fig_out = options.fnout + '_dm_time'
             classify(data_dm, options.fn_model_dm, 
@@ -207,6 +207,8 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
              ranked_ind=ranked_ind_freq, yaxlabel='')
 
     if options.fn_model_mb is not None:
+        data_mb = data_mb[ind_dm]
+
         classify(data_mb, options.fn_model_mb, 
              save_ranked=options.save_ranked, 
              plot_ranked=options.plot_ranked, 
