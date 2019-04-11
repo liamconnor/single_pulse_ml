@@ -109,7 +109,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     -------
     None 
     """ 
-    print(params, params[:,1])
+
     # Label each subplot with dm/time
     if params is not None:
         dms = params[:, 1]
@@ -400,7 +400,6 @@ class VisualizeLayers:
 #            size=int(np.round(4*activation.shape[1]/self._NFREQ * NSIDE//32))
 #            size=min(size, NSIDE//8)
             start_grid = NSIDE//2 - N_SUBFIG*size//2
-            print(NSIDE, self.grid_counter, start_grid + ii*size, size)
             ax = plt.subplot2grid((NSIDE,NSIDE), 
                         (self.grid_counter, start_grid + ii*size), 
                         colspan=size, rowspan=size)
