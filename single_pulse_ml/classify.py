@@ -167,7 +167,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
 
-    fn_fig_out = options.fnout + '_freq_time'
+    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min-dm_max)
 
     print("\nCLASSIFYING FREQ/TIME DATA\n")
     ind_frb, ranked_ind_freq = classify(data_freq, fn_model_freq, 
