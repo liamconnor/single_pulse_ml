@@ -170,12 +170,13 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min, dm_max)
 
     print("\nCLASSIFYING FREQ/TIME DATA\n")
+    print(fn_fig_out)
     ind_frb, ranked_ind_freq = classify(data_freq, fn_model_freq, 
                              save_ranked=options.save_ranked, 
                              plot_ranked=options.plot_ranked, 
                              prob_threshold=options.prob_threshold,
                              fnout=fn_fig_out, params=params, 
-                                        nside=options.nside, yaxlabel='Freq', tab=tab)
+                             nside=options.nside, yaxlabel='Freq', tab=tab)
 
     if len(ind_frb)==0:
         return
