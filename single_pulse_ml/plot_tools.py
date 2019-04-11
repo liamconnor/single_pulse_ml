@@ -243,7 +243,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     probability_ = probability[ind]
     params_ = params[ind]
 
-    print(ntrig)
+    print(ntrig, ntrig//nside**2)
     for ii in range(ntrig//nside**2):
         print(ii)
         print("Plotting %d/%d" % (ii, ntrig//nside**2))
