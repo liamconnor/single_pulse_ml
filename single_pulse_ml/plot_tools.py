@@ -1,3 +1,6 @@
+import sys 
+
+import h5py
 import numpy as np
 
 try:
@@ -155,7 +158,6 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     plt.suptitle(outname)
 
     for ii in range(min(h*w, len(prob_arr))):
-        print(ii)
         plt.subplot(h, w, ii+1)
         if len(data.shape)==3:
             if yaxlabel=='Freq':
@@ -213,9 +215,8 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     fnfigout : str 
         fig name 
     """
-    import sys 
-    import h5py
     
+    print(argin)
     if type(argin)==tuple:
         data_frb_candidate, frb_index, probability = argin
         fn = './'
@@ -242,7 +243,9 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     probability_ = probability[ind]
     params_ = params[ind]
 
+    print(ntrig)
     for ii in range(ntrig//nside**2):
+        print(ii)
         print("Plotting %d/%d" % (ii, ntrig//nside**2))
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
