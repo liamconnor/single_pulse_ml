@@ -142,58 +142,8 @@ def classify(data, model, save_ranked=False,
 
     return [],[]
 
-if __name__=="__main__":
-    parser = optparse.OptionParser(prog="classify.py", \
-                        version="", \
-                        usage="%prog FN_DATA FN_MODEL [OPTIONS]", \
-                        description="Apply DNN model to FRB candidates")
 
-    parser.add_option('--fn_model_dm', dest='fn_model_dm', type='str', \
-                        help="Filename of dm_time model. Default None", \
-                        default=None)
-
-    parser.add_option('--fn_model_time', dest='fn_model_time', type='str', \
-                        help="Filename of 1d time model. Default None", \
-                        default=None)
-
-    parser.add_option('--fn_model_mb', dest='fn_model_mb', type='str', \
-                        help="Filename of multibeam model. Default None", \
-                        default=None)
-
-    parser.add_option('--pthresh', dest='prob_threshold', type='float', \
-                        help="probability treshold", default=0.5)
-
-    parser.add_option('--save_ranked', dest='save_ranked', 
-                        action='store_true', \
-                        help="save FRB events + probabilities", \
-                        default=False)
-
-    parser.add_option('--plot_ranked', dest='plot_ranked', \
-                        action='store_true',\
-                        help="plot triggers", default=False)
-
-    parser.add_option('--twindow', dest='twindow', type='int', \
-                        help="time width, default 64", default=64)
-
-    parser.add_option('--fnout', dest='fnout', type='str', \
-                       help="beginning of figure names", \
-                       default='ranked')
-
-    parser.add_option('--nside', dest='nside', type='int', \
-                       help="number of rows/cols of subplots per figure", \
-                       default=5)
-
-    parser.add_option('--DMgal', dest='DMgal', type='float', \
-                       help="expected DM contribution from Milky Way",\
-                       default=0.)
-
-    options, args = parser.parse_args()
-
-    assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
-
-    fn_data = args[0]
-    fn_model_freq = args[1]
-
+def run_main(fn_data, fn_model_freq, options, DMgal=0):
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model_freq)
 
@@ -255,6 +205,59 @@ if __name__=="__main__":
              fnout=options.fnout, params=params, ind_frb=ind_frb,
              nside=options.nsidem, ranked_ind=ranked_ind_freq)
 
+if __name__=="__main__":
+    parser = optparse.OptionParser(prog="classify.py", \
+                        version="", \
+                        usage="%prog FN_DATA FN_MODEL [OPTIONS]", \
+                        description="Apply DNN model to FRB candidates")
+
+    parser.add_option('--fn_model_dm', dest='fn_model_dm', type='str', \
+                        help="Filename of dm_time model. Default None", \
+                        default=None)
+
+    parser.add_option('--fn_model_time', dest='fn_model_time', type='str', \
+                        help="Filename of 1d time model. Default None", \
+                        default=None)
+
+    parser.add_option('--fn_model_mb', dest='fn_model_mb', type='str', \
+                        help="Filename of multibeam model. Default None", \
+                        default=None)
+
+    parser.add_option('--pthresh', dest='prob_threshold', type='float', \
+                        help="probability treshold", default=0.5)
+
+    parser.add_option('--save_ranked', dest='save_ranked', 
+                        action='store_true', \
+                        help="save FRB events + probabilities", \
+                        default=False)
+
+    parser.add_option('--plot_ranked', dest='plot_ranked', \
+                        action='store_true',\
+                        help="plot triggers", default=False)
+
+    parser.add_option('--twindow', dest='twindow', type='int', \
+                        help="time width, default 64", default=64)
+
+    parser.add_option('--fnout', dest='fnout', type='str', \
+                       help="beginning of figure names", \
+                       default='ranked')
+
+    parser.add_option('--nside', dest='nside', type='int', \
+                       help="number of rows/cols of subplots per figure", \
+                       default=5)
+
+    parser.add_option('--DMgal', dest='DMgal', type='float', \
+                       help="expected DM contribution from Milky Way",\
+                       default=0.)
+
+    options, args = parser.parse_args()
+
+    assert len(args)==2, "Arguments are FN_DATA FN_MODEL [OPTIONS]"
+
+    fn_data = args[0]
+    fn_model_freq = args[1]
+
+    run_main(fn_data, fn_model_freq, options, DMgal=0)
 
 
 
