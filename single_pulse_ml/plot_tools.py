@@ -106,7 +106,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     -------
     None 
     """ 
-
+    print(params, params[:,1])
     # Label each subplot with dm/time
     if params is not None:
         dms = params[:, 1]
@@ -155,6 +155,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
     plt.suptitle(outname)
 
     for ii in range(min(h*w, len(prob_arr))):
+        print(ii)
         plt.subplot(h, w, ii+1)
         if len(data.shape)==3:
             if yaxlabel=='Freq':
