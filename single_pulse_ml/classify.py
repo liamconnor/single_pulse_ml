@@ -149,11 +149,12 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     
     dms = params[:, 1]
     ind_dm = np.where((dms>=dm_min) & (dms<dm_max))[0]
+    
+    print("%d of %d events have %0.1f<DM<%0.1f" % (len(ind_dm), len(params), dm_min, dm_max))
 
     if len(ind_dm)==0:
         return 
-        
-    print("%d of %d events have %0.1f<DM<%0.1f" % (len(ind_dm), len(params), dm_min, dm_max))
+
     params = params[ind_dm]
     data_freq = data_freq[ind_dm]
     y = y[ind_dm]
