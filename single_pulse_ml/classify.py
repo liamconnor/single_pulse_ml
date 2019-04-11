@@ -96,7 +96,6 @@ def classify(data, model, save_ranked=False,
     if ind_frb is None:
         print("Getting ind")
         ind_frb = np.where(y_pred_prob>prob_threshold)[0]
-        print(len(ind_frb))
     
     print("\n%d out of %d events with probability > %.2f:\n %s" % 
             (len(ind_frb), len(y_pred_prob), 
