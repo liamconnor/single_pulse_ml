@@ -276,6 +276,8 @@ if __name__=="__main__":
     if options.DMgal > 0:
         run_main(fn_data, fn_model_freq, options, dm_min=0., dm_max=options.DMgal)
         run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
+    else:
+        run_main(fn_data, fn_model_freq, options)
 
 
 
