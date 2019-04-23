@@ -259,7 +259,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
                             params=params_sub, 
-                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel, tab=tab)
+                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel, tab=tab_sub)
 
     return ind
 
