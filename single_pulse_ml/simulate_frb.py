@@ -594,7 +594,8 @@ def run_full_simulation(sim_obj, tel_obj, mk_plot=False,
             arr_sim = dataproc.normalize_data(arr_sim)
             # get SNR of simulated pulse. Center should be at ntime//2
             # rebin until max SNR is found.
-            snr_ = tools.calc_snr(arr_sim.mean(0), fast=False)
+            SNR = tools.SNR_Tools()
+            snr_ = SNR.calc_snr_matchedfilter(arr_sim.mean(0))
 
             # Only use events within a range of signal-to-noise
             if snr_ > sim_obj._SNR_MIN and snr_ < sim_obj._SNR_MAX:
