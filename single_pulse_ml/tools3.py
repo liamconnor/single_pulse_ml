@@ -16,6 +16,124 @@ class AnalyseTriggers:
     def __init__(self):
         pass 
 
+class RealtimeProc:
+
+    def __int__(self):
+        pass
+
+    def cleandata(self, data, threshold=3.0):
+        """ Take filterbank object and mask 
+        RFI time samples with average spectrum.
+
+        Parameters:
+        ----------
+        data : np.ndarray
+            (nfreq, ntime) array
+        threshold : float 
+            units of sigma
+
+        Returns:
+        -------
+        cleaned filterbank object
+        """
+    #    logging.info("Cleaning RFI")
+
+        assert len(data.shape)==2, "Expected (nfreq, ntime) array"
+
+        dtmean = np.mean(data, axis=-1)
+        dfmean = np.mean(data, axis=0)
+        stdevf = np.std(dfmean)
+        medf = np.median(dfmean)
+        maskf = np.where(np.abs(dfmean - medf) > threshold*stdevf)[0]        
+
+        # replace with mean spectrum
+        data[:, maskf] = dtmean[:, None]*np.ones(len(maskf))[None]
+
+        return data
+
+    def dedisperse(self, data, dm, dt=8.192e-5, freq=(1550, 1250), freq_ref=None):
+        data = data.copy()
+        
+        nfreq, ntime = data.shape[0], data.shape[1]
+
+        freqs = np.linspace(freq[0], freq[-1], nfreq)
+
+        if freq_ref is None:
+            freq_ref = freqs.max()
+
+        tdelay = 4.148e3*dm*(freqs**-2 - freq_ref**-2)
+        ntime = len(data[0])
+
+        maxind_arr = []
+
+        for ii, f in enumerate(freqs):
+            data[ii] = np.roll(data[ii], -np.int(tdelay[ii]/dt))
+
+        return data
+
+    def preprocess(self, data, invert_spectrum=False):
+        if len(data.shape)==2:
+            data = data[None]
+
+        if invert_spectrum:
+            data = data[:, ::-1]
+
+        ntab = data.shape[0]
+
+        for tab in range(ntab):
+            data_tab = data[tab]
+            data_tab = cleandata(data_tab, threshold=3.0)
+            data[tab] = data_tab
+
+        if data.shape[0]==1:
+            data = data[0]
+
+        return data 
+
+    def dedisperse_tabs(self, data, dm, dt=8.192e-5, freq=(1550, 1250), freq_ref=None):
+
+        if len(data.shape)==2:
+            data = data[None]
+
+        ntab = data.shape[0]
+
+        for tab in range(ntab):
+            data_tab = data[tab]
+            data_tab = dedisperse(data_tab, dm, dt=dt, freq=freq, freq_ref=freq_ref)
+            data[tab] = data_tab
+
+        if data.shape[0]==1:
+            data = data[0]
+
+        return data
+
+    def postprocess(self, data, nfreq_plot=32, ntime_plot=64, downsample=1):
+        if len(data.shape)==2:
+            data = data[None]
+
+        nfreq = data.shape[1]
+        ntime = data.shape[-1]
+        ntab = data.shape[0]
+        data_classify = np.empty([ntab, nfreq_plot, ntime_plot])
+
+        for tab in range(ntab):
+            data_tab = data[tab]
+            data_tab = data_tab.reshape(nfreq_plot, nfreq//nfreq_plot, -1).mean(1)
+            data_tab = data_tab[:, :ntime//downsample*downsample]
+            data_tab = data_tab.reshape(-1, ntime//downsample, downsample).mean(-1)
+
+            maxind = np.argmax(data_tab.mean(0))
+
+            data_tab -= np.median(data_tab)
+            data_tab /= np.std(data_tab)
+            data_tab[data_tab!=data_tab] = 0.
+
+            data_classify[tab] = data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2]
+
+        return data_classify
+
+
+
 def combine_all_beams(fdir, fnout=None):
 
     flist = glob.glob(fdir+'/CB*.cand')
