@@ -52,8 +52,7 @@ class RealtimeProc:
         return data
 
     def dedisperse(self, data, dm, dt=8.192e-5, freq=(1550, 1250), freq_ref=None):
-        data = data.copy()
-        
+        print(data.shape)
         nfreq, ntime = data.shape[0], data.shape[1]
 
         freqs = np.linspace(freq[0], freq[-1], nfreq)
@@ -81,9 +80,7 @@ class RealtimeProc:
         ntab = data.shape[0]
 
         for tab in range(ntab):
-            data_tab = data[tab]
-            data_tab = cleandata(data_tab, threshold=3.0)
-            data[tab] = data_tab
+            data[tab] = self.cleandata(data[tab], threshold=3.0)
 
         if data.shape[0]==1:
             data = data[0]
@@ -98,9 +95,7 @@ class RealtimeProc:
         ntab = data.shape[0]
 
         for tab in range(ntab):
-            data_tab = data[tab]
-            data_tab = dedisperse(data_tab, dm, dt=dt, freq=freq, freq_ref=freq_ref)
-            data[tab] = data_tab
+            data[tab] = self.dedisperse(data[tab], dm, dt=dt, freq=freq, freq_ref=freq_ref)
 
         if data.shape[0]==1:
             data = data[0]
