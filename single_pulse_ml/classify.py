@@ -22,7 +22,7 @@ def classify(data, model, save_ranked=False,
              plot_ranked=False, prob_threshold=0.5,
              fnout='ranked', nside=5, params=None,
              ranked_ind=None, ind_frb=None, 
-             yaxlabel='Freq', tab=None):
+             yaxlabel='Freq', tab=None, DMgal=np.inf):
 
     if ranked_ind is not None:
         prob_threshold = 0.0
@@ -129,28 +129,29 @@ def classify(data, model, save_ranked=False,
             ranked_ind_ = plot_tools.plot_multiple_ranked(argtup, nside=nside, \
                                             fnfigout=fnout, ascending=False, 
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                            yaxlabel=yaxlabel, tab=tab[ind_frb])
+                                                          yaxlabel=yaxlabel, tab=tab[ind_frb], DMgal=DMgal)
         else:
             ranked_ind_ = plot_tools.plot_multiple_ranked(fnout_ranked, nside=nside, \
                                             fnfigout=fnout, ascending=False,
                                             params=params[ind_frb], ranked_ind=ranked_ind,
-                                            yaxlabel=yaxlabel, tab=tab[ind_frb])
+                                                          yaxlabel=yaxlabel, tab=tab[ind_frb], DMgal=DMgal)
 
         return ind_frb, ranked_ind_
 
     return [],[]
 
 
-def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
+def run_main(fn_data, fn_model_freq, options, DMgal=np.inf):
     print("Using datafile %s" % fn_data)
     print("Using keras model in %s" % fn_model_freq)
 
     data_freq, y, data_dm, data_mb, params, tab = reader.read_hdf5(fn_data, return_tab=True)
     
     dms = params[:, 1]
-    ind_dm = np.where((dms>=dm_min) & (dms<dm_max))[0]
+    #ind_dm = np.where((dms>=dm_min) & (dms<dm_max))[0]
+    ind_dm = range(len(dms))
     
-    print("%d of %d events have %0.1f<DM<%0.1f" % (len(ind_dm), len(params), dm_min, dm_max))
+#    print("%d of %d events have %0.1f<DM<%0.1f" % (len(ind_dm), len(params), dm_min, dm_max))
 
     if len(ind_dm)==0:
         return 
@@ -170,7 +171,8 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
     if data_freq.shape[-1] > (th-tl):
         data_freq = data_freq[..., tl:th]
 
-    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min, dm_max)
+#    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dm_min, dm_max)
+    fn_fig_out = options.fnout + '_freq_time_dm%0.1f-%0.1f' % (dms.min(), dms.max())
 
     print("\nCLASSIFYING FREQ/TIME DATA\n")
 
@@ -179,7 +181,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
                              plot_ranked=options.plot_ranked, 
                              prob_threshold=options.prob_threshold,
                              fnout=fn_fig_out, params=params, 
-                             nside=options.nside, yaxlabel='Freq', tab=tab)
+                                        nside=options.nside, yaxlabel='Freq', tab=tab, DMgal=DMgal)
 
     if len(ind_frb)==0:
         return
@@ -196,7 +198,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
                      prob_threshold=options.prob_threshold,
                      fnout=fn_fig_out, params=params, 
                      nside=options.nside, ind_frb=ind_frb,
-                     ranked_ind=ranked_ind_freq, yaxlabel='DM')
+                     ranked_ind=ranked_ind_freq, yaxlabel='DM', DMgal=DMgal)
         else:
             print("No DM/time data to classify")
 
@@ -209,7 +211,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
              prob_threshold=options.prob_threshold,
              fnout=fn_fig_out, params=params, 
              nside=options.nside, ind_frb=ind_frb,
-             ranked_ind=ranked_ind_freq, yaxlabel='')
+                 ranked_ind=ranked_ind_freq, yaxlabel='', DMgal=DMgal)
 
     if options.fn_model_mb is not None:
         data_mb = data_mb[ind_dm]
@@ -219,7 +221,7 @@ def run_main(fn_data, fn_model_freq, options, dm_min=0, dm_max=np.inf):
              plot_ranked=options.plot_ranked, 
              prob_threshold=options.prob_threshold,
              fnout=options.fnout, params=params, ind_frb=ind_frb,
-             nside=options.nsidem, ranked_ind=ranked_ind_freq)
+                 nside=options.nsidem, ranked_ind=ranked_ind_freq, DMgal=DMgal)
 
 if __name__=="__main__":
     parser = optparse.OptionParser(prog="classify.py", \
@@ -264,7 +266,7 @@ if __name__=="__main__":
 
     parser.add_option('--DMgal', dest='DMgal', type='float', \
                        help="expected DM contribution from Milky Way",\
-                       default=0.)
+                       default=np.inf)
 
     options, args = parser.parse_args()
 
@@ -273,11 +275,14 @@ if __name__=="__main__":
     fn_data = args[0]
     fn_model_freq = args[1]
 
-    if options.DMgal > 0:
-        run_main(fn_data, fn_model_freq, options, dm_min=0., dm_max=options.DMgal)
-        run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
-    else:
-        run_main(fn_data, fn_model_freq, options)
+    run_main(fn_data, fn_model_freq, options, DMgal=options.DMgal)
+    exit()
+
+#    if options.DMgal > 0:
+#        run_main(fn_data, fn_model_freq, options, dm_min=0., dm_max=options.DMgal)
+#        run_main(fn_data, fn_model_freq, options, dm_min=options.DMgal)
+#    else:
+#        run_main(fn_data, fn_model_freq, options)
 
 
 

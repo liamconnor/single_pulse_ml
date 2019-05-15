@@ -84,7 +84,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                         yaxlabel='Freq', params=None,
                         ranking=None, 
                         freq_low=1250.09765625, 
-                        freq_up=1549.90234375, tab=None):
+                        freq_up=1549.90234375, tab=None, DMgal=np.inf):
     """ Plot single-pulse triggers ranked by the
     classifier's assigned probability.
 
@@ -154,20 +154,44 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
         title_str = 'FRB most probable'
         outname = outname
 
-    fig = plt.figure(figsize=(15,15))
+#    fig = plt.figure(figsize=(15,15))
+    fig, axes = plt.subplots(h,w, figsize=(15,15))
     plt.suptitle(outname)
 
-    for ii in range(min(h*w, len(prob_arr))):
-        plt.subplot(h, w, ii+1)
+#    for ii, ax in enumerate(np.concatenate(axes)):
+#        print('plotting new new')
+#        
+#        ax.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+#        
+#        plt.savefig('bing.pdf')
+
+#    for ii in range(min(h*w, len(prob_arr))):
+    for ii, ax in enumerate(np.concatenate(axes)):
+        if ii>=len(prob_arr):
+            ax.axis('off')
+            continue
+
+#        plt.subplot(h, w, ii+1)
         if len(data.shape)==3:
             if yaxlabel=='Freq':
                 extent = [times[0, ii], times[-1, ii], freq_low, freq_up]
-                plt.imshow(data[ranking[ii]], 
+                #plt.imshow(data[ranking[ii]], 
+                #    cmap=cmap, interpolation='nearest', 
+                #    aspect='auto', vmin=vmin, vmax=vmax, 
+                #    extent=extent)
+                #plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+                ax.imshow(data[ranking[ii]], 
                     cmap=cmap, interpolation='nearest', 
                     aspect='auto', vmin=vmin, vmax=vmax, 
                     extent=extent)
-                plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
-                plt.xlim(0, times[-1, ii])
+                ax.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+                ax.set_xlim(0, times[-1, ii])
+                ax.set_xticks([])
+                ax.set_yticks([])
+
+                if dms[ii]>DMgal:
+                    plt.setp(ax.spines.values(), color='red', linewidth=2, alpha=0.85)
+
             else:
                 extent = [0,1,0,1]
                 plt.imshow(data[ranking[ii]], 
@@ -176,21 +200,24 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                     extent=extent)
 
         elif len(data.shape)==2:
-            plt.plot(data[ranking[ii]])
+            ax.plot(data[ranking[ii]])
+            ax.set_xticks([])
+            ax.set_yticks([])
+            if dms[ii]>DMgal:
+                plt.setp(ax.spines.values(), color='red', linewidth=2, alpha=0.85)
+
         else:
             print("Wrong data input shape")
             return 
 
-        plt.xticks([])
-        plt.yticks([])
-        plt.title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms TAB=%d' % \
+        ax.set_title('p:%0.2f dm:%d \n t:%0.1fs s/n:%0.1f wind=%0.1f ms TAB=%d' % \
             (prob_arr[ranking[ii]], dms[ranking[ii]], \
                 tt[ranking[ii]], snr[ranking[ii]], 1000*twindow_sec[ii], tab[ranking[ii]]), fontsize=7)
 
         if ii % w == 0:
-            plt.ylabel(yaxlabel, fontsize=14)
+            ax.set_ylabel(yaxlabel, fontsize=14)
         if ii >= (h*w-w):
-            plt.xlabel("Time", fontsize=14)
+            ax.set_xlabel("Time", fontsize=14)
 
     if outname is not None:
         fig.savefig(outname)
@@ -199,7 +226,7 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
 
 def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig', 
                          ascending=True, params=None, 
-                         ranked_ind=None, yaxlabel='Freq', tab=None):
+                         ranked_ind=None, yaxlabel='Freq', tab=None, DMgal=np.inf):
     """ Generate multiple multi-panel figures 
     using plot_ranked_trigger
 
@@ -259,7 +286,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
                             h=nside, w=nside, ascending=ascending, 
                             outname=fnfigout_, cmap=None, 
                             params=params_sub, 
-                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel, tab=tab_sub)
+                            ranking=range(len(ind_sub)), yaxlabel=yaxlabel, tab=tab_sub, DMgal=DMgal)
 
     return ind
 
