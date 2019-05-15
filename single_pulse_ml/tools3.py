@@ -115,7 +115,7 @@ def cleandata(data, threshold=3.0):
     -------
     cleaned filterbank object
     """
-    logging.info("Cleaning RFI")
+#    logging.info("Cleaning RFI")
 
     assert len(data.shape)==2, "Expected (nfreq, ntime) array"
 

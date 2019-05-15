@@ -17,11 +17,9 @@ model = frbkeras.load_model(fn_model)
 #reader.connect(0xdada)
 #reader.connect(0x1210)
 
-
-ntab = 12
+ntab = 3
 nfreq = 1536
 ntime_batch = 12500
-
 dshape = (ntab, nfreq, ntime_batch)
 
 counter = -1
@@ -57,7 +55,7 @@ def preprocess(data, invert_spectrum=False):
 
     for tab in range(ntab):
         data_tab = data[tab]
-        data_tab = cleandata(data_tab, threshold=3.0)
+        data_tab = tools3.cleandata(data_tab, threshold=3.0)
         data[tab] = data_tab
 
     if data.shape[0]==1:
@@ -93,7 +91,7 @@ def postprocess(data, nfreq_plot=32, ntime_plot=64, downsample=1):
 
     for tab in range(ntab):
         data_tab = data[tab]
-
+        print(tab, data_tab.shape, data_classify.shape)
         data_tab = data_tab.reshape(nfreq_plot, nfreq//nfreq_plot, -1).mean(1)
         data_tab = data_tab[:, :ntime//downsample*downsample]
         data_tab = data_tab.reshape(-1, ntime//downsample, downsample).mean(-1)
@@ -106,18 +104,17 @@ def postprocess(data, nfreq_plot=32, ntime_plot=64, downsample=1):
 
         data_classify[tab] = data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2]
 
-    if data.shape[0]==1:
-        data = data[0]
-
-    return data 
+    return data_classify
 
 reader = []
 
-for ii in range(10):
-    data = np.random.normal(0,1,1536*12*12500)
+for ii in range(5):
+    print(ii)
+    data = np.random.normal(0,1,1536*ntab*ntime_batch)
     reader.append(data)
 
 for page in reader:
+    print(counter)
     counter += 1
     
     # read the page as numpy array
@@ -135,7 +132,7 @@ for page in reader:
 
     data = preprocess(data, invert_spectrum=True)
     data = dedisperse_tabs(data, 56.0)
-    data = postprocess(data, nfreq_plot=32, ntime_plot=64, downsample=1)
+    data_classify = postprocess(data, nfreq_plot=32, ntime_plot=64, downsample=1)
 
     prob = model.predict(data_classify[..., None])
     indpmax = np.argmax(prob[:, 1])
