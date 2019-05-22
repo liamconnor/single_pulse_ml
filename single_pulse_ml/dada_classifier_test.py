@@ -37,7 +37,6 @@ nfreq_plot = 32
 ntime_plot = 64
 ntab = 12
 dt = 8.192e-5
-t_batch = ntime_batch*dt
 RtProc = tools3.RealtimeProc()
 
 counter = -1
@@ -60,6 +59,7 @@ for page in reader:
     header = reader.getHeader()
     H = DadaHeader(header)
 
+    t_batch = H.ntime_batch*H.dt
     dshape = (ntab, H.nfreq, H.ntime_batch)
     data = np.reshape(data, dshape)
 
