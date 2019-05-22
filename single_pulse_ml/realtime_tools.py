@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class DadaHeader:
 
     def __init__(self, header):
