@@ -59,7 +59,7 @@ for page in reader:
     H = DadaHeader(header)
 
     t_batch = H.ntime_batch*H.dt
-    dshape = (ntab, H.nfreq, H.ntime_batch)
+    dshape = (ntab, H.nchan, H.ntime_batch)
     print(dshape, data.shape)
     data = np.reshape(data, dshape)
 
@@ -81,34 +81,4 @@ for page in reader:
     else:
         print('Nothing good')
 
-#    data, maxind_arr = dedisperse(data, dm=56.8)
-#    data = data[..., :ntime_batch//64*64]
-#    data = data.reshape(ntab, 32, nfreq//32, 64, ntime_batch//64)
-#    data = data.mean(2).mean(-1)
-#     data = data.reshape(ntab, 32, nfreq//32, -1).mean(2)
-#     for tab in range(ntab):
-#         data_tab = data[tab]
-#         data_tab = tools3.cleandata(data_tab, threshold=3.0)
-#         data_tab = tools3.dedisperse(data_tab, dm, dt=8.192e-5, freq=(1550, 1250), freq_ref=None)
-#         data_tab = data_tab.reshape(32, nfreq//32, -1).mean(1)
-#         data_tab = data_tab[:, :ntime_batch//downsample*downsample]
-#         data_tab = data_tab.reshape(-1, ntime_batch//downsample, downsample).mean(-1)
-
-#         maxind = np.argmax(data_tab.mean(0))
-
-#         data_tab -= np.median(data_tab)
-#         data_tab /= np.std(data_tab)
-#         data_tab[data_tab!=data_tab] = 0.
-#         data_classify[tab] = data_tab[:, maxind-32:maxind+32]
-        
-#     prob = model.predict(data_classify[..., None])
-#     indpmax = np.argmax(prob[:, 1])
-
-#     if prob[indpmax,1]>=0.0:
-#         fig = plt.figure()
-#         plt.imshow(data_classify[indpmax], aspect='auto', vmax=3, vmin=-2.)
-#         plt.show()
-#     else:
-#         print('Nothing good')
-
-# reader.disconnect()
+reader.disconnect()
