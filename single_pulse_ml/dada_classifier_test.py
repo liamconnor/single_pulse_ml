@@ -60,6 +60,7 @@ for page in reader:
 
     t_batch = H.ntime_batch*H.dt
     dshape = (ntab, H.nfreq, H.ntime_batch)
+    print(dshape, data.shape)
     data = np.reshape(data, dshape)
 
     if len(data)==0:
