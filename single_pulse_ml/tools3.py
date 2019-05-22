@@ -18,7 +18,8 @@ class AnalyseTriggers:
 
 class RealtimeProc:
 
-    def __int__(self):
+    def __int__(self, dt=8.192e-5):
+        self.dt = dt
         pass
 
     def cleandata(self, data, threshold=3.0):
@@ -51,7 +52,7 @@ class RealtimeProc:
 
         return data
 
-    def dedisperse(self, data, dm, dt=8.192e-5, freq=(1550, 1250), freq_ref=None):
+    def dedisperse(self, data, dm, freq=(1550, 1250), freq_ref=None):
         print(data.shape)
         nfreq, ntime = data.shape[0], data.shape[1]
 
@@ -66,7 +67,7 @@ class RealtimeProc:
         maxind_arr = []
 
         for ii, f in enumerate(freqs):
-            data[ii] = np.roll(data[ii], -np.int(tdelay[ii]/dt))
+            data[ii] = np.roll(data[ii], -np.int(tdelay[ii]/self.dt))
 
         return data
 
@@ -95,7 +96,7 @@ class RealtimeProc:
         ntab = data.shape[0]
 
         for tab in range(ntab):
-            data[tab] = self.dedisperse(data[tab], dm, dt=dt, freq=freq, freq_ref=freq_ref)
+            data[tab] = self.dedisperse(data[tab], dm, freq=freq, freq_ref=freq_ref)
 
         if data.shape[0]==1:
             data = data[0]
