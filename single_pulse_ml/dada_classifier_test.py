@@ -20,12 +20,12 @@ reader.connect(0x1200)
 class DadaHeader:
 
     def __init__(self, header):
-        self.dt = header['TSAMP']
-        self.nchan = header['NCHAN']
-        self.ntime_batch = header['PADDED_SIZE']
-        self.freq_mid = header['FREQ'] # mid frequency?
-        self.freq_low = header['MIN_FREQUENCY']
-        self.dnu = header['CHANNEL_BANDWIDTH']
+        self.dt = np.float(header['TSAMP'])
+        self.nchan = np.int(header['NCHAN'])
+        self.ntime_batch = np.int(header['PADDED_SIZE'])
+        self.freq_mid = np.float(header['FREQ']) # mid frequency?
+        self.freq_low = np.float(header['MIN_FREQUENCY'])
+        self.dnu = np.float(header['CHANNEL_BANDWIDTH'])
         self.freq_high = self.freq_low + self.nchan*self.dnu
 
 
