@@ -20,7 +20,6 @@ class RealtimeProc:
 
     def __int__(self, dt=8.192e-5):
         self.dt = dt
-        pass
 
     def cleandata(self, data, threshold=3.0):
         """ Take filterbank object and mask 
@@ -120,12 +119,24 @@ class RealtimeProc:
 
             maxind = np.argmax(data_tab.mean(0))
 
+            if (ntime-maxind)<ntime_plot//2:
+                maxind = ntime - ntime_plot//2
+            if maxind<ntime_plot//2:
+                maxind = ntime_plot//2
+
             data_tab -= np.median(data_tab)
             data_tab /= np.std(data_tab)
             data_tab[data_tab!=data_tab] = 0.
 
             data_classify[tab] = data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2]
 
+        return data_classify
+
+    def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
+        data = self.preprocess(data, invert_spectrum=invert_spectrum)
+        data = self.dedisperse_tabs(data, dm)
+        data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, downsample=downsample)
+        
         return data_classify
 
 
