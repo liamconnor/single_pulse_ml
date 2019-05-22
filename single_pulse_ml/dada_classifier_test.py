@@ -70,7 +70,6 @@ for page in reader:
     data_classify = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16)
     prob = model.predict(data_classify[..., None])
-    print(time.time()-t0)
 
     indpmax = np.argmax(prob[:, 1])
 
