@@ -18,7 +18,7 @@ class AnalyseTriggers:
 
 class RealtimeProc:
 
-    def __int__(self, dt=8.192e-5):
+    def __init__(self, dt=8.192e-5):
         self.dt = dt
 
     def cleandata(self, data, threshold=3.0):
