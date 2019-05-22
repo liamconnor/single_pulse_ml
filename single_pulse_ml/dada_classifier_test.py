@@ -36,9 +36,6 @@ class DadaHeader:
 nfreq_plot = 32
 ntime_plot = 64
 ntab = 12
-nfreq = 1536
-ntime_batch = 12500
-dshape = (ntab, nfreq, ntime_batch)
 dt = 8.192e-5
 t_batch = ntime_batch*dt
 RtProc = tools3.RealtimeProc()
@@ -46,7 +43,6 @@ RtProc = tools3.RealtimeProc()
 counter = -1
 
 dm = 568.
-to_list = [1., 1.25, 1.5]
 
 # Leaving this as is. Need to think of how I will 
 # actually read the data as it comes in. 
@@ -61,7 +57,6 @@ for page in reader:
 
     print("%d seconds" % counter)
 
-    data = data[tabby][None]
     header = reader.getHeader()
     H = DadaHeader(header)
 
