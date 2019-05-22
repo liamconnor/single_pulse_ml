@@ -60,6 +60,7 @@ class RealtimeProc:
         if freq_ref is None:
             freq_ref = freqs.max()
 
+        print(dm, freqs, freq_ref)
         tdelay = 4.148e3*dm*(freqs**-2 - freq_ref**-2)
         ntime = len(data[0])
 
@@ -135,7 +136,8 @@ class RealtimeProc:
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
         data = self.preprocess(data, invert_spectrum=invert_spectrum)
         data = self.dedisperse_tabs(data, dm)
-        data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, downsample=downsample)
+        data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
+                                        ntime_plot=ntime_plot, downsample=downsample)
         
         return data_classify
 
