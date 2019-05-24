@@ -54,8 +54,9 @@ for page in reader:
         continue
 
     # This method will rfi clean, dedisperse, and downsample data.
-    data_classify = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
+    data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16)
+    print(data_dmtime.shape)
     prob = model.predict(data_classify[..., None])
 
     indpmax = np.argmax(prob[:, 1])
