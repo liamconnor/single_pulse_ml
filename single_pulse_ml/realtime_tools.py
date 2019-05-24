@@ -127,10 +127,31 @@ class RealtimeProc:
 
         return data_classify
 
+def dm_transform(data, freq, dt=8.192e-5, dm_max=10, dm_min=-10, ndm=50, freq_ref=None):
+    """ Transform freq/time data to dm/time data.                                                    
+    """
+
+    if len(freq)<3:
+        NFREQ = data.shape[0]
+        freq = np.linspace(freq[0], freq[1], NFREQ)
+
+    dms = np.linspace(dm_min, dm_max, ndm)
+    ntime = data.shape[-1]
+
+    data_full = np.zeros([ndm, ntime])
+    times = np.linspace(-0.5*ntime*dt, 0.5*ntime*dt, ntime)
+
+    for ii, dm in enumerate(dms):
+        data_full[ii] = np.mean(dedisperse(data, dm, freq=(freq[0], freq[-1]),
+                               freq_ref=freq_ref), axis=0)
+
+    return data_full, dms, times    
+
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
         data = self.preprocess(data, invert_spectrum=invert_spectrum)
         data = self.dedisperse_tabs(data, dm)
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
-        
-        return data_classify
+        data_dmt = self.dmt(data_classify)
+
+        return data_classify, data_dmt
