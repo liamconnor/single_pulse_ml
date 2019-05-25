@@ -47,7 +47,6 @@ class RealtimeProc:
         return data
 
     def dedisperse(self, data, dm, freq=(1550, 1250), freq_ref=None):
-        print(data.shape)
         nfreq, ntime = data.shape[0], data.shape[1]
 
         freqs = np.linspace(freq[0], freq[-1], nfreq)
