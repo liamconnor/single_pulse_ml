@@ -156,6 +156,6 @@ class RealtimeProc:
         data = self.dedisperse_tabs(data, dm)
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
-        data_dmtime = self.dm_transform(data_classify, freq=(1550, 1250))
+        data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
 
         return data_classify, data_dmtime
