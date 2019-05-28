@@ -18,6 +18,10 @@ class DadaHeader:
         self.freq_low = np.float(header['MIN_FREQUENCY'])
         self.dnu = np.float(header['CHANNEL_BANDWIDTH'])
         self.freq_high = self.freq_low + self.nchan*self.dnu
+        try:
+            self.dm = header['EVENT_DM']
+        except:
+            self.dm = None
 
 class RealtimeProc:
 
