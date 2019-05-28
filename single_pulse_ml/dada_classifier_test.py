@@ -55,7 +55,7 @@ for page in reader:
     counter += 1
     data = np.array(page)
     print('t COPY: %f' % (time.time()-t0))
-
+    print(data.shape)
     #header = reader.getHeader()
     #H = realtime_tools.DadaHeader(header)
     #dm = H.dm
@@ -82,7 +82,7 @@ for page in reader:
 
     t0 = time.time()
     prob = model.predict(data_classify[..., None])
-    print('t true time PRED: %f' % (time.time()-t0))
+    #print('t true time PRED: %f' % (time.time()-t0))
     print(data_classify[..., None].shape)
 
     indpmax = np.argmax(prob[:, 1])
