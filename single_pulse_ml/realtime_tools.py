@@ -106,7 +106,7 @@ class RealtimeProc:
             data = data[None]
 
         nfreq = data.shape[1]
-        ntime = data.shape[-1]
+        ntime = data.shape[-1]//downsample
         ntab = data.shape[0]
         data_classify = np.empty([ntab, nfreq_plot, ntime_plot])
 
