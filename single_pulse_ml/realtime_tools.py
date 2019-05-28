@@ -106,8 +106,9 @@ class RealtimeProc:
             data = data[None]
 
         nfreq = data.shape[1]
-        ntime = data.shape[-1]//downsample
         ntab = data.shape[0]
+        ntime = data.shape[-1]
+        ntime_ds = ntime//downsample
         data_classify = np.empty([ntab, nfreq_plot, ntime_plot])
 
         for tab in range(ntab):
@@ -118,8 +119,8 @@ class RealtimeProc:
 
             maxind = np.argmax(data_tab.mean(0))
 
-            if (ntime-maxind)<ntime_plot//2:
-                maxind = ntime - ntime_plot//2
+            if (ntime_ds-maxind)<ntime_plot//2:
+                maxind = ntime_ds - ntime_plot//2
             if maxind<ntime_plot//2:
                 maxind = ntime_plot//2
 
