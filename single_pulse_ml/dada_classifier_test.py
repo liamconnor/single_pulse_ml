@@ -5,10 +5,10 @@ import time
 import matplotlib.pylab as plt
 
 import realtime_tools
-## import frbkeras
+import frbkeras
 
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
-## model = frbkeras.load_model(fn_model)
+model = frbkeras.load_model(fn_model)
 
 
 # Create a reader instace
@@ -52,7 +52,7 @@ dshape = (ntab, nchan, ntime_batch)
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
 
-## model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 for page in reader:
     t0 = time.time()
@@ -85,6 +85,7 @@ for page in reader:
     prob = model.predict(data_classify[..., None])
     print('t true time PRED: %f' % (time.time()-t0))
     print(data_classify[..., None].shape)
+
     del header
 
     indpmax = np.argmax(prob[:, 1])
