@@ -99,9 +99,6 @@ class RealtimeProc:
         for tab in range(ntab):
             data[tab] = self.dedisperse(data[tab], dm, freq=freq, freq_ref=freq_ref)
 
-        if data.shape[0]==1:
-            data = data[0]
-
         return data
 
     def postprocess(self, data, nfreq_plot=32, ntime_plot=64, downsample=1):
