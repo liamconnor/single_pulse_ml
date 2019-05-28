@@ -59,9 +59,11 @@ for page in reader:
     #header = reader.getHeader()
     #H = realtime_tools.DadaHeader(header)
     #dm = H.dm
+    #width = H.width 
     ## t_batch = H.ntime_batch*H.dt
     #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
+    width = 1
 
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
@@ -73,7 +75,8 @@ for page in reader:
     # This method will rfi clean, dedisperse, and downsample data.
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, 
                                                  ntime_plot=ntime_plot, 
-                                                 invert_spectrum=True, downsample=16, dmtransform=True)
+                                                 invert_spectrum=True, 
+                                                 downsample=width, dmtransform=True)
 
     print('t PROC: %f' % (time.time()-t0))
 
@@ -84,7 +87,7 @@ for page in reader:
 
     indpmax = np.argmax(prob[:, 1])
 
-    if prob[indpmax,1]>0.9:
+    if prob[indpmax,1]>0.5:
         fig = plt.figure()
         plt.imshow(data_classify[indpmax], aspect='auto')
         plt.show()

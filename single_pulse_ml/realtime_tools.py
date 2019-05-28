@@ -5,6 +5,8 @@ import time
 """
 Need to replace preproc cleaning method with 
 Dany's fuller method.plt.
+
+maybe give DadaHeader an option for stokes trigger or not
 """
 
 
@@ -23,6 +25,11 @@ class DadaHeader:
             self.dm = header['EVENT_DM']
         except:
             self.dm = None
+
+        try:
+            self.width = header['EVENT_WIDTH']
+        except:
+            self.width = None
 
 class RealtimeProc:
 
