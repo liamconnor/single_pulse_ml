@@ -76,6 +76,7 @@ for page in reader:
     t0 = time.time()
     prob = model.predict(data_classify[..., None])
     print('t true time PRED: %f' % (time.time()-t0))
+    print(data_classify[..., None].shape)
 
     indpmax = np.argmax(prob[:, 1])
 
