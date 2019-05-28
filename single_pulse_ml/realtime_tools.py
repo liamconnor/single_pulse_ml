@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pylab as plt
 
+import time
 """
 Need to replace preproc cleaning method with 
 Dany's fuller method.plt.
@@ -168,14 +169,20 @@ class RealtimeProc:
 
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, 
                 invert_spectrum=False, downsample=1, dmtransform=True):
+        t0 = time.time()
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
+        print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
+        print('t dedisp_tabs: %f' % (time.time()-t0))
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
+        print('t postproc: %f' % (time.time()-t0))
+
         if dmtransform:
             data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
         else:
             data_dmtime = []
+        print('t dmtrans: %f' % (time.time()-t0))
 
         return data_classify, data_dmtime
 
