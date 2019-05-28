@@ -49,10 +49,11 @@ for ii in range(3):
 dshape = (ntab, nchan, ntime_batch)
 
 for page in reader:
+    t0 = time.time()
     counter += 1
     data = np.array(page)
 
-    print("%d seconds" % counter)
+    print('t copy: %f' % time.time()-t0)
 
     ## header = reader.getHeader()
     ## H = realtime_tools.DadaHeader(header)
@@ -69,7 +70,11 @@ for page in reader:
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16, dmtransform=True)
 
+    print('t process: %f' % time.time()-t0)
+
     prob = model.predict(data_classify[..., None])
+    print('t predict: %f' % time.time()-t0)
+
     indpmax = np.argmax(prob[:, 1])
 
     if prob[indpmax,1]>0.5:
