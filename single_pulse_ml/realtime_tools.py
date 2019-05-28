@@ -126,8 +126,8 @@ class RealtimeProc:
             data_tab -= np.median(data_tab)
             data_tab /= np.std(data_tab)
             data_tab[data_tab!=data_tab] = 0.
-            print("maxind, data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2].shape, data_classify.shape, data_tab.shape")
-            print(maxind, data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2].shape, data_classify.shape, data_tab.shape)
+            print("ntime, maxind, data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2].shape, data_classify.shape, data_tab.shape")
+            print(ntime, maxind, data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2].shape, data_classify.shape, data_tab.shape)
             data_classify[tab] = data_tab[:, maxind-ntime_plot//2:maxind+ntime_plot//2]
 
         return data_classify
