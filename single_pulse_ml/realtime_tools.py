@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib.pylab as plt
 
+"""
+Need to replace preproc cleaning method with 
+Dany's fuller method.
+"""
+
+
 class DadaHeader:
 
     def __init__(self, header):
@@ -65,7 +71,7 @@ class RealtimeProc:
 
         return data
 
-    def preprocess(self, data, invert_spectrum=False):
+    def preprocess(self, data, invert_spectrum=False, threshold=3.0):
         if len(data.shape)==2:
             data = data[None]
 
@@ -75,7 +81,7 @@ class RealtimeProc:
         ntab = data.shape[0]
 
         for tab in range(ntab):
-            data[tab] = self.cleandata(data[tab], threshold=3.0)
+            data[tab] = self.cleandata(data[tab], threshold=threshold)
 
         if data.shape[0]==1:
             data = data[0]
@@ -152,7 +158,7 @@ class RealtimeProc:
         return data_full, dms, times    
 
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
-        data = self.preprocess(data, invert_spectrum=invert_spectrum)
+        data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
         data = self.dedisperse_tabs(data, dm)
         fig = plt.figure()
         plt.imshow(data[0], aspect='auto')
