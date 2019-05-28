@@ -165,7 +165,8 @@ class RealtimeProc:
         return data_full, dms, times    
 
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, 
-                invert_spectrum=False, downsample=1, dmtransform=True):
+                 invert_spectrum=False, downsample=1, dmtransform=True, 
+                 freq=(1550.,1250.)):
         t0 = time.time()
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
         print('t preproc: %f' % (time.time()-t0))
@@ -176,7 +177,7 @@ class RealtimeProc:
         print('t postproc: %f' % (time.time()-t0))
 
         if dmtransform:
-            data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
+            data_dmtime, dms, times = self.dm_transform(data_classify, freq=freq)
         else:
             data_dmtime = []
         print('t dmtrans: %f' % (time.time()-t0))
