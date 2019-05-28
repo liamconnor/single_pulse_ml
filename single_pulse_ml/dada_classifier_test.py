@@ -46,7 +46,7 @@ dm = 0
 #     data_fake = np.random.normal(0,1,ntab*ntime_batch*nchan)
 #     reader.append(data_fake)
 
-# dshape = (ntab, nchan, ntime_batch)
+dshape = (ntab, nchan, ntime_batch)
 
 # For some reason, the model's first prediction takes a long time. 
 # pre-empt this by classifying an array of zeros before looking 
@@ -62,10 +62,10 @@ for page in reader:
     print('t COPY: %f' % (time.time()-t0))
 
     header = reader.getHeader()
-    H = realtime_tools.DadaHeader(header)
+    #H = realtime_tools.DadaHeader(header)
 
     ## t_batch = H.ntime_batch*H.dt
-    dshape = (ntab, H.nchan, H.ntime_batch)
+    #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
 
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
