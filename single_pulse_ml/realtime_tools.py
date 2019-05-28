@@ -160,9 +160,10 @@ class RealtimeProc:
                 data_full[:, ii] = np.mean(self.dedisperse(data.copy(), dm, freq=(freq[0], freq[-1]),
                                         freq_ref=freq_ref), axis=1)
             elif len(data.shape)==3:
-                print(data.shape, data_full.shape)
-                data_full[:, ii] = np.mean(self.dedisperse_tabs(data.copy(), dm, freq=(freq[0], freq[-1]),
+                B = np.mean(self.dedisperse_tabs(data.copy(), dm, freq=(freq[0], freq[-1]),
                                         freq_ref=freq_ref), axis=1)
+                print(B.shape, data_full[:, ii].shape)
+                data_full[:, ii] = B
             else:
                 raise Exception('Expected data shape: (ntab,nfreq,ntime) or (nfreq,ntime)')
 
