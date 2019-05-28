@@ -5,10 +5,10 @@ import time
 import matplotlib.pylab as plt
 
 import realtime_tools
-## import frbkeras
+import frbkeras
 
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
-## model = frbkeras.load_model(fn_model)
+model = frbkeras.load_model(fn_model)
 
 # Create a reader instace
 ## reader = Reader()
@@ -69,13 +69,10 @@ for page in reader:
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16, dmtransform=True)
 
-
-    print('dtms', data_dmtime.shape, data_dmtime.sum())
     prob = model.predict(data_classify[..., None])
-
     indpmax = np.argmax(prob[:, 1])
 
-    if prob[indpmax,1]>0.0:
+    if prob[indpmax,1]>0.5:
         fig = plt.figure()
         plt.imshow(data_classify[indpmax], aspect='auto')
         plt.show()
