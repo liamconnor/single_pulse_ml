@@ -29,15 +29,12 @@ RtProc = realtime_tools.RealtimeProc()
 
 counter = -1
 
-dm = 56.8
-
 # Leaving this as is. Need to think of how I will 
 # actually read the data as it comes in. 
 # Ask Leon again how the trigger headers actually work.
 # Need to figure out how many triggers per minute the code 
 # can keep up with. Also need to update the dedisperser for edge 
 # effect. The frequency roll should be more like presto. .
-
 nchan = 1536
 ntime_batch = 12500
 dm = 56.8
