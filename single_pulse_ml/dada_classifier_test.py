@@ -69,7 +69,7 @@ for page in reader:
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16)
     fig = plt.figure()
-    plt.imshow(data_classify[0], aspect='auto')
+    plt.imshow(data_dmtime[0], aspect='auto')
     plt.show()
     continue
 
