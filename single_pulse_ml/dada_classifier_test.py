@@ -38,7 +38,6 @@ dm = 56.8
 # can keep up with. Also need to update the dedisperser for edge 
 # effect. The frequency roll should be more like presto. .
 
-reader =[]
 nchan = 1536
 ntime_batch = 12500
 dm = 0
