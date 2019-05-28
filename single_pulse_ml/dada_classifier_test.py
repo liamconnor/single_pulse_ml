@@ -82,8 +82,6 @@ for page in reader:
     print('t true time PRED: %f' % (time.time()-t0))
     print(data_classify[..., None].shape)
 
-    del header
-
     indpmax = np.argmax(prob[:, 1])
 
     if prob[indpmax,1]>0.9:
