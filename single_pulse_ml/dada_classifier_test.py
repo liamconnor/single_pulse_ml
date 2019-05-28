@@ -5,7 +5,7 @@ import time
 import matplotlib.pylab as plt
 
 import realtime_tools
-## import frbkeras
+import frbkeras
 
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 model = frbkeras.load_model(fn_model)
