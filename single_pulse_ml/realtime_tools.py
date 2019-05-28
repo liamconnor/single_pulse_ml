@@ -161,6 +161,13 @@ class RealtimeProc:
             elif len(data.shape)==3:
                 data_full[:, ii] = np.mean(self.dedisperse_tabs(data, dm, freq=(freq[0], freq[-1]),
                                         freq_ref=freq_ref), axis=1)
+                fig = plt.figure()
+                plt.imshow(data[0], aspect='auto')
+                plt.show()
+
+                fig = plt.figure()
+                plt.imshow(data_full[0], aspect='auto')
+                plt.show()
             else:
                 raise Exception('Expected data shape: (ntab,nfreq,ntime) or (nfreq,ntime)')
 
