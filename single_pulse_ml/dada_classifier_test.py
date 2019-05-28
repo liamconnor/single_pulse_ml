@@ -63,6 +63,7 @@ for page in reader:
     data = np.reshape(data, dshape)
     data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
     data = data[5]
+    data = data[None]
 
     if len(data)==0:
         continue
