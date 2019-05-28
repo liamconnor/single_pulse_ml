@@ -39,10 +39,10 @@ dm = 56.8
 
 reader =[]
 nchan = 1536
-ntime_batch = 12500
+ntime_batch = 1250
 dm = 0
 
-for ii in range(3):
+for ii in range(10):
     data_fake = np.random.normal(0,1,ntab*ntime_batch*nchan)
     reader.append(data_fake)
 
