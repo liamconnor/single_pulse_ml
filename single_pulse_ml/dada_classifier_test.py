@@ -58,7 +58,7 @@ for page in reader:
     t0 = time.time()
     counter += 1
     data = np.array(page)
-
+    print(data.shape)
     print('t COPY: %f' % (time.time()-t0))
 
     ## header = reader.getHeader()
