@@ -68,10 +68,7 @@ for page in reader:
     # This method will rfi clean, dedisperse, and downsample data.
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16)
-    fig = plt.figure()
-    plt.imshow(data_dmtime[0], aspect='auto')
-    plt.show()
-    continue
+
 
     print('dtms', data_dmtime.shape, data_dmtime.sum())
     prob = model.predict(data_classify[..., None])

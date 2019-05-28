@@ -174,11 +174,20 @@ class RealtimeProc:
 
         return data_full, dms, times    
 
-    def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
+    def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, 
+                invert_spectrum=False, downsample=1, dmtransform=True):
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
         data = self.dedisperse_tabs(data, dm)
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
-        data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
+        if dmtransform:
+            data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
+        else:
+            data_dmtime = []
 
         return data_classify, data_dmtime
+
+
+
+
+        
