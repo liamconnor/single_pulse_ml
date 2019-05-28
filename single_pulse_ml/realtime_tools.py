@@ -183,18 +183,18 @@ class RealtimeProc:
                  freq=(1550.,1250.)):
         t0 = time.time()
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
-        print('t preproc: %f' % (time.time()-t0))
+        #print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
-        print('t dedisp_tabs: %f' % (time.time()-t0))
+        #print('t dedisp_tabs: %f' % (time.time()-t0))
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
-        print('t postproc: %f' % (time.time()-t0))
+        #print('t postproc: %f' % (time.time()-t0))
 
         if dmtransform:
             data_dmtime, dms, times = self.dm_transform(data_classify, freq=freq)
         else:
             data_dmtime = []
-        print('t dmtrans: %f' % (time.time()-t0))
+        #print('t dmtrans: %f' % (time.time()-t0))
 
         return data_classify, data_dmtime
 
