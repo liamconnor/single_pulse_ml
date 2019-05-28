@@ -62,7 +62,7 @@ for page in reader:
 
     header = reader.getHeader()
     H = realtime_tools.DadaHeader(header)
-    print(H.dm)
+    dm = H.dm
     ## t_batch = H.ntime_batch*H.dt
     #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
