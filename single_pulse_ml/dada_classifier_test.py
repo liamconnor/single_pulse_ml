@@ -40,7 +40,7 @@ dm = 56.8
 
 nchan = 1536
 ntime_batch = 12500
-dm = 0
+dm = 56.8
 
 # for ii in range(5):
 #     data_fake = np.random.normal(0,1,ntab*ntime_batch*nchan)
@@ -51,7 +51,6 @@ dshape = (ntab, nchan, ntime_batch)
 # For some reason, the model's first prediction takes a long time. 
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
-
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 for page in reader:
@@ -60,9 +59,9 @@ for page in reader:
     data = np.array(page)
     print('t COPY: %f' % (time.time()-t0))
 
-    header = reader.getHeader()
-    H = realtime_tools.DadaHeader(header)
-    dm = H.dm
+    #header = reader.getHeader()
+    #H = realtime_tools.DadaHeader(header)
+    #dm = H.dm
     ## t_batch = H.ntime_batch*H.dt
     #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
