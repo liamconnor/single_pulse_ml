@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pylab as plt
 
 class DadaHeader:
 
@@ -153,6 +154,9 @@ class RealtimeProc:
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, invert_spectrum=False, downsample=1):
         data = self.preprocess(data, invert_spectrum=invert_spectrum)
         data = self.dedisperse_tabs(data, dm)
+        fig = plt.figure()
+        plt.imshow(data[0], aspect='auto')
+        plt.show()
         data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
         data_dmtime, dms, times = self.dm_transform(data_classify, freq=(1550, 1250))
