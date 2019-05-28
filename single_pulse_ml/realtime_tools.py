@@ -142,6 +142,9 @@ class RealtimeProc:
             NFREQ = data.shape[0]
             freq = np.linspace(freq[0], freq[1], NFREQ)
 
+        if len(data.shape)==2:
+            ntab = 1
+
         nfreq = data.shape[1]
         ntime = data.shape[-1]
         ntab = data.shape[0]
@@ -152,8 +155,15 @@ class RealtimeProc:
         times = np.linspace(-0.5*ntime*dt, 0.5*ntime*dt, ntime)
 
         for ii, dm in enumerate(dms):
-            data_full[:, ii] = np.mean(self.dedisperse(data, dm, freq=(freq[0], freq[-1]),
+            if len(data.shape)==2:
+                data_full[:, ii] = np.mean(self.dedisperse(data, dm, freq=(freq[0], freq[-1]),
                                         freq_ref=freq_ref), axis=1)
+            elif len(data.shape)==3:
+                data_full[:, ii] = np.mean(self.dedisperse_tabs(data, dm, freq=(freq[0], freq[-1]),
+                                        freq_ref=freq_ref), axis=1)
+            else:
+                raise Exception('Expected data shape: (ntab,nfreq,ntime) or (nfreq,ntime)')
+
 
         return data_full, dms, times    
 
