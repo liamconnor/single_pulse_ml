@@ -62,6 +62,7 @@ for page in reader:
     ## dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
     data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
+    data = data[5]
 
     if len(data)==0:
         continue
