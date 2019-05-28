@@ -44,7 +44,6 @@ dm = 0
 
 for ii in range(3):
     data_fake = np.random.normal(0,1,ntab*ntime_batch*nchan)
-    data_fake[:, :, int(ntime_batch/2)] += 100
     reader.append(data_fake)
 
 dshape = (ntab, nchan, ntime_batch)
@@ -61,6 +60,7 @@ for page in reader:
     ## t_batch = H.ntime_batch*H.dt
     ## dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
+    data[:, :, int(ntime_batch/2)] += 100
 
     if len(data)==0:
         continue
