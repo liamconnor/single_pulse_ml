@@ -73,13 +73,12 @@ for page in reader:
                                     invert_spectrum=True, downsample=16, dmtransform=True)
 
     print('t PROC: %f' % (time.time()-t0))
-
     prob = model.predict(data_classify[..., None])
     print('t PRED: %f' % (time.time()-t0))
 
     indpmax = np.argmax(prob[:, 1])
 
-    if prob[indpmax,1]>0.5:
+    if prob[indpmax,1]>1.1:
         fig = plt.figure()
         plt.imshow(data_classify[indpmax], aspect='auto')
         plt.show()
