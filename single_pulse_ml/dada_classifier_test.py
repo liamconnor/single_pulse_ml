@@ -10,6 +10,7 @@ import frbkeras
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 model = frbkeras.load_model(fn_model)
 
+
 # Create a reader instace
 ## reader = Reader()
 
@@ -39,7 +40,7 @@ dm = 56.8
 
 reader =[]
 nchan = 1536
-ntime_batch = 1250
+ntime_batch = 12500
 dm = 0
 
 for ii in range(10):
@@ -47,6 +48,8 @@ for ii in range(10):
     reader.append(data_fake)
 
 dshape = (ntab, nchan, ntime_batch)
+
+model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 for page in reader:
     t0 = time.time()
