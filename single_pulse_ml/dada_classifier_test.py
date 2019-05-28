@@ -53,7 +53,7 @@ for page in reader:
     counter += 1
     data = np.array(page)
 
-#    print('t copy: %f' % (time.time()-t0))
+    print('t COPY: %f' % (time.time()-t0))
 
     ## header = reader.getHeader()
     ## H = realtime_tools.DadaHeader(header)
@@ -72,10 +72,10 @@ for page in reader:
     data_classify, data_dmtime = RtProc.proc_all(data, dm, nfreq_plot=nfreq_plot, ntime_plot=ntime_plot, 
                                     invert_spectrum=True, downsample=16, dmtransform=True)
 
-#    print('t process: %f' % (time.time()-t0))
+    print('t PROC: %f' % (time.time()-t0))
 
     prob = model.predict(data_classify[..., None])
-#    print('t predict: %f' % (time.time()-t0))
+    print('t PRED: %f' % (time.time()-t0))
 
     indpmax = np.argmax(prob[:, 1])
 
