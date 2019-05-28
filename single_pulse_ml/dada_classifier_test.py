@@ -61,7 +61,7 @@ for page in reader:
     print('t COPY: %f' % (time.time()-t0))
 
     header = reader.getHeader()
-    print(header.EVENT_DM)
+    print(header.dm)
     H = realtime_tools.DadaHeader(header)
 
     ## t_batch = H.ntime_batch*H.dt
