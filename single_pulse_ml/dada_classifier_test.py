@@ -73,8 +73,9 @@ for page in reader:
                                     invert_spectrum=True, downsample=16, dmtransform=True)
 
     print('t PROC: %f' % (time.time()-t0))
+    t0 = time.time()
     prob = model.predict(data_classify[..., None])
-    print('t PRED: %f' % (time.time()-t0))
+    print('t true time PRED: %f' % (time.time()-t0))
 
     indpmax = np.argmax(prob[:, 1])
 
