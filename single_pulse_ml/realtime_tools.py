@@ -164,14 +164,6 @@ class RealtimeProc:
             else:
                 raise Exception('Expected data shape: (ntab,nfreq,ntime) or (nfreq,ntime)')
 
-        fig = plt.figure()
-        plt.imshow(data[0], aspect='auto')
-        plt.show()
-
-        fig = plt.figure()
-        plt.imshow(data_full[0], aspect='auto')
-        plt.show()
-
         return data_full, dms, times    
 
     def proc_all(self, data, dm, nfreq_plot=32, ntime_plot=64, 
@@ -190,4 +182,4 @@ class RealtimeProc:
 
 
 
-        
+
