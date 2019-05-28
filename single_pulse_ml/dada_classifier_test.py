@@ -61,9 +61,9 @@ for page in reader:
     print('t COPY: %f' % (time.time()-t0))
 
     header = reader.getHeader()
-    print(header.dm)
     H = realtime_tools.DadaHeader(header)
 
+    print(header.dm)
     ## t_batch = H.ntime_batch*H.dt
     #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
