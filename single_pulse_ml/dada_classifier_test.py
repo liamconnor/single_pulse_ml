@@ -5,7 +5,7 @@ import time
 import matplotlib.pylab as plt
 
 import realtime_tools
-import frbkeras
+## import frbkeras
 
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 ## model = frbkeras.load_model(fn_model)
@@ -44,7 +44,7 @@ dm = 0
 
 for ii in range(3):
     data_fake = np.random.normal(0,1,ntab*ntime_batch*nchan)
-    data_fake[:, :, ntime_batch/2] += 100
+    data_fake[:, :, int(ntime_batch/2)] += 100
     reader.append(data_fake)
 
 dshape = (ntab, nchan, ntime_batch)
