@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+
 import numpy as np
 from psrdada import Reader
 import time
@@ -7,6 +9,8 @@ import logging
 
 import realtime_tools
 import frbkeras
+
+os.system('./disk_to_buffer_tests.sh')
 
 logfn = time.strftime("%Y%m%d-%H%M") + '.log'
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -85,8 +89,8 @@ def dada_proc_trigger(reader, nbeam=12):
             axes[0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
             axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
 
-            axes[0].set_title(prob_dmtime[indpmax_dmtime])
-            axes[1].set_title(prob_freqtime[indpmax_freqtime])
+            axes[0].set_title(prob_dmtime[indpmax_dmtime, 1])
+            axes[1].set_title(prob_freqtime[indpmax_freqtime, 1])
 
             axes[0].set_ylabel('DM', fontsize=18)
             axes[1].set_ylabel('Frequency', fontsize=18)
