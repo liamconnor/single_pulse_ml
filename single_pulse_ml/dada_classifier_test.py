@@ -67,7 +67,7 @@ for page in reader:
     data = np.reshape(data, dshape)
     print(counter, dm, width, tab, H.astropy_page_time)
 
-#    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
+    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
 #    data = data[None]
 
