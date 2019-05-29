@@ -81,7 +81,7 @@ class RealtimeProc:
         if dumbmask:
             try:
                 dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels.conf')
-                dumb_rfimask = rfimask.astype(int)
+                dumb_rfimask = list(rfimask.astype(int))
             except:
                 dumb_rfimask = []
 
