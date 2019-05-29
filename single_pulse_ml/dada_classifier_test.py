@@ -33,6 +33,7 @@ while True:
         print(len(page))
 
     reader.disconnect()
+    del reader
     print('disconned')
     continue
     for page in reader:
