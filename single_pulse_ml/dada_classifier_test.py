@@ -23,19 +23,13 @@ model = frbkeras.load_model(fn_model)
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+
 reader = Reader()
 
-while True:
+def dada_proc_trigger(reader):
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
 
-    for page in reader:
-        print(len(page))
-
-    reader.disconnect()
-
-    print('disconned')
-    continue
     for page in reader:
         t0 = time.time()
         counter += 1
@@ -55,7 +49,7 @@ while True:
         dm = 0.
         width = 10
 
-        data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
+        #data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
 
         if len(data)==0:
             continue
@@ -79,3 +73,15 @@ while True:
             print('Nothing good')
 
     reader.disconnect()
+
+dada_proc_trigger(reader)
+
+
+
+
+
+
+
+
+
+    
