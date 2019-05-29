@@ -21,8 +21,7 @@ class DadaHeader:
         self.dnu = np.float(header['CHANNEL_BANDWIDTH'])
         self.bw = np.float(header['BW'])
         self.freq_high = self.freq_low + self.nchan*self.dnu
-        self.RA = header['RA']
-        print(self.RA, type(self.RA))
+        self.RA = np.float(header['RA'])
 
         if trigger:
             self.dm = header['EVENT_DM']
