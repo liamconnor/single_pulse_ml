@@ -55,7 +55,7 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
 
-        logging.info("Dedispersing to dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
+        logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
 
         #data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
@@ -69,19 +69,21 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
 
-        prob = model_freqtime.predict(data_classify[..., None])
+        prob_freqtime = model_freqtime.predict(data_classify[..., None])
+        indpmax = np.argmax(prob_freqtime[:, 1])
+
         prob_dmtime = model_dmtime.predict(data_dmtime[..., None])
-        indpmax = np.argmax(prob[:, 1])
+        indpmax = np.argmax(prob_dmtime[:, 1])
 
         logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
 
-        if prob[indpmax,1]>0.25:
+        if prob_dmtime[indpmax,1]>0.0:
             fig = plt.figure()
-            plt.imshow(data_classify[indpmax], aspect='auto')
-            plt.title(str(prob.max()))
+            plt.imshow(data_dmtime[indpmax], aspect='auto')
+            plt.title(str(prob_dmtime.max()))
             plt.show()
         else:
-            print('Nothing good')
+            logging.info("Nothing")
 
     reader.disconnect()
 
