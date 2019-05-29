@@ -65,7 +65,7 @@ for page in reader:
         tab = H.beamno
     
     data = np.reshape(data, dshape)
-    print(counter, dm)
+    print(counter, dm, width, tab)
 
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
@@ -75,7 +75,7 @@ for page in reader:
         continue
 
     # This method will rfi clean, dedisperse, and downsample data.
-    data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, nfreq_plot=nfreq_plot, 
+    data_classify, data_dmtime = RtProc.proc_all(data[:], dm, nfreq_plot=nfreq_plot, 
                                                  ntime_plot=ntime_plot, 
                                                  invert_spectrum=True, 
                                                  downsample=width, dmtransform=True)
