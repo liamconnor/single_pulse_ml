@@ -2,6 +2,7 @@
 *.npy
 *.hdf5
 *.py~
+*log
 
 ./dist/
 
