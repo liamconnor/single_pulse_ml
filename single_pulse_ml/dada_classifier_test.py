@@ -80,7 +80,7 @@ def dada_proc_trigger(reader, nbeam=12):
 
         logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
 
-        if prob_dmtime[indpmax,1]>0.0:
+        if 1>0:
             fig, axes = plt.subplots(2, 1)
             axes[0, 0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
             axes[1, 0].imshow(data_classify[indpmax_freqtime], aspect='auto')
