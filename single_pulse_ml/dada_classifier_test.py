@@ -10,7 +10,7 @@ import logging
 import realtime_tools
 import frbkeras
 
-os.system('./disk_to_buffer_tests.sh')
+os.system('./disk_to_buffer_tests.sh &')
 
 logfn = time.strftime("%Y%m%d-%H%M") + '.log'
 logging.basicConfig(format='%(asctime)s %(message)s',
