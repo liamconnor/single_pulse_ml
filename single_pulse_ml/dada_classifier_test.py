@@ -58,6 +58,7 @@ def dada_proc_trigger(reader, nbeam=12):
         logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
 
+        dm = 0
         width = 10
         data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 100
 
