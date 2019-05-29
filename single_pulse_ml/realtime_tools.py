@@ -80,7 +80,7 @@ class RealtimeProc:
     #    logging.info("Cleaning RFI")
         if dumbmask:
             try:
-                dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels.conf')
+                dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zxapped_channels.conf')
                 dumb_rfimask = list(dumb_rfimask.astype(int))
             except:
                 dumb_rfimask = []
@@ -96,9 +96,7 @@ class RealtimeProc:
         medf = np.median(dfmean)
         maskf = list(np.where(np.abs(dfmean - medf) > threshold*stdevf)[0])
 
-        print(maskf, dumb_rfimask)
         maskf = dumb_rfimask + maskf
-        print(maskf)
 
         # replace with mean spectrum
         data[:, maskf] = dtmean[:, None]*np.ones(len(maskf))[None]
