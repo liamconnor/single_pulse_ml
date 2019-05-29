@@ -82,8 +82,8 @@ def dada_proc_trigger(reader, nbeam=12):
 
         if 1>0:
             fig, axes = plt.subplots(2, 1)
-            axes[0, 0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
-            axes[1, 0].imshow(data_classify[indpmax_freqtime], aspect='auto')
+            axes[0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
+            axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
             plt.show()
         else:
             logging.info("Nothing")
