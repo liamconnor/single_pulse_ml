@@ -225,17 +225,20 @@ class RealtimeProc:
         #print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
         #print('t dedisp_tabs: %f' % (time.time()-t0))
-        data_classify = self.postprocess(data, nfreq_plot=nfreq_plot, 
+        data_classify_freqtime = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
         #print('t postproc: %f' % (time.time()-t0))
 
         if dmtransform:
-            data_dmtime, dms, times = self.dm_transform(data_classify, freq=freq)
+            data_dmtime, dms, times = self.dm_transform(data_classify_freqtime, freq=freq)
+            data_dmtime -= np.median(data_dmtime)
+            data_dmtime /= np.std(data_dmtime)
+            data_dmtime[np.isnan(data_dmtime)] = 0.
         else:
             data_dmtime = []
         #print('t dmtrans: %f' % (time.time()-t0))
 
-        return data_classify, data_dmtime
+        return data_classify_freqtime, data_dmtime
 
 
 
