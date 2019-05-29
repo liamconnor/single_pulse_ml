@@ -15,7 +15,6 @@ class DadaHeader:
     def __init__(self, header, trigger=False):
         self.dt = np.float(header['TSAMP'])
         self.nchan = np.int(header['NCHAN'])
-        self.ntime_batch = np.int(header['PADDED_SIZE'])
         self.freq_mid = np.float(header['FREQ']) # mid frequency?
         self.freq_low = np.float(header['MIN_FREQUENCY'])
         self.dnu = np.float(header['CHANNEL_BANDWIDTH'])
@@ -25,6 +24,7 @@ class DadaHeader:
         self.DEC = np.float(header['DEC'])
         self.file_number = np.int(header['FILE_NUMBER'])
         self.ntime_batch = np.int(header['SAMPLES_PER_BATCH'])
+        self.beamno = np.float(header['BEAM'])
 
         if trigger:
             self.dm = np.float(header['EVENT_DM'])
@@ -35,7 +35,6 @@ class DadaHeader:
             self.dm = None
             self.width = None
             self.snr = None
-            self.beamno = None
 
 class RealtimeProc:
 
