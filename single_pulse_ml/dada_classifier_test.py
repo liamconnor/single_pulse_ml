@@ -7,12 +7,6 @@ import matplotlib.pylab as plt
 import realtime_tools
 import frbkeras
 
-# Create a reader instace
-reader = Reader()
-
-# Connect to a running ringbuffer with key=1200
-reader.connect(0x1200)
-
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 triggermode = True 
 nfreq_plot = 32
@@ -30,46 +24,53 @@ model = frbkeras.load_model(fn_model)
 # at real data
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
-for page in reader:
-    t0 = time.time()
-    counter += 1
-    data = np.array(page)
+while True:
+    # Create a reader instace
+    reader = Reader()
 
-    if counter==0:
-        header = reader.getHeader()
-        H = realtime_tools.DadaHeader(header, trigger=triggermode)
-        dm = H.dm
-        width = np.int(H.width)
-        t_batch = H.ntime_batch*H.dt
-        dshape = (ntab, H.nchan, H.ntime_batch)
-        tab = H.beamno
+    # Connect to a running ringbuffer with key=1200
+    reader.connect(0x1200)
     
-    data = np.reshape(data, dshape)
-    print(counter, dm, width, tab, H.astropy_page_time)
-    dm = 0.
-    width = 10
+    for page in reader:
+        t0 = time.time()
+        counter += 1
+        data = np.array(page)
 
-    data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
+        if counter==0:
+            header = reader.getHeader()
+            H = realtime_tools.DadaHeader(header, trigger=triggermode)
+            dm = H.dm
+            width = np.int(H.width)
+            t_batch = H.ntime_batch*H.dt
+            dshape = (ntab, H.nchan, H.ntime_batch)
+            tab = H.beamno
+        
+        data = np.reshape(data, dshape)
+        print(counter, dm, width, tab, H.astropy_page_time)
+        dm = 0.
+        width = 10
 
-    if len(data)==0:
-        continue
+        data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
 
-    # This method will rfi clean, dedisperse, and downsample data.
-    data_classify, data_dmtime = RtProc.proc_all(data[:], dm, nfreq_plot=nfreq_plot, 
-                                                 ntime_plot=ntime_plot, 
-                                                 invert_spectrum=True, 
-                                                 downsample=width, dmtransform=True)
+        if len(data)==0:
+            continue
 
-    prob = model.predict(data_classify[..., None])
-    indpmax = np.argmax(prob[:, 1])
+        # This method will rfi clean, dedisperse, and downsample data.
+        data_classify, data_dmtime = RtProc.proc_all(data[:], dm, nfreq_plot=nfreq_plot, 
+                                                     ntime_plot=ntime_plot, 
+                                                     invert_spectrum=True, 
+                                                     downsample=width, dmtransform=True)
 
-    print('t PROC: %f' % (time.time()-t0))
-    if prob[indpmax,1]>0.25:
-        fig = plt.figure()
-        plt.imshow(data_classify[indpmax], aspect='auto')
-        plt.title(str(prob.max()))
-        plt.show()
-    else:
-        print('Nothing good')
+        prob = model.predict(data_classify[..., None])
+        indpmax = np.argmax(prob[:, 1])
 
-reader.disconnect()
+        print('t PROC: %f' % (time.time()-t0))
+        if prob[indpmax,1]>0.25:
+            fig = plt.figure()
+            plt.imshow(data_classify[indpmax], aspect='auto')
+            plt.title(str(prob.max()))
+            plt.show()
+        else:
+            print('Nothing good')
+
+    reader.disconnect()
