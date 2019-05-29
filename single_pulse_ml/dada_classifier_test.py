@@ -54,9 +54,6 @@ def dada_proc_trigger(reader, nbeam=12):
         logging.info("Dedispersing to dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
 
-        dm = 0.
-        width = 10
-
         #data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
 
         if len(data)==0:
@@ -71,7 +68,8 @@ def dada_proc_trigger(reader, nbeam=12):
         prob = model.predict(data_classify[..., None])
         indpmax = np.argmax(prob[:, 1])
 
-        print('t PROC: %f' % (time.time()-t0))
+        logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
+
         if prob[indpmax,1]>0.25:
             fig = plt.figure()
             plt.imshow(data_classify[indpmax], aspect='auto')
