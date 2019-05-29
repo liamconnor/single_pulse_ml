@@ -72,18 +72,18 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      downsample=width, dmtransform=True)
 
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
-        indpmax = np.argmax(prob_freqtime[:, 1])
+        indpmax_freqtime = np.argmax(prob_freqtime[:, 1])
 
         print(data_dmtime.shape)
         prob_dmtime = model_dmtime.predict(data_dmtime[..., None])
-        indpmax = np.argmax(prob_dmtime[:, 1])
+        indpmax_dmtime = np.argmax(prob_dmtime[:, 1])
 
         logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
 
         if prob_dmtime[indpmax,1]>0.0:
-            fig = plt.figure()
-            plt.imshow(data_dmtime[indpmax], aspect='auto')
-            plt.title(str(prob_dmtime.max()))
+            fig, axes = plt.subplots(2, 1)
+            axes[0, 0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
+            axes[1, 0].imshow(data_classify[indpmax_freqtime], aspect='auto')
             plt.show()
         else:
             logging.info("Nothing")
