@@ -47,7 +47,7 @@ dshape = (ntab, nchan, ntime_batch)
 # For some reason, the model's first prediction takes a long time. 
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
-model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+#model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 for page in reader:
     t0 = time.time()
