@@ -28,7 +28,7 @@ class DadaHeader:
 
         if trigger:
             self.dm = np.float(header['EVENT_DM'])
-            self.width = np.int(header['EVENT_WIDTH'])
+            self.width = np.float(header['EVENT_WIDTH'])
             self.snr = np.float(header['EVENT_SNR'])
             self.beamno = np.int(header['EVENT_BEAM'])
         else:

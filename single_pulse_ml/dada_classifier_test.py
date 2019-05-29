@@ -58,7 +58,7 @@ for page in reader:
 
     H = realtime_tools.DadaHeader(header, trigger=triggermode)
     dm = H.dm
-    width = H.width 
+    width = np.int(H.width)
     t_batch = H.ntime_batch*H.dt
     dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
