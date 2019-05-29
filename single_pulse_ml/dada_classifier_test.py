@@ -10,7 +10,6 @@ import frbkeras
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 model = frbkeras.load_model(fn_model)
 
-
 # Create a reader instace
 reader = Reader()
 
@@ -55,15 +54,17 @@ for page in reader:
     counter += 1
     data = np.array(page)
     print('t COPY: %f' % (time.time()-t0))
-    print(data.shape)
-    #header = reader.getHeader()
+    header = reader.getHeader()
+    print(header)
     #H = realtime_tools.DadaHeader(header)
+
     #dm = H.dm
     #width = H.width 
     ## t_batch = H.ntime_batch*H.dt
     #dshape = (ntab, H.nchan, H.ntime_batch)
     data = np.reshape(data, dshape)
     width = 1
+    tab = 5
 
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
@@ -73,7 +74,7 @@ for page in reader:
         continue
 
     # This method will rfi clean, dedisperse, and downsample data.
-    data_classify, data_dmtime = RtProc.proc_all(data[5], dm, nfreq_plot=nfreq_plot, 
+    data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, nfreq_plot=nfreq_plot, 
                                                  ntime_plot=ntime_plot, 
                                                  invert_spectrum=True, 
                                                  downsample=width, dmtransform=True)
