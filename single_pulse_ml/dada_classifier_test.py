@@ -13,7 +13,6 @@ nfreq_plot = 32
 ntime_plot = 64
 ntab = 12
 dt = 8.192e-5
-counter = -1
 
 RtProc = realtime_tools.RealtimeProc()
 
@@ -29,7 +28,8 @@ reader = Reader()
 def dada_proc_trigger(reader):
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
-
+    counter = -1
+    
     for page in reader:
         t0 = time.time()
         counter += 1
@@ -84,4 +84,4 @@ dada_proc_trigger(reader)
 
 
 
-    
+
