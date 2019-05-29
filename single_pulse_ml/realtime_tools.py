@@ -1,7 +1,9 @@
+import time
+
 import numpy as np
 import matplotlib.pylab as plt
+from astropy.time import Time, TimeDelta
 
-import time
 """
 Need to replace preproc cleaning method with 
 Dany's fuller method.plt.
@@ -11,6 +13,11 @@ maybe give DadaHeader an option for stokes trigger or not
 
 
 class DadaHeader:
+    """ Class to generate header object with 
+    information about current buffer data. 
+    If trigger==True, information about the event 
+    (dm, beamno, etc.) will be in the header.
+    """
 
     def __init__(self, header, trigger=False):
         self.dt = np.float(header['TSAMP'])
@@ -30,11 +37,15 @@ class DadaHeader:
         # the following three are start times of observation
         self.utc_start = header['UTC_START']
         self.lst_start = header['LST_START']
-        self.mjd_start = header['MJD_START'] 
+        self.mjd_start = np.float(header['MJD_START'])
+        self.astropy_start_time = Time(self.mjd_start, format='mjd', scale='utc')
 
         # start byte of current page
         self.obs_offset_bytes = np.float(header['OBS_OFFSET'])
         self.obs_offset_seconds = self.obs_offset_bytes/self.bytes_per_second
+
+        # start time of current page
+        self.astropy_page_time = self.astropy_start_time + TimeDelta(self.obs_offset_seconds, format='sec')
 
         if trigger:
             self.dm = np.float(header['EVENT_DM'])
