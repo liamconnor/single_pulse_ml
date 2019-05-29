@@ -25,7 +25,7 @@ model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 reader = Reader()
 
-def dada_proc_trigger(reader):
+def dada_proc_trigger(reader, nbeam=12):
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
     counter = -1
@@ -41,7 +41,7 @@ def dada_proc_trigger(reader):
             dm = H.dm
             width = np.int(H.width)
             t_batch = H.ntime_batch*H.dt
-            dshape = (H.ntab, H.nchan, H.ntime_batch)
+            dshape = (nbeam, H.nchan, H.ntime_batch)
             tab = H.beamno
             snr = H.snr
 
