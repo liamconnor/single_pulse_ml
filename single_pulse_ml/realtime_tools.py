@@ -62,7 +62,7 @@ class RealtimeProc:
     def __init__(self, dt=8.192e-5):
         self.dt = dt
 
-    def cleandata(self, data, threshold=3.0):
+    def cleandata(self, data, threshold=3.0, dumbmask=True):
         """ Take filterbank object and mask 
         RFI time samples with average spectrum.
 
@@ -78,14 +78,27 @@ class RealtimeProc:
         cleaned filterbank object
         """
     #    logging.info("Cleaning RFI")
+        if dumbmask:
+            try:
+                dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels_1400.conf')
+                dumb_rfimask = rfimask.astype(int)
+            except:
+                dumb_rfimask = []
 
         assert len(data.shape)==2, "Expected (nfreq, ntime) array"
 
+        '/home/arts/ARTS-obs/amber_conf/zapped_channels.conf'
+
+        data[dumb_rfimask] = 0.
+
         dtmean = np.mean(data, axis=-1)
         dfmean = np.mean(data, axis=0)
+
         stdevf = np.std(dfmean)
         medf = np.median(dfmean)
         maskf = np.where(np.abs(dfmean - medf) > threshold*stdevf)[0]        
+
+        maskf += rfimask
 
         # replace with mean spectrum
         data[:, maskf] = dtmean[:, None]*np.ones(len(maskf))[None]

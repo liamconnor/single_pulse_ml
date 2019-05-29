@@ -3,6 +3,7 @@ import numpy as np
 from psrdada import Reader
 import time
 import matplotlib.pylab as plt
+import logging
 
 import realtime_tools
 import frbkeras
@@ -11,7 +12,6 @@ fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 triggermode = True 
 nfreq_plot = 32
 ntime_plot = 64
-ntab = 12
 dt = 8.192e-5
 
 RtProc = realtime_tools.RealtimeProc()
@@ -29,7 +29,7 @@ def dada_proc_trigger(reader):
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
     counter = -1
-    
+
     for page in reader:
         t0 = time.time()
         counter += 1
@@ -55,7 +55,7 @@ def dada_proc_trigger(reader):
             continue
 
         # This method will rfi clean, dedisperse, and downsample data.
-        data_classify, data_dmtime = RtProc.proc_all(data[:], dm, nfreq_plot=nfreq_plot, 
+        data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, nfreq_plot=nfreq_plot, 
                                                      ntime_plot=ntime_plot, 
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
