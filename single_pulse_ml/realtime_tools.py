@@ -12,24 +12,28 @@ maybe give DadaHeader an option for stokes trigger or not
 
 class DadaHeader:
 
-    def __init__(self, header):
+    def __init__(self, header, trigger=False):
         self.dt = np.float(header['TSAMP'])
         self.nchan = np.int(header['NCHAN'])
         self.ntime_batch = np.int(header['PADDED_SIZE'])
         self.freq_mid = np.float(header['FREQ']) # mid frequency?
         self.freq_low = np.float(header['MIN_FREQUENCY'])
         self.dnu = np.float(header['CHANNEL_BANDWIDTH'])
+        self.bw = np.float(header['BW'])
         self.freq_high = self.freq_low + self.nchan*self.dnu
+        self.RA = header['RA']
+        print(self.RA, type(self.RA))
 
-        try:
+        if trigger:
             self.dm = header['EVENT_DM']
-        except:
+            self.width = header['EVENT_WIDTH']  
+            self.snr = header['EVENT_SNR']
+            self.beamno = header['EVENT_BEAM']
+        else:
             self.dm = None
-
-        try:
-            self.width = header['EVENT_WIDTH']
-        except:
             self.width = None
+            self.snr = None
+            self.beamno = None
 
 class RealtimeProc:
 
