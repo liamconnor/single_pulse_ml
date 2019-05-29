@@ -41,10 +41,14 @@ def dada_proc_trigger(reader):
             dm = H.dm
             width = np.int(H.width)
             t_batch = H.ntime_batch*H.dt
-            dshape = (ntab, H.nchan, H.ntime_batch)
+            dshape = (H.ntab, H.nchan, H.ntime_batch)
             tab = H.beamno
-        
+            snr = H.snr
+
         data = np.reshape(data, dshape)
+
+        logging.info("Dedispersing to dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
+                         (dm_, t0, width, snr))
         print(counter, dm, width, tab, H.astropy_page_time)
         dm = 0.
         width = 10

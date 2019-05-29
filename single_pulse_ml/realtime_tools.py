@@ -80,14 +80,12 @@ class RealtimeProc:
     #    logging.info("Cleaning RFI")
         if dumbmask:
             try:
-                dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels_1400.conf')
+                dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels.conf')
                 dumb_rfimask = rfimask.astype(int)
             except:
                 dumb_rfimask = []
 
         assert len(data.shape)==2, "Expected (nfreq, ntime) array"
-
-        '/home/arts/ARTS-obs/amber_conf/zapped_channels.conf'
 
         data[dumb_rfimask] = 0.
 
