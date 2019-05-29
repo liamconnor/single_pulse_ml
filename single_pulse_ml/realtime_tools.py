@@ -96,7 +96,7 @@ class RealtimeProc:
         medf = np.median(dfmean)
         maskf = np.where(np.abs(dfmean - medf) > threshold*stdevf)[0]        
 
-        print(maskf)
+        print(maskf, dumb_rfimask)
         maskf += dumb_rfimask
         print(maskf)
 
