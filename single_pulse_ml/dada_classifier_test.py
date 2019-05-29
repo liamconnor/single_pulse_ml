@@ -21,6 +21,7 @@ reader.connect(0x1200)
 for page in reader:
     data = np.array(page)
     header = reader.getHeader()
+    print(data.shape)
 
 exit()
 
