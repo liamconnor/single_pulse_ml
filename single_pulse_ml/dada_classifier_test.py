@@ -48,7 +48,7 @@ for page in reader:
     print(counter, dm, width, tab, H.astropy_page_time)
     dm = 0.
 
-    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
+    data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
 
     if len(data)==0:
         continue
