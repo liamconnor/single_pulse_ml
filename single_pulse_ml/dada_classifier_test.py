@@ -5,10 +5,10 @@ import time
 import matplotlib.pylab as plt
 
 import realtime_tools
-## import frbkeras
+import frbkeras
 
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
-## model = frbkeras.load_model(fn_model)
+model = frbkeras.load_model(fn_model)
 
 # Create a reader instace
 reader = Reader()
@@ -47,15 +47,15 @@ dshape = (ntab, nchan, ntime_batch)
 # For some reason, the model's first prediction takes a long time. 
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
-#model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 for page in reader:
     t0 = time.time()
     counter += 1
     data = np.array(page)
 #    print('t COPY: %f' % (time.time()-t0))
-#    if counter>-1:
-    try:
+
+    if counter==0:
         header = reader.getHeader()
         H = realtime_tools.DadaHeader(header, trigger=triggermode)
         dm = H.dm
@@ -63,12 +63,10 @@ for page in reader:
         t_batch = H.ntime_batch*H.dt
         dshape = (ntab, H.nchan, H.ntime_batch)
         tab = H.beamno
-    except:
-        dm = -100
     
     data = np.reshape(data, dshape)
     print(counter, dm)
-    continue
+
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
 #    data = data[None]
