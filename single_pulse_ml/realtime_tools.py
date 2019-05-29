@@ -25,6 +25,16 @@ class DadaHeader:
         self.file_number = np.int(header['FILE_NUMBER'])
         self.ntime_batch = np.int(header['SAMPLES_PER_BATCH'])
         self.beamno = np.int(header['BEAM'])
+        self.bytes_per_second = np.float(header['BYTES_PER_SECOND'])
+
+        # the following three are start times of observation
+        self.utc_start = header['UTC_START']
+        self.lst_start = header['LST_START']
+        self.mjd_start = header['MJD_START'] 
+
+        # start byte of current page
+        self.obs_offset_bytes = np.float(header['OBS_OFFSET'])
+        self.obs_offset_seconds = self.obs_offset_bytes/self.bytes_per_second
 
         if trigger:
             self.dm = np.float(header['EVENT_DM'])
