@@ -56,7 +56,7 @@ for page in reader:
 #    print('t COPY: %f' % (time.time()-t0))
     print(data.shape)
 
-    if counter==1:
+    if counter==0:
         header = reader.getHeader()
         H = realtime_tools.DadaHeader(header, trigger=triggermode)
         dm = H.dm
