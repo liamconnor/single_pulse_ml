@@ -81,7 +81,7 @@ class RealtimeProc:
         if dumbmask:
             try:
                 dumb_rfimask = np.loadtxt('/home/arts/ARTS-obs/amber_conf/zapped_channels.conf')
-                dumb_rfimask = list(rfimask.astype(int))
+                dumb_rfimask = list(dumb_rfimask.astype(int))
             except:
                 dumb_rfimask = []
 
@@ -97,7 +97,7 @@ class RealtimeProc:
         maskf = np.where(np.abs(dfmean - medf) > threshold*stdevf)[0]        
 
         print(maskf, dumb_rfimask)
-        maskf += dumb_rfimask
+        maskf = maskf + dumb_rfimask
         print(maskf)
 
         # replace with mean spectrum
