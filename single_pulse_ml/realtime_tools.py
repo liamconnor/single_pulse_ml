@@ -22,12 +22,15 @@ class DadaHeader:
         self.bw = np.float(header['BW'])
         self.freq_high = self.freq_low + self.nchan*self.dnu
         self.RA = np.float(header['RA'])
+        self.DEC = np.float(header['DEC'])
+        self.file_number = np.int(header['FILE_NUMBER'])
+        self.ntime_batch = np.int(header['SAMPLES_PER_BATCH'])
 
         if trigger:
-            self.dm = header['EVENT_DM']
-            self.width = header['EVENT_WIDTH']  
-            self.snr = header['EVENT_SNR']
-            self.beamno = header['EVENT_BEAM']
+            self.dm = np.float(header['EVENT_DM'])
+            self.width = np.float(header['EVENT_WIDTH'])
+            self.snr = np.float(header['EVENT_SNR'])
+            self.beamno = np.float(header['EVENT_BEAM'])
         else:
             self.dm = None
             self.width = None
