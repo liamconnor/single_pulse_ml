@@ -53,7 +53,7 @@ for page in reader:
     t0 = time.time()
     counter += 1
     data = np.array(page)
-    print('t COPY: %f' % (time.time()-t0))
+#    print('t COPY: %f' % (time.time()-t0))
     header = reader.getHeader()
 
     H = realtime_tools.DadaHeader(header, trigger=triggermode)
@@ -77,14 +77,14 @@ for page in reader:
                                                  invert_spectrum=True, 
                                                  downsample=width, dmtransform=True)
 
-    print('t PROC: %f' % (time.time()-t0))
+#    print('t PROC: %f' % (time.time()-t0))
 
     t0 = time.time()
     prob = model.predict(data_classify[..., None])
     #print('t true time PRED: %f' % (time.time()-t0))
 
     indpmax = np.argmax(prob[:, 1])
-
+    print('t PROC: %f' % (time.time()-t0))
     if prob[indpmax,1]>0.5:
         fig = plt.figure()
         plt.imshow(data_classify[indpmax], aspect='auto')
