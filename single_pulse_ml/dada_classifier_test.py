@@ -30,6 +30,10 @@ while True:
 
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
+
+    for page in reader:
+        print(len(page))
+
     reader.disconnect()
     print('disconned')
     continue
