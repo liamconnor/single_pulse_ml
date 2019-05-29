@@ -48,7 +48,7 @@ for page in reader:
     print(counter, dm, width, tab, H.astropy_page_time)
     dm = 0.
 
-    data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 5
+    data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 100
 
     if len(data)==0:
         continue
@@ -63,9 +63,10 @@ for page in reader:
     indpmax = np.argmax(prob[:, 1])
 
     print('t PROC: %f' % (time.time()-t0))
-    if prob[indpmax,1]>0.5:
+    if prob[indpmax,1]>0.25:
         fig = plt.figure()
         plt.imshow(data_classify[indpmax], aspect='auto')
+        plt.title(str(prob.max()))
         plt.show()
     else:
         print('Nothing good')
