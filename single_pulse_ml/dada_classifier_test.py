@@ -23,9 +23,9 @@ model = frbkeras.load_model(fn_model)
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+reader = Reader()
 
 while True:
-    reader = Reader()
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
 
@@ -33,7 +33,7 @@ while True:
         print(len(page))
 
     reader.disconnect()
-    del reader
+
     print('disconned')
     continue
     for page in reader:
