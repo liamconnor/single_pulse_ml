@@ -55,7 +55,7 @@ for page in reader:
     data = np.array(page)
     print('t COPY: %f' % (time.time()-t0))
     header = reader.getHeader()
-    print(header)
+    #print(header)
     #H = realtime_tools.DadaHeader(header)
 
     #dm = H.dm
