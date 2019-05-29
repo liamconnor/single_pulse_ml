@@ -12,7 +12,8 @@ logfn = time.strftime("%Y%m%d-%H%M") + '.log'
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO, filename=logfn)
 
-fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
+fn_model_freqtime = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
+fn_model_dmtime = 'model/heimdall_dm_time.hdf5'
 triggermode = True 
 nfreq_plot = 32
 ntime_plot = 64
@@ -20,12 +21,14 @@ dt = 8.192e-5
 
 RtProc = realtime_tools.RealtimeProc()
 
-model = frbkeras.load_model(fn_model)
+model_freqtime = frbkeras.load_model(fn_model_freqtime)
+model_dmtime = frbkeras.load_model(fn_model_dmtime)
 
 # For some reason, the model's first prediction takes a long time. 
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
-model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+model_freqtime.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+model_dmtime.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 reader = Reader()
 
@@ -65,7 +68,8 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
 
-        prob = model.predict(data_classify[..., None])
+        prob = model_freqtime.predict(data_classify[..., None])
+        prob_dmtime = model_dmtime.predict(data_dmtime[..., None])
         indpmax = np.argmax(prob[:, 1])
 
         logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
