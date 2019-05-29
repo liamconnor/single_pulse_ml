@@ -25,21 +25,7 @@ model = frbkeras.load_model(fn_model)
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 while True:
-
     reader = Reader()
-
-    reader.connect(0xdada)
-    while not reader.isEndOfData:
-        # read the page as numpy array
-        page = reader.getNextPage()
-
-        data = np.asarray(page)
-        print(np.sum(data))
-
-        reader.markCleared()
-
-    continue
-
     # Connect to a running ringbuffer with key=1200
     reader.connect(0x1200)
 
