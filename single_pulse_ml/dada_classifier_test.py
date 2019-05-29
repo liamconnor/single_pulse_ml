@@ -25,6 +25,10 @@ model = frbkeras.load_model(fn_model)
 model.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
 
 while True:
+
+    reader = Reader()
+
+    reader.connect(0xdada)
     while not reader.isEndOfData:
         # read the page as numpy array
         page = reader.getNextPage()
@@ -33,8 +37,6 @@ while True:
         print(np.sum(data))
 
         reader.markCleared()
-        # Create a reader instace
-        reader = Reader()
 
     continue
 
