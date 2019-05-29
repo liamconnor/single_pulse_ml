@@ -96,7 +96,9 @@ class RealtimeProc:
         medf = np.median(dfmean)
         maskf = np.where(np.abs(dfmean - medf) > threshold*stdevf)[0]        
 
-        maskf += rfimask
+        print(maskf)
+        maskf += dumb_rfimask
+        print(maskf)
 
         # replace with mean spectrum
         data[:, maskf] = dtmean[:, None]*np.ones(len(maskf))[None]
