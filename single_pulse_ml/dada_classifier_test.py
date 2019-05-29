@@ -54,15 +54,17 @@ for page in reader:
     counter += 1
     data = np.array(page)
 #    print('t COPY: %f' % (time.time()-t0))
-    header = reader.getHeader()
+    print(data.shape)
 
-    H = realtime_tools.DadaHeader(header, trigger=triggermode)
-    dm = H.dm
-    width = np.int(H.width)
-    t_batch = H.ntime_batch*H.dt
-    dshape = (ntab, H.nchan, H.ntime_batch)
-    data = np.reshape(data, dshape)
-    tab = H.beamno
+    if counter==1:
+        header = reader.getHeader()
+        H = realtime_tools.DadaHeader(header, trigger=triggermode)
+        dm = H.dm
+        width = np.int(H.width)
+        t_batch = H.ntime_batch*H.dt
+        dshape = (ntab, H.nchan, H.ntime_batch)
+        data = np.reshape(data, dshape)
+        tab = H.beamno
 
 #    data[:, :, int(ntime_batch/2):10+int(ntime_batch/2)] += 5
 #    data = data[5]
