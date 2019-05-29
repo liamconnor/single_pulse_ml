@@ -8,6 +8,10 @@ import logging
 import realtime_tools
 import frbkeras
 
+logfn = time.strftime("%Y%m%d-%H%M") + '.log'
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO, filename=logfn)
+
 fn_model = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 triggermode = True 
 nfreq_plot = 32
@@ -48,8 +52,8 @@ def dada_proc_trigger(reader, nbeam=12):
         data = np.reshape(data, dshape)
 
         logging.info("Dedispersing to dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
-                         (dm_, t0, width, snr))
-        print(counter, dm, width, tab, H.astropy_page_time)
+                         (dm, t0, width, snr))
+
         dm = 0.
         width = 10
 
