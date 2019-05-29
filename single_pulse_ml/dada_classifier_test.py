@@ -56,7 +56,7 @@ for page in reader:
     print('t COPY: %f' % (time.time()-t0))
     header = reader.getHeader()
     #print(header)
-    H = realtime_tools.DadaHeader(header)
+    H = realtime_tools.DadaHeader(header, trigger=True)
     print(type(H.RA))
     #dm = H.dm
     #width = H.width 
