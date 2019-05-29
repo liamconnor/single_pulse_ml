@@ -17,6 +17,7 @@ fn_model_dmtime = 'model/heimdall_dm_time.hdf5'
 triggermode = True 
 nfreq_plot = 32
 ntime_plot = 64
+ndm_plot = 64
 dt = 8.192e-5
 
 RtProc = realtime_tools.RealtimeProc()
@@ -28,7 +29,7 @@ model_dmtime = frbkeras.load_model(fn_model_dmtime)
 # pre-empt this by classifying an array of zeros before looking 
 # at real data
 model_freqtime.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
-model_dmtime.predict(np.zeros([1, nfreq_plot, ntime_plot, 1]))
+model_dmtime.predict(np.zeros([1, ndm_plot, ntime_plot, 1]))
 
 reader = Reader()
 

@@ -185,7 +185,7 @@ class RealtimeProc:
         return data_classify
 
     def dm_transform(self, data, freq, dt=8.192e-5, dm_max=10, 
-                     dm_min=-10, ndm=50, freq_ref=None):
+                     dm_min=-10, ndm=64, freq_ref=None):
         """ Transform freq/time data to dm/time data.                                                    
         """
 
