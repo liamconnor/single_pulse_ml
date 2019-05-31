@@ -59,6 +59,8 @@ def dada_proc_trigger(reader, nbeam=12):
             snr = H.snr
 
         data = np.reshape(data, dshape)
+
+        width = 8
         A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
                                                dm=dm, width=0.0001, 
                                                background_noise=data[tab].astype(float),
@@ -90,7 +92,7 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      freq=(H.freq_high, H.freq_high-H.bw))
 
         fig = plt.figure()
-        plt.imshow(data_classify[0], aspect='auto')
+        plt.imshow(data, aspect='auto')
         plt.show()
 
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
