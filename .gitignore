@@ -3,6 +3,7 @@
 *.hdf5
 *.py~
 *log
+*pdf
 
 ./dist/
 
