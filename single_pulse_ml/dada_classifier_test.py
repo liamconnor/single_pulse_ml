@@ -60,9 +60,10 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
 
-        A, p = simulate_frb.gen_simulated_frb(fluence=10, 
-                                              dm=dm, width=0.001, 
-                                              background_noise=0*data[tab].astype(np.float))
+        A, p = simulate_frb.gen_simulated_frb(fluence=1, 
+                                              dm=50.0, width=0.01, 
+                                              background_noise=np.zeros([1536, 12500]), NTIME=12500, 
+                                              NFREQ=1536)
         print(A.sum())
         plt.figure()
         plt.imshow(A, aspect='auto')
