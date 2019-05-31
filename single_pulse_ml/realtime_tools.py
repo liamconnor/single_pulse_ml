@@ -195,10 +195,12 @@ class RealtimeProc:
 
         if len(data.shape)==2:
             ntab = 1
-
-        nfreq = data.shape[1]
-        ntime = data.shape[-1]
-        ntab = data.shape[0]
+            nfreq = data.shape[0]
+            ntime = data.shape[1]
+        elif len(data.shape)==3:
+            nfreq = data.shape[1]
+            ntime = data.shape[-1]
+            ntab = data.shape[0]
 
         dms = np.linspace(dm_min, dm_max, ndm)
 
