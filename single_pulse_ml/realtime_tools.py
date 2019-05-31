@@ -230,6 +230,11 @@ class RealtimeProc:
         #print('t postproc: %f' % (time.time()-t0))
 
         if dmtransform:
+            """ Need to calculate DM_min for transform. Should not 
+            go below zero because that's how we will discriminate 
+            zeroDM events. The DM range will also need change based 
+            on the pulse width. 
+            """
             data_dmtime, dms, times = self.dm_transform(data_classify_freqtime, freq=freq)
             data_dmtime -= np.median(data_dmtime)
             data_dmtime /= np.std(data_dmtime)
