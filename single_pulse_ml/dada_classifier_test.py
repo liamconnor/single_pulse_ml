@@ -19,7 +19,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 
 fn_model_freqtime = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 fn_model_dmtime = 'model/heimdall_dm_time.hdf5'
-triggermode = False 
+triggermode = True 
 nfreq_plot = 32
 ntime_plot = 64
 ndm_plot = 64
