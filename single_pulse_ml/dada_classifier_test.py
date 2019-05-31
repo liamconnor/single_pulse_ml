@@ -60,7 +60,7 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
         A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
-                                               dm=dm, width=0.00025, 
+                                               dm=dm, width=0.0001, 
                                                background_noise=data[tab].astype(float),
                                                NTIME=12500, 
                                                NFREQ=1536, freq=(H.freq_high-300., H.freq_high))
@@ -104,8 +104,8 @@ def dada_proc_trigger(reader, nbeam=12):
         if 1>0:
             fig, axes = plt.subplots(2, 1)
             axes[0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
-#            axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
-            axes[1].imshow(data_classify[0], aspect='auto')
+            axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
+#            axes[1].imshow(data_classify[0], aspect='auto')
 
             axes[0].set_title(prob_dmtime[indpmax_dmtime, 1])
             axes[1].set_title(prob_freqtime[indpmax_freqtime, 1])
