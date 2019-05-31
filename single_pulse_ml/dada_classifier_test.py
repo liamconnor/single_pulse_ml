@@ -59,12 +59,11 @@ def dada_proc_trigger(reader, nbeam=12):
             snr = H.snr
 
         data = np.reshape(data, dshape)
-        print(H.freq_high)
         A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
                                                dm=dm, width=0.001, 
                                                background_noise=data[tab].astype(float),
                                                NTIME=12500, 
-                                               NFREQ=1536, freq=(1550., 1250))
+                                               NFREQ=1536, freq=(H.freq_high, H.freq_high-300.))
         A[A>255] = 255
         A[A<0] = 0
 
@@ -83,6 +82,7 @@ def dada_proc_trigger(reader, nbeam=12):
         fig = plt.figure()
         plt.imshow(data, aspect='auto')
         plt.show()
+        print(dm)
         # This method will rfi clean, dedisperse, and downsample data.
         data_classify, data_dmtime = RtProc.proc_all(data, dm, 
                                                      nfreq_plot=nfreq_plot, 

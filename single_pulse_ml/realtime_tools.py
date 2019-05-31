@@ -225,6 +225,7 @@ class RealtimeProc:
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
         #print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
+        print('dm', dm)
         return data, []
         #print('t dedisp_tabs: %f' % (time.time()-t0))
         data_classify_freqtime = self.postprocess(data, nfreq_plot=nfreq_plot, 
