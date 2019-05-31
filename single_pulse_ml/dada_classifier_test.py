@@ -63,6 +63,7 @@ def dada_proc_trigger(reader, nbeam=12):
         A, p = simulate_frb.gen_simulated_frb(fluence=5000, 
                                               dm=dm, width=0.001, 
                                               background_noise=data[tab].astype(np.float))
+        print(A.sum())
         plt.figure()
         plt.imshow(A, aspect='auto')
         plt.show()
