@@ -62,7 +62,7 @@ def dada_proc_trigger(reader, nbeam=12):
 
         A, p = simulate_frb2.gen_simulated_frb(fluence=10, 
                                               dm=50.0, width=0.001, 
-                                              background_noise=data[tab],
+                                              background_noise=data[tab].astype(float),
                                               NTIME=12500, 
                                               NFREQ=1536)
         print(A.sum())
@@ -83,7 +83,8 @@ def dada_proc_trigger(reader, nbeam=12):
             continue
 
         # This method will rfi clean, dedisperse, and downsample data.
-        data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, nfreq_plot=nfreq_plot, 
+        data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, 
+                                                     nfreq_plot=nfreq_plot, 
                                                      ntime_plot=ntime_plot, 
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
