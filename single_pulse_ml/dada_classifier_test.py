@@ -60,7 +60,7 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
         A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
-                                               dm=dm, width=0.001, 
+                                               dm=dm, width=0.00025, 
                                                background_noise=data[tab].astype(float),
                                                NTIME=12500, 
                                                NFREQ=1536, freq=(H.freq_high-300., H.freq_high))
