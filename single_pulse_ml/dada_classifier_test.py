@@ -90,7 +90,7 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      freq=(H.freq_high, H.freq_high-H.bw))
 
         fig = plt.figure()
-        plt.imshow(data_classify, aspect='auto')
+        plt.imshow(data_classify[0], aspect='auto')
         plt.show()
 
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
