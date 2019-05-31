@@ -223,7 +223,7 @@ class RealtimeProc:
                  invert_spectrum=False, downsample=1, dmtransform=True, 
                  freq=(1550.,1250.)):
         t0 = time.time()
-        data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
+        data = self.preprocess(data.copy(), invert_spectrum=invert_spectrum, threshold=np.inf)
         #print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
         return data, []
