@@ -9,6 +9,7 @@ import logging
 
 import realtime_tools
 import frbkeras
+import simulate_frb # test hack
 
 os.system('./disk_to_buffer_tests.sh &')
 
@@ -58,13 +59,15 @@ def dada_proc_trigger(reader, nbeam=12):
             snr = H.snr
 
         data = np.reshape(data, dshape)
+        A, p = s.gen_simulated_frb(fluence=5000, dm=dm, width=0.001, background_noise=data[tab])
+        data[tab] = A
 
         logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
 
-        dm = 0
-        width = 10
-        data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 100
+#        dm = 0
+#        width = 10
+#        data[:, :, int(H.ntime_batch/2):10+int(H.ntime_batch/2)] += 100
 
         if len(data)==0:
             continue

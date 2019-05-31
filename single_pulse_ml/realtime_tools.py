@@ -237,7 +237,9 @@ class RealtimeProc:
             zeroDM events. The DM range will also need change based 
             on the pulse width. 
             """
-            data_dmtime, dms, times = self.dm_transform(data_classify_freqtime, freq=freq)
+            data_dmtime, dms, times = self.dm_transform(data_classify_freqtime, freq=freq, 
+                                                        dm_max=100, dm_min=0, 
+                                                        freq_ref=1400.)
             data_dmtime -= np.median(data_dmtime)
             data_dmtime /= np.std(data_dmtime)
             data_dmtime[np.isnan(data_dmtime)] = 0.
