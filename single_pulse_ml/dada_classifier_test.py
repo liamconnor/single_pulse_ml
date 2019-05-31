@@ -88,7 +88,9 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      nfreq_plot=nfreq_plot, 
                                                      ntime_plot=ntime_plot, 
                                                      invert_spectrum=True, 
-                                                     downsample=width, dmtransform=True)
+                                                     downsample=width, 
+                                                     dmtransform=True, 
+                                                     freq=(H.freq_high, H.freq_high-H.bw))
         fig = plt.figure()
         plt.imshow(data_classify[0], aspect='auto')
         plt.show()
