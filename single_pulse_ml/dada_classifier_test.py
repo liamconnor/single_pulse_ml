@@ -59,7 +59,9 @@ def dada_proc_trigger(reader, nbeam=12):
             snr = H.snr
 
         data = np.reshape(data, dshape)
-        A, p = s.gen_simulated_frb(fluence=5000, dm=dm, width=0.001, background_noise=data[tab])
+        A, p = simulate_frb.gen_simulated_frb(fluence=5000, 
+                                              dm=dm, width=0.001, 
+                                              background_noise=data[tab])
         data[tab] = A
 
         logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
