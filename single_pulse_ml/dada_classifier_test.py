@@ -81,7 +81,7 @@ def dada_proc_trigger(reader, nbeam=12):
             continue
 
         fig = plt.figure()
-        plt.imshow(data[0], aspect='auto')
+        plt.imshow(data, aspect='auto')
         plt.show()
         # This method will rfi clean, dedisperse, and downsample data.
         data_classify, data_dmtime = RtProc.proc_all(data, dm, 
