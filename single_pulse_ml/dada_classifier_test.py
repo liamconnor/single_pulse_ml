@@ -9,7 +9,7 @@ import logging
 
 import realtime_tools
 import frbkeras
-import simulate_frb # test hack
+import simulate_frb2 # test hack
 
 os.system('./disk_to_buffer_tests.sh &')
 
@@ -60,9 +60,10 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
 
-        A, p = simulate_frb.gen_simulated_frb(fluence=1, 
+        A, p = simulate_frb2.gen_simulated_frb(fluence=1, 
                                               dm=50.0, width=0.01, 
-                                              background_noise=np.zeros([1536, 12500]), NTIME=12500, 
+                                              background_noise=np.zeros([1536, 12500]), 
+                                              NTIME=12500, 
                                               NFREQ=1536)
         print(A.sum())
         plt.figure()
