@@ -87,6 +87,10 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
         print(data_classify.shape, 'bingk')
+        fig = plt.figure()
+        plt.imshow(data_classify[0], aspect='auto')
+        plt.show()
+        
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
         indpmax_freqtime = np.argmax(prob_freqtime[:, 1])
 
