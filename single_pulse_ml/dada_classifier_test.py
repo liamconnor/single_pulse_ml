@@ -79,10 +79,11 @@ def dada_proc_trigger(reader, nbeam=12):
         if len(data)==0:
             continue
 
+        B = RtProc.dedisperse(data, dm, freq=(H.freq_high, H.freq_high-H.bw))
         fig = plt.figure()
-        plt.imshow(data, aspect='auto')
+        plt.imshow(B, aspect='auto')
         plt.show()
-        print(dm)
+
         # This method will rfi clean, dedisperse, and downsample data.
         data_classify, data_dmtime = RtProc.proc_all(data, dm, 
                                                      nfreq_plot=nfreq_plot, 
@@ -91,9 +92,6 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      downsample=width, 
                                                      dmtransform=True, 
                                                      freq=(H.freq_high, H.freq_high-H.bw))
-        fig = plt.figure()
-        plt.imshow(data_classify[0], aspect='auto')
-        plt.show()
 
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
         indpmax_freqtime = np.argmax(prob_freqtime[:, 1])
