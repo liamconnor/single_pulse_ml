@@ -226,6 +226,7 @@ class RealtimeProc:
         data = self.preprocess(data, invert_spectrum=invert_spectrum, threshold=np.inf)
         #print('t preproc: %f' % (time.time()-t0))
         data = self.dedisperse_tabs(data, dm)
+        return data, []
         #print('t dedisp_tabs: %f' % (time.time()-t0))
         data_classify_freqtime = self.postprocess(data, nfreq_plot=nfreq_plot, 
                                         ntime_plot=ntime_plot, downsample=downsample)
@@ -238,7 +239,7 @@ class RealtimeProc:
             on the pulse width. 
             """
             data_dmtime, dms, times = self.dm_transform(data_classify_freqtime, freq=freq, 
-                                                        dm_max=100, dm_min=0, 
+                                                        dm_max=50, dm_min=-50, 
                                                         freq_ref=1400.)
             data_dmtime -= np.median(data_dmtime)
             data_dmtime /= np.std(data_dmtime)

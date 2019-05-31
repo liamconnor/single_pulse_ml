@@ -60,17 +60,15 @@ def dada_proc_trigger(reader, nbeam=12):
 
         data = np.reshape(data, dshape)
 
-        A, p = simulate_frb2.gen_simulated_frb(fluence=10, 
-                                              dm=50.0, width=0.001, 
+        A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
+                                              dm=dm, width=0.001, 
                                               background_noise=data[tab].astype(float),
                                               NTIME=12500, 
-                                              NFREQ=1536)
-        print(A.sum())
-        plt.figure()
-        plt.imshow(A, aspect='auto')
-        plt.show()
+                                               NFREQ=1536, freq=(1550, 1250))
+        A[A>255] = 255
+        A[A<0] = 0
 
-        data[tab] = A.astype(data[-1].dtype)
+        data = A.astype(data[-1].dtype)
 
         logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
@@ -83,12 +81,12 @@ def dada_proc_trigger(reader, nbeam=12):
             continue
 
         # This method will rfi clean, dedisperse, and downsample data.
-        data_classify, data_dmtime = RtProc.proc_all(data[tab], dm, 
+        data_classify, data_dmtime = RtProc.proc_all(data, dm, 
                                                      nfreq_plot=nfreq_plot, 
                                                      ntime_plot=ntime_plot, 
                                                      invert_spectrum=True, 
                                                      downsample=width, dmtransform=True)
-
+        print(data_classify.shape, 'bingk')
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
         indpmax_freqtime = np.argmax(prob_freqtime[:, 1])
 
@@ -100,7 +98,8 @@ def dada_proc_trigger(reader, nbeam=12):
         if 1>0:
             fig, axes = plt.subplots(2, 1)
             axes[0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
-            axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
+#            axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
+            axes[1].imshow(data_classify[0], aspect='auto')
 
             axes[0].set_title(prob_dmtime[indpmax_dmtime, 1])
             axes[1].set_title(prob_freqtime[indpmax_freqtime, 1])
