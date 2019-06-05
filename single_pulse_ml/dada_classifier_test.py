@@ -13,7 +13,7 @@ import simulate_frb2 # test hack
 
 os.system('./disk_to_buffer_tests.sh &')
 
-logfn = time.strftime("%Y%m%d-%H%M") + '.log'
+logfn = time.strftime("./logs/%Y%m%d-%H%M") + '.log'
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO, filename=logfn)
 
@@ -61,15 +61,15 @@ def dada_proc_trigger(reader, nbeam=12):
         data = np.reshape(data, dshape)
 
         width = 8
-        A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
-                                               dm=dm, width=0.0001, 
-                                               background_noise=data[tab].astype(float),
-                                               NTIME=12500, 
-                                               NFREQ=1536, freq=(H.freq_high-300., H.freq_high))
-        A[A>255] = 255
-        A[A<0] = 0
+#        A, p = simulate_frb2.gen_simulated_frb(fluence=1000, 
+#                                               dm=dm, width=0.0001, 
+#                                               background_noise=data[tab].astype(float),
+#                                               NTIME=12500, 
+#                                               NFREQ=1536, freq=(H.freq_high-300., H.freq_high))
+#        A[A>255] = 255
+#        A[A<0] = 0
 
-        data = A.astype(data[-1].dtype)
+#        data = A.astype(data[-1].dtype)
 
         logging.info("Received dm=%0.1f at t=%0.1fsec with width=%.1f S/N=%.1f" %
                          (dm, t0, width, snr))
@@ -91,9 +91,9 @@ def dada_proc_trigger(reader, nbeam=12):
                                                      dmtransform=True, 
                                                      freq=(H.freq_high, H.freq_high-H.bw))
 
-        fig = plt.figure()
-        plt.imshow(data, aspect='auto')
-        plt.show()
+#        fig = plt.figure()
+#        plt.imshow(data, aspect='auto')
+#        plt.show()
 
         prob_freqtime = model_freqtime.predict(data_classify[..., None])
         indpmax_freqtime = np.argmax(prob_freqtime[:, 1])
@@ -103,11 +103,10 @@ def dada_proc_trigger(reader, nbeam=12):
 
         logging.info("page %d proc time %0.2f" % (counter, time.time()-t0))
 
-        if 1>0:
+        if prob_freqtime[indpmax_freqtime,1]>0.95:
             fig, axes = plt.subplots(2, 1)
             axes[0].imshow(data_dmtime[indpmax_dmtime], aspect='auto')
             axes[1].imshow(data_classify[indpmax_freqtime], aspect='auto')
-#            axes[1].imshow(data_classify[0], aspect='auto')
 
             axes[0].set_title(prob_dmtime[indpmax_dmtime, 1])
             axes[1].set_title(prob_freqtime[indpmax_freqtime, 1])
