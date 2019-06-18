@@ -12,14 +12,15 @@
     --Should I make a separate script for classification only? probably
 
 """
-import os
 import sys
 
 import numpy as np 
 import time
 import h5py
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+#from single_pulse_ml import reader
+#from single_pulse_ml import frbkeras
+#from single_pulse_ml import plot_tools
 
 import reader
 import frbkeras
@@ -46,7 +47,7 @@ MULTIBEAM=False    # train feed-forward NN on simulated multibeam data
 MERGE=False
 
 MK_PLOT=False
-CLASSIFY_ONLY=True
+CLASSIFY_ONLY=False
 save_classification=True
 model_nm = "./model/model_name"
 prob_threshold = 0.0
@@ -163,13 +164,6 @@ if __name__=='__main__':
 
             low_to_high_ind = np.argsort(y_pred_prob)
             fnout_ranked = fn.rstrip('.hdf5') + 'freq_time_candidates.hdf5'
-
-            g = h5py.File(fnout_ranked, 'w')
-            g.create_dataset('data_frb_candidate', data=data_freq[ind_frb])
-            g.create_dataset('frb_index', data=ind_frb)
-            g.create_dataset('probability', data=y_pred_prob[ind_frb])
-            g.create_dataset('params', data=params[ind_frb])
-            g.close()
 
             eval_data_freq = data_freq #hack
             eval_labels = y
