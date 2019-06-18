@@ -10,7 +10,7 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib import gridspec
 except:
-    "Didn't work"
+    print("Didn't work")
     pass
 
 def plot_simulated_events(data, labels, figname,
