@@ -19,7 +19,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 
 fn_model_freqtime = 'model/20190125-17114-freqtimefreq_time_model.hdf5'
 fn_model_dmtime = 'model/heimdall_dm_time.hdf5'
-triggermode = True 
+triggermode = True
 nfreq_plot = 32
 ntime_plot = 64
 ndm_plot = 64
@@ -46,9 +46,10 @@ def dada_proc_trigger(reader, nbeam=12):
     for page in reader:
         t0 = time.time()
         counter += 1
-        data = np.array(page)
+        data = np.asarray(page) #read only 
+        print(counter)
 
-        if counter==0:
+        if counter==0 and triggermode==True:
             header = reader.getHeader()
             H = realtime_tools.DadaHeader(header, trigger=triggermode)
             dm = H.dm
@@ -81,9 +82,8 @@ def dada_proc_trigger(reader, nbeam=12):
         if len(data)==0:
             continue
 
-
         # This method will rfi clean, dedisperse, and downsample data.
-        data_classify, data_dmtime = RtProc.proc_all(data, dm, 
+        data_classify, data_dmtime = RtProc.proc_all(data.copy(), dm, 
                                                      nfreq_plot=nfreq_plot, 
                                                      ntime_plot=ntime_plot, 
                                                      invert_spectrum=True, 
