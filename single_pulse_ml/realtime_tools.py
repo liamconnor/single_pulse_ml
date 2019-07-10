@@ -185,7 +185,7 @@ class RealtimeProc:
         return data_classify
 
     def dm_transform(self, data, freq, dt=8.192e-5, dm_max=20, 
-                     dm_min=0, ndm=64, freq_ref=None):
+                     dm_min=0, dm0=None, ndm=64, freq_ref=None):
         """ Transform freq/time data to dm/time data.                                                    
         """
 
@@ -202,7 +202,12 @@ class RealtimeProc:
             ntime = data.shape[-1]
             ntab = data.shape[0]
 
-        dms = np.linspace(dm_min, dm_max, ndm)
+        dms = np.linspace(dm_min, dm_max, ndm, endpoint=True)
+
+        if dm0 is not None:
+            dm_max_jj = np.argmin(abs(dms-dm0))
+            dms += (dm0-dms[dm_max_jj])
+            #dms[0] = max(0, dms[0])
 
         data_full = np.zeros([ntab, ndm, ntime])
         times = np.linspace(-0.5*ntime*dt, 0.5*ntime*dt, ntime)
