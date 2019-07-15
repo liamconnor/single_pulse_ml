@@ -179,13 +179,33 @@ def plot_ranked_trigger(data, prob_arr, h=6, w=6,
                 #    cmap=cmap, interpolation='nearest', 
                 #    aspect='auto', vmin=vmin, vmax=vmax, 
                 #    extent=extent)
-                #plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+                #plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)=
                 ax.imshow(data[ranking[ii]], 
                     cmap=cmap, interpolation='nearest', 
                     aspect='auto', vmin=vmin, vmax=vmax, 
                     extent=extent)
                 ax.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
                 ax.set_xlim(0, times[-1, ii])
+                ax.set_xticks([])
+                ax.set_yticks([])
+
+                if dms[ii]>DMgal:
+                    plt.setp(ax.spines.values(), color='red', linewidth=2, alpha=0.85)
+
+            elif yaxlabel=='DM':
+#                extent = [times[0, ii], times[-1, ii], freq_low, freq_up]
+                extent = [0,1,0,1]
+                #plt.imshow(data[ranking[ii]], 
+                #    cmap=cmap, interpolation='nearest', 
+                #    aspect='auto', vmin=vmin, vmax=vmax, 
+                #    extent=extent)
+                #plt.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+                ax.imshow(data[ranking[ii]], 
+                    cmap=cmap, interpolation='nearest', 
+                    aspect='auto', vmin=-2, vmax=5, 
+                    extent=extent)
+                #ax.plot(DM0_delays[:, ii], freqs, c='r', lw='2', alpha=0.5)
+                #ax.set_xlim(0, times[-1, ii])
                 ax.set_xticks([])
                 ax.set_yticks([])
 
@@ -270,7 +290,7 @@ def plot_multiple_ranked(argin, nside=5, fnfigout='ranked_trig',
     params_ = params[ind]
     tab_ = tab[ind]
 
-    for ii in range(int(np.ceil(ntrig//nside**2))):
+    for ii in range(int(np.ceil(ntrig/nside**2))):
         print("Plotting %d/%d" % (ii, ntrig//nside**2))
         data_sub = data[nside**2*ii:nside**2*(ii+1),...,0]
         prob_sub = probability_[nside**2*ii:nside**2*(ii+1)]
