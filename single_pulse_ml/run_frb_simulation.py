@@ -31,10 +31,12 @@ NSIDE = 8
 dm_time_array = False
 outname_tag = 'apertif_250'
 
-#fn_rfi = './data/pathfinder_training_data/all_rfi_november17/data_rfi_shuffled.hdf5'
-fn_rfi = './data/arts_FPs_33583.hdf5'
-fn_noise = './data/apertif_background3669.npy'
-#fn_rfi = './data/arts_fps_5000.npy'
+#fn_rfi = './data/arts_FPs_33583.hdf5'
+#fn_noise = './data/apertif_background3669.npy'
+
+# If no background data available, use None option
+fn_rfi = None # Use Gaussian noise as false positive data
+fn_noise = None # Use Gaussian noise for simulated FRBs
 
 sim_obj = sim_parameters.SimParams(dm=dm, fluence=fluence,
                                    width=width, spec_ind=spec_ind,
