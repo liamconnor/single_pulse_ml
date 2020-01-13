@@ -5,12 +5,6 @@
     'labels', 'data_freq_time', 'data_dm_time'. 
     They can be read by single_pulse_ml.reader.read_hdf5
 
-    --How can this be made more portable? 
-    --What data inputs should it be able to accept? 
-    --Should it have a filterbank reader / dedisperser like 
-    in triggers.py? maybe, not clear
-    --Should I make a separate script for classification only? probably
-
 """
 import sys
 
